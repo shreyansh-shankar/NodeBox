@@ -1,0 +1,54 @@
+/* Set global font and background */
+* {
+    font-family: "Poppins", sans-serif;
+    color: #E0E0E0;
+    background: transparent;
+}
+
+QMainWindow {
+    background-color: #3A3A3A;
+}
+
+QWidget {
+    background-color: #3A3A3A;
+    color: #E0E0E0;
+}
+
+QPushButton {
+    background-color: rgb(40, 40, 40);
+    border: 1px solid #2A2A2A;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+QPushButton:hover {
+    background-color:rgb(22, 22, 22);
+}
+
+QPushButton:pressed {
+    background-color:rgb(20, 20, 20);
+}
+
+QLabel {
+    color: #FFFFFF;
+    font-size: 16px;
+}
+
+QScrollArea {
+    border: none;
+}
+
+QLineEdit, QTextEdit, QPlainTextEdit {
+    background-color: #1E1E1E;
+    color: #E0E0E0;
+    border: 1px solid #2A2A2A;
+    padding: 6px;
+    border-radius: 4px;
+}
+
+/* Optional for QGroupBox or others */
+QGroupBox {
+    border: 1px solid #2A2A2A;
+    margin-top: 10px;
+}
