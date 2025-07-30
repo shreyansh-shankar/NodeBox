@@ -49,7 +49,7 @@ class ModelCard(QFrame):
         description = QLabel(model_data.get("description", ""))
         description.setStyleSheet("color: #aaaaaa; font-size: 12px; border: none;")
         description.setWordWrap(True)
-        description.setMaximumHeight(48)
+        description.setMaximumHeight(96)
 
         info_layout.addWidget(name)
         info_layout.addWidget(description)
@@ -67,7 +67,7 @@ class ModelCard(QFrame):
             tag_label = QLabel(tag)
             tag_label.setStyleSheet("""
                 background-color: #274049;
-                color: #c0c0c0;
+                color: #eeeeee;
                 border-radius: 6px;
                 padding: 2px 8px;
                 font-size: 11px;
@@ -81,7 +81,7 @@ class ModelCard(QFrame):
             size_label = QLabel(size)
             size_label.setStyleSheet("""
                 background-color: #2e4927;
-                color: #aaa;
+                color: #eeeeee;
                 border-radius: 6px;
                 padding: 2px 8px;
                 font-size: 11px;
