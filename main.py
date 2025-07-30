@@ -1,6 +1,6 @@
 import sys
-from PyQt6.QtWidgets import QApplication
-from PyQt6.QtGui import QFontDatabase
+from PyQt6.QtWidgets import QApplication #type: ignore
+from PyQt6.QtGui import QFontDatabase #type: ignore
 from utils.font_loader import load_custom_fonts, set_default_font
 from ui.main_window import MainWindow
 import os

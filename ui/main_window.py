@@ -1,11 +1,11 @@
-from PyQt6.QtWidgets import (
+from PyQt6.QtWidgets import ( #type: ignore
     QWidget, QVBoxLayout, QLabel, QPushButton,
     QListWidget, QListWidgetItem, QHBoxLayout, QGraphicsDropShadowEffect, QSizePolicy
 )
-from PyQt6.QtSvgWidgets import QSvgWidget
-from PyQt6.QtSvg import QSvgRenderer
-from PyQt6.QtGui import QFont, QIcon, QPixmap, QPainter
-from PyQt6.QtCore import Qt, QPoint
+from PyQt6.QtSvgWidgets import QSvgWidget #type: ignore
+from PyQt6.QtSvg import QSvgRenderer #type: ignore
+from PyQt6.QtGui import QFont, QIcon, QPixmap, QPainter #type: ignore
+from PyQt6.QtCore import Qt, QPoint #type: ignore
 
 from ui.browsemodel_window import BrowseModelsWindow
 
@@ -19,7 +19,7 @@ class MainWindow(QWidget):
         self.setLayout(self.main_layout)
 
         # 🧠 Title
-        title = QLabel("🧠 NodeBox")
+        title = QLabel("NodeBox")
         title.setFont(QFont("Poppins", 24))
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.main_layout.addWidget(title)
