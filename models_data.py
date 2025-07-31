@@ -183,7 +183,7 @@ models = [
     },
     {
         "name": "dolphin3",
-        "icon": "assets/models_logo/dolphin3.png",
+        "icon": "assets/models_logo/dolphin.png",
         "description": "Dolphin 3.0 Llama 3.1 8B 🐬 is the next generation of the Dolphin series for general purpose use, including coding and agentic reasoning.",
         "tags": ["dolphin"],
         "sizes": ["8b"]
@@ -246,7 +246,7 @@ models = [
     },
     {
         "name": "llama2-uncensored",
-        "icon": "assets/models_logo/llama2.png",
+        "icon": "assets/models_logo/llama.png",
         "description": "Uncensored Llama 2 model by George Sung and Jarrad Hope.",
         "tags": ["llama"],
         "sizes": ["7b", "70b"]
@@ -260,7 +260,7 @@ models = [
     },
     {
         "name": "starcoder2",
-        "icon": "assets/models_logo/star.png",
+        "icon": "assets/models_logo/starcoder.png",
         "description": "StarCoder2 is the next generation of transparently trained open code LLMs.",
         "tags": ["star"],
         "sizes": ["3b", "7b", "15b"]
@@ -274,7 +274,7 @@ models = [
     },
     {
         "name": "all-minilm",
-        "icon": "assets/models_logo/minilm.png",
+        "icon": "assets/models_logo/phi.png",
         "description": "Embedding models trained on very large sentence-level datasets.",
         "tags": ["minilm", "embedding"],
         "sizes": ["22m", "33m"]
@@ -330,7 +330,7 @@ models = [
     },
     {
         "name": "orca-mini",
-        "icon": "assets/models_logo/orca-mini.png",
+        "icon": "assets/models_logo/phi.png",
         "description": "A general-purpose model for entry-level hardware ranging from 3B to 70B.",
         "tags": [],
         "sizes": ["3b", "7b", "13b", "70b"]
@@ -400,10 +400,10 @@ models = [
     },
     {
         "name": "zephyr",
-        "icon": "assets/models_logo/zephyr.png",
+        "icon": "assets/models_logo/zephyr.jpeg",
         "description": "Zephyr is a series of fine-tuned Mistral and Mixtral models trained as helpful assistants.",
         "tags": ["zephyr"],
         "sizes": ["7b", "141b"]
     },
-    
+
 ]
