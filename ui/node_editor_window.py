@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QMainWindow, QWidget, QLabel, QVBoxLayout, QMessageBox
+from PyQt6.QtWidgets import QMainWindow, QWidget, QLabel, QVBoxLayout, QMessageBox, QHBoxLayout, QFrame, QLineEdit
 from PyQt6.QtCore import Qt, pyqtSignal
 import os, json
 
@@ -25,16 +25,44 @@ class NodeEditorWindow(QMainWindow):
         self.setup_ui()
 
     def setup_ui(self):
-        central_widget = QWidget()
-        layout = QVBoxLayout()
-
-        label = QLabel(f"Editing Automation: {self.automation_name}")
-        layout.addWidget(label)
-
-        # TODO: Add your actual canvas/widget where nodes appear
-
-        central_widget.setLayout(layout)
+        self.setWindowTitle(f"Editing Automation: {self.automation_name}")
+        central_widget = QWidget(self)
         self.setCentralWidget(central_widget)
+
+        # === MAIN LAYOUT ===
+        main_layout = QHBoxLayout(central_widget)
+
+        # === SIDEBAR (Left Panel) ===
+        sidebar = QFrame()
+        sidebar.setFixedWidth(250)
+        sidebar.setStyleSheet("background-color: #202020;")
+        sidebar_layout = QVBoxLayout(sidebar)
+
+        # Search Bar
+        search_bar = QLineEdit()
+        search_bar.setPlaceholderText("Search nodes...")
+        search_bar.setStyleSheet("padding: 5px; font-size: 14px; background-color: #333333")
+        sidebar_layout.addWidget(search_bar)
+
+        sidebar_layout.addStretch()
+        main_layout.addWidget(sidebar)
+
+        # === RIGHT SIDE: Label + Canvas ===
+        right_panel = QWidget()
+        right_layout = QVBoxLayout(right_panel)
+
+        # Label
+        label = QLabel(f"Editing Automation: {self.automation_name}")
+        label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        label.setStyleSheet("font-size: 18px; font-weight: bold; padding: 5px;")
+        right_layout.addWidget(label)
+
+        # Canvas
+        self.canvas_widget = QWidget()
+        self.canvas_widget.setStyleSheet("background-color: #202020;")
+        right_layout.addWidget(self.canvas_widget, stretch=1)
+
+        main_layout.addWidget(right_panel, stretch=1)
 
 
     def load_automation(self):
