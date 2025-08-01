@@ -30,5 +30,3 @@ for path in [APP_DATA_DIR, AUTOMATIONS_DIR, CONFIG_DIR, CACHE_DIR, LOGS_DIR]:
 # Common files
 AUTOMATIONS_FILE = AUTOMATIONS_DIR / "automations.json"
 CONFIG_FILE = CONFIG_DIR / "settings.json"
-
-print(f"✅ NodeBox data directories ensured at: {APP_DATA_DIR}")

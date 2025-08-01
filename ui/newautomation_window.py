@@ -68,6 +68,8 @@ class NewAutomationWindow(QWidget):
             with open(file_path, "w") as f:
                 json.dump({}, f, indent=4)
             
+            self.main_window.load_automations()
+
             # Open Node Editor
             self.node_editor = NodeEditorWindow(name)
             self.node_editor.closed.connect(self.reopen_main_window)

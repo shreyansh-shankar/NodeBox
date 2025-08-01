@@ -8,7 +8,7 @@ class NodeEditorWindow(QWidget):
     def __init__(self, automation_name):
         super().__init__()
         self.setWindowTitle(f"Automation: {automation_name}")
-        self.setMinimumSize(800, 600)
+        self.setMinimumSize(1600, 900)
         self.setStyleSheet("background-color: #121212; color: white;")
 
         layout = QVBoxLayout(self)

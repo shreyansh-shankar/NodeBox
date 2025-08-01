@@ -225,6 +225,7 @@ class MainWindow(QWidget):
     def create_new_automation(self):
         self.new_automation_window = NewAutomationWindow(main_window=self)
         self.new_automation_window.show()
+    
     def resizeEvent(self, event):
         super().resizeEvent(event)
         margin = 20
