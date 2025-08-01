@@ -8,6 +8,9 @@ from PyQt6.QtGui import QFont, QIcon, QPixmap, QPainter #type: ignore
 from PyQt6.QtCore import Qt, QPoint #type: ignore
 
 from ui.browsemodel_window import BrowseModelsWindow
+from ui.newautomation_window import NewAutomationWindow
+from utils.paths import AUTOMATIONS_FILE, CONFIG_FILE
+
 
 class MainWindow(QWidget):
     def __init__(self):
@@ -192,8 +195,8 @@ class MainWindow(QWidget):
             self.empty_state_widget.hide()
 
     def create_new_automation(self):
-        print("Create New Automation clicked!")  # Will connect later
-
+        self.new_automation_window = NewAutomationWindow()
+        self.new_automation_window.show()
     def resizeEvent(self, event):
         super().resizeEvent(event)
         margin = 20
