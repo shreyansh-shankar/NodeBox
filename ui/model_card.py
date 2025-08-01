@@ -1,20 +1,34 @@
 # model_card.py
 
 from PyQt6.QtWidgets import QWidget, QLabel, QVBoxLayout, QHBoxLayout, QFrame #type: ignore
-from PyQt6.QtGui import QPixmap, QFont #type: ignore
-from PyQt6.QtCore import Qt #type: ignore
+from PyQt6.QtGui import QPixmap, QFont, QCursor, QDesktopServices #type: ignore
+from PyQt6.QtCore import Qt, QUrl #type: ignore
 
 class ModelCard(QFrame):
     def __init__(self, model_data, parent=None):
         super().__init__(parent)
         self.model = model_data
+
+        self.setObjectName("ModelCard")
         self.setFixedSize(480, 240)
+        self.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        self.setMouseTracking(True)
+
         self.setStyleSheet("""
             QFrame {
                 border: 1px solid #3c3c3c;
                 border-radius: 18px;
                 padding: 12px;
                 background-color: #1a1a1a;
+            }
+            #ModelCard {
+                border: 1px solid #3c3c3c;
+                border-radius: 18px;
+                padding: 12px;
+                background-color: #1a1a1a;
+            }
+            #ModelCard:hover {
+                background-color: #232323;
             }
         """)
         
@@ -96,3 +110,9 @@ class ModelCard(QFrame):
         main_layout.addLayout(top_layout)
         main_layout.addStretch()
         main_layout.addLayout(bottom_layout)
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            model_name = self.model["name"].lower().replace(" ", "-")
+            url = QUrl(f"https://ollama.com/library/{model_name}")
+            QDesktopServices.openUrl(url)

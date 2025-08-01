@@ -435,21 +435,21 @@ models = [
     },
     {
         "name": "wizard-vicuna-uncensored",
-        "icon": "assets/models_logo/wizard.png",
+        "icon": "assets/models_logo/wizardlm.png",
         "description": "Uncensored versions of Llama 2 by Eric Hartford, with 7B, 13B, and 30B parameters.",
         "tags": [],
         "sizes": ["7b", "13b", "30b"]
     },
     {
         "name": "devstral",
-        "icon": "assets/models_logo/devstral.png",
+        "icon": "assets/models_logo/mistral.png",
         "description": "Devstral: the best open source model for coding agents.",
         "tags": ["tools"],
         "sizes": ["24b"]
     },
     {
         "name": "magistral",
-        "icon": "assets/models_logo/magistral.png",
+        "icon": "assets/models_logo/mistral.png",
         "description": "Small, efficient reasoning model with 24B parameters.",
         "tags": ["tools", "thinking"],
         "sizes": ["24b"]
@@ -477,7 +477,7 @@ models = [
     },
     {
         "name": "vicuna",
-        "icon": "assets/models_logo/vicuna.png",
+        "icon": "assets/models_logo/vicuna.jpeg",
         "description": "General use chat model based on Llama and Llama 2 with 2K to 16K context sizes.",
         "tags": [],
         "sizes": ["7b", "13b", "33b"]
@@ -505,14 +505,14 @@ models = [
     },
     {
         "name": "mistral-openorca",
-        "icon": "assets/models_logo/openorca.png",
+        "icon": "assets/models_logo/phi.png",
         "description": "A 7B model fine-tuned with OpenOrca dataset on top of Mistral for improved instruction following.",
         "tags": [],
         "sizes": ["7b"]
     },
     {
         "name": "codegeex4",
-        "icon": "assets/models_logo/codegeex4.png",
+        "icon": "assets/models_logo/codegeex.png",
         "description": "Versatile model for AI-assisted software development and code completion.",
         "tags": ["code"],
         "sizes": ["9b"]
@@ -533,7 +533,7 @@ models = [
     },
     {
         "name": "openhermes",
-        "icon": "assets/models_logo/openhermes.png",
+        "icon": "assets/models_logo/hermes.png",
         "description": "OpenHermes 2.5 is a 7B model trained on open datasets, designed for chat and reasoning tasks.",
         "tags": [],
         "sizes": ["7b"]
@@ -547,7 +547,7 @@ models = [
     },
     {
         "name": "codeqwen",
-        "icon": "assets/models_logo/codeqwen.png",
+        "icon": "assets/models_logo/qwen.png",
         "description": "CodeQwen1.5 is pretrained on extensive code datasets for software generation.",
         "tags": ["code"],
         "sizes": ["7b"]
@@ -568,7 +568,7 @@ models = [
     },
     {
         "name": "aya",
-        "icon": "assets/models_logo/aya.png",
+        "icon": "assets/models_logo/command.png",
         "description": "Aya is a multilingual model supporting 23 languages with competitive performance.",
         "tags": [],
         "sizes": ["8b", "35b"]
@@ -589,7 +589,7 @@ models = [
     },
     {
         "name": "glm4",
-        "icon": "assets/models_logo/glm.png",
+        "icon": "assets/models_logo/codegeex.png",
         "description": "GLM4 is a strong multilingual LLM with performance competitive with Llama 3.",
         "tags": [],
         "sizes": ["9b"]
@@ -603,28 +603,28 @@ models = [
     },
     {
         "name": "nous-hermes2",
-        "icon": "assets/models_logo/nous.png",
+        "icon": "assets/models_logo/hermes.png",
         "description": "Family of models by Nous Research tailored for science and code.",
         "tags": [],
         "sizes": ["10.7b", "34b"]
     },
     {
         "name": "wizardcoder",
-        "icon": "assets/models_logo/wizardcoder.png",
+        "icon": "assets/models_logo/wizardlm.png",
         "description": "High-performance model for code generation tasks.",
         "tags": ["code"],
         "sizes": ["33b"]
     },
     {
         "name": "command-r-plus",
-        "icon": "assets/models_logo/command-r.png",
+        "icon": "assets/models_logo/command.png",
         "description": "Scalable enterprise-grade LLM optimized for real-world use cases.",
         "tags": ["tools"],
         "sizes": ["104b"]
     },
     {
         "name": "bakllava",
-        "icon": "assets/models_logo/bakllava.png",
+        "icon": "assets/models_logo/llava.png",
         "description": "Multimodal model based on Mistral 7B with the LLaVA architecture.",
         "tags": ["vision"],
         "sizes": ["7b"]
@@ -645,7 +645,7 @@ models = [
     },
     {
         "name": "stablelm2",
-        "icon": "assets/models_logo/stablelm.png",
+        "icon": "assets/models_logo/stablecode.png",
         "description": "StableLM 2 models trained on multilingual data with high performance.",
         "tags": [],
         "sizes": ["1.6b", "12b"]
@@ -666,7 +666,7 @@ models = [
     },
     {
         "name": "llama3-chatqa",
-        "icon": "assets/models_logo/llama3.png",
+        "icon": "assets/models_logo/llama.png",
         "description": "A model from NVIDIA based on Llama 3 that excels at conversational question answering (QA) and retrieval-augmented generation (RAG).",
         "tags": ["llama3", "qa", "rag"],
         "sizes": ["8b", "70b"]
@@ -687,14 +687,14 @@ models = [
     },
     {
         "name": "wizard-math",
-        "icon": "assets/models_logo/wizardmath.png",
+        "icon": "assets/models_logo/wizardlm.png",
         "description": "Model focused on math and logic problems.",
         "tags": ["math"],
         "sizes": ["7b", "13b", "70b"]
     },
     {
         "name": "llava-phi3",
-        "icon": "assets/models_logo/phi3.png",
+        "icon": "assets/models_logo/phi.png",
         "description": "A new small LLaVA model fine-tuned from Phi 3 Mini.",
         "tags": ["vision"],
         "sizes": ["3.8b"]
@@ -715,7 +715,7 @@ models = [
     },
     {
         "name": "llama3-gradient",
-        "icon": "assets/models_logo/llama3.png",
+        "icon": "assets/models_logo/llama.png",
         "description": "This model extends LLama-3 8B's context length from 8k to over 1M tokens.",
         "tags": [],
         "sizes": ["8b", "70b"]
@@ -785,7 +785,7 @@ models = [
     },
     {
         "name": "phind-codellama",
-        "icon": "assets/models_logo/phind.png",
+        "icon": "assets/models_logo/llama.png",
         "description": "Code generation model based on Code Llama.",
         "tags": ["coding"],
         "sizes": ["34b"]
@@ -806,21 +806,21 @@ models = [
     },
     {
         "name": "internlm2",
-        "icon": "assets/models_logo/internlm2.png",
+        "icon": "assets/models_logo/internlm.png",
         "description": "InternLM2.5 is a 7B parameter model tailored for practical scenarios with outstanding reasoning capability.",
         "tags": [],
         "sizes": ["1m", "1.8b", "7b", "20b"]
     },
     {
         "name": "deepscaler",
-        "icon": "assets/models_logo/deepscaler.png",
+        "icon": "assets/models_logo/deepseek.png",
         "description": "A fine-tuned version of Deepseek-R1-Distilled-Qwen-1.5B that surpasses the performance of OpenAI’s o1-preview with just 1.5B parameters on popular math evaluations.",
         "tags": [],
         "sizes": ["1.5b"]
     },
     {
         "name": "athene-v2",
-        "icon": "assets/models_logo/athene-v2.png",
+        "icon": "assets/models_logo/athene.png",
         "description": "Athene-V2 is a 72B parameter model which excels at code completion, mathematics, and log extraction tasks.",
         "tags": ["tools"],
         "sizes": ["72b"]
@@ -834,7 +834,7 @@ models = [
     },
     {
         "name": "yarn-llama2",
-        "icon": "assets/models_logo/yarn-llama2.png",
+        "icon": "assets/models_logo/llama.png",
         "description": "An extension of Llama 2 that supports a context of up to 128k tokens.",
         "tags": [],
         "sizes": ["7b", "13b"]
@@ -848,21 +848,21 @@ models = [
     },
     {
         "name": "dolphin-phi",
-        "icon": "assets/models_logo/dolphin-phi.png",
+        "icon": "assets/models_logo/dolphin.png",
         "description": "2.7B uncensored Dolphin model by Eric Hartford, based on the Phi language model by Microsoft Research.",
         "tags": [],
         "sizes": ["2.7b"]
     },
     {
         "name": "llama3-groq-tool-use",
-        "icon": "assets/models_logo/llama3-groq-tool-use.png",
+        "icon": "assets/models_logo/llama.png",
         "description": "A series of models from Groq that represent a significant advancement in open-source AI capabilities for tool use/function calling.",
         "tags": ["tools"],
         "sizes": ["8b", "70b"]
     },
     {
         "name": "exaone-deep",
-        "icon": "assets/models_logo/exaone-deep.png",
+        "icon": "assets/models_logo/exaone.png",
         "description": "EXAONE Deep exhibits superior capabilities in various reasoning tasks including math and coding benchmarks, ranging from 2.4B to 32B parameters developed and released by LG AI Research.",
         "tags": [],
         "sizes": ["2.4b", "7.8b", "32b"]
@@ -883,21 +883,21 @@ models = [
     },
     {
         "name": "wizardlm-uncensored",
-        "icon": "assets/models_logo/wizardlm-uncensored.png",
+        "icon": "assets/models_logo/wizardlm.png",
         "description": "Uncensored version of Wizard LM model.",
         "tags": [],
         "sizes": ["13b"]
     },
     {
         "name": "aya-expanse",
-        "icon": "assets/models_logo/aya-expanse.png",
+        "icon": "assets/models_logo/aya.png",
         "description": "Cohere For AI's language models trained to perform well across 23 different languages.",
         "tags": ["tools"],
         "sizes": ["8b", "32b"]
     },
     {
         "name": "orca2",
-        "icon": "assets/models_logo/orca2.png",
+        "icon": "assets/models_logo/orca.png",
         "description": "Orca 2 is built by Microsoft research, and are a fine-tuned version of Meta's Llama 2 models. The model is designed to excel particularly in reasoning.",
         "tags": [],
         "sizes": ["7b", "13b"]
@@ -911,35 +911,35 @@ models = [
     },
     {
         "name": "falcon3",
-        "icon": "assets/models_logo/falcon3.png",
+        "icon": "assets/models_logo/falcon.png",
         "description": "A family of efficient AI models under 10B parameters performant in science, math, and coding through innovative training techniques.",
         "tags": [],
         "sizes": ["1b", "3b", "7b", "10b"]
     },
     {
         "name": "llama-guard3",
-        "icon": "assets/models_logo/llama-guard3.png",
+        "icon": "assets/models_logo/llama.png",
         "description": "Llama Guard 3 is a series of models fine-tuned for content safety classification of LLM inputs and responses.",
         "tags": [],
         "sizes": ["1b", "8b"]
     },
     {
         "name": "granite-embedding",
-        "icon": "assets/models_logo/granite-embedding.png",
+        "icon": "assets/models_logo/granite.png",
         "description": "The IBM Granite Embedding 30M and 278M models are text-only dense biencoder embedding models, with 30M available in English only and 278M serving multilingual use cases.",
         "tags": ["embedding"],
         "sizes": ["30m", "278m"]
     },
     {
         "name": "medllama2",
-        "icon": "assets/models_logo/medllama2.png",
+        "icon": "assets/models_logo/llama.png",
         "description": "Fine-tuned Llama 2 model to answer medical questions based on an open source medical dataset.",
         "tags": [],
         "sizes": ["7b"]
     },
     {
         "name": "nous-hermes2-mixtral",
-        "icon": "assets/models_logo/nous-hermes2-mixtral.png",
+        "icon": "assets/models_logo/hermes.png",
         "description": "The Nous Hermes 2 model from Nous Research, now trained over Mixtral.",
         "tags": [],
         "sizes": ["8x7b"]
@@ -953,70 +953,70 @@ models = [
     },
     {
         "name": "meditron",
-        "icon": "assets/models_logo/meditron.png",
+        "icon": "assets/models_logo/llama.png",
         "description": "Open-source medical large language model adapted from Llama 2 to the medical domain.",
         "tags": [],
         "sizes": ["7b", "70b"]
     },
     {
         "name": "granite3-moe",
-        "icon": "assets/models_logo/granite3-moe.png",
+        "icon": "assets/models_logo/granite.png",
         "description": "The IBM Granite 1B and 3B models are the first mixture of experts (MoE) Granite models from IBM designed for low latency usage.",
         "tags": ["tools"],
         "sizes": ["1b", "3b"]
     },
     {
         "name": "r1-1776",
-        "icon": "assets/models_logo/r1-1776.png",
+        "icon": "assets/models_logo/deepseek.png",
         "description": "A version of the DeepSeek-R1 model that has been post trained to provide unbiased, accurate, and factual information by Perplexity.",
         "tags": [],
         "sizes": ["70b", "671b"]
     },
     {
         "name": "deepseek-v2.5",
-        "icon": "assets/models_logo/deepseek-v2.5.png",
+        "icon": "assets/models_logo/deepseek.png",
         "description": "An upgraded version of DeepSeek-V2 that integrates the general and coding abilities of both DeepSeek-V2-Chat and DeepSeek-Coder-V2-Instruct.",
         "tags": [],
         "sizes": ["236b"]
     },
     {
         "name": "granite3.1-moe",
-        "icon": "assets/models_logo/granite3.1-moe.png",
+        "icon": "assets/models_logo/granite.png",
         "description": "The IBM Granite 1B and 3B models are long-context mixture of experts (MoE) Granite models from IBM designed for low latency usage.",
         "tags": ["tools"],
         "sizes": ["1b", "3b"]
     },
     {
         "name": "reader-lm",
-        "icon": "assets/models_logo/reader-lm.png",
+        "icon": "assets/models_logo/reader.png",
         "description": "A series of models that convert HTML content to Markdown content, which is useful for content conversion tasks.",
         "tags": [],
         "sizes": ["0.5b", "1.5b"]
     },
     {
         "name": "mistral-small3.2",
-        "icon": "assets/models_logo/mistral-small3.2.png",
+        "icon": "assets/models_logo/mistral.png",
         "description": "An update to Mistral Small that improves on function calling, instruction following, and less repetition errors.",
         "tags": ["vision", "tools"],
         "sizes": ["24b"]
     },
     {
         "name": "llama-pro",
-        "icon": "assets/models_logo/llama-pro.png",
+        "icon": "assets/models_logo/llama.png",
         "description": "An expansion of Llama 2 that specializes in integrating both general language understanding and domain-specific knowledge, particularly in programming and mathematics.",
         "tags": [],
         "sizes": []
     },
     {
         "name": "yarn-mistral",
-        "icon": "assets/models_logo/yarn-mistral.png",
+        "icon": "assets/models_logo/mistral.png",
         "description": "An extension of Mistral to support context windows of 64K or 128K.",
         "tags": [],
         "sizes": ["7b"]
     },
     {
         "name": "shieldgemma",
-        "icon": "assets/models_logo/shieldgemma.png",
+        "icon": "assets/models_logo/gemma.png",
         "description": "ShieldGemma is a set of instruction tuned models for evaluating the safety of text prompt input and text output responses against a set of defined safety policies.",
         "tags": [],
         "sizes": ["2b", "9b", "27b"]
@@ -1030,77 +1030,77 @@ models = [
     },
     {
         "name": "command-r7b",
-        "icon": "assets/models_logo/command-r7b.png",
+        "icon": "assets/models_logo/command.png",
         "description": "The smallest model in Cohere's R series delivers top-tier speed, efficiency, and quality to build powerful AI applications on commodity GPUs and edge devices.",
         "tags": ["tools"],
         "sizes": ["7b"]
     },
     {
         "name": "mathstral",
-        "icon": "assets/models_logo/mathstral.png",
+        "icon": "assets/models_logo/mistral.png",
         "description": "MathΣtral: a 7B model designed for math reasoning and scientific discovery by Mistral AI.",
         "tags": [],
         "sizes": ["7b"]
     },
     {
         "name": "everythinglm",
-        "icon": "assets/models_logo/everythinglm.png",
+        "icon": "assets/models_logo/everythinglm.jpg",
         "description": "Uncensored Llama2 based model with support for a 16K context window.",
         "tags": [],
         "sizes": ["13b"]
     },
     {
         "name": "codeup",
-        "icon": "assets/models_logo/codeup.png",
+        "icon": "assets/models_logo/llama.png",
         "description": "Great code generation model based on Llama2.",
         "tags": [],
         "sizes": ["13b"]
     },
     {
         "name": "marco-o1",
-        "icon": "assets/models_logo/marco-o1.png",
+        "icon": "assets/models_logo/marco.png",
         "description": "An open large reasoning model for real-world solutions by the Alibaba International Digital Commerce Group (AIDC-AI).",
         "tags": [],
         "sizes": ["7b"]
     },
     {
         "name": "stablelm-zephyr",
-        "icon": "assets/models_logo/stablelm-zephyr.png",
+        "icon": "assets/models_logo/zephyr.jpeg",
         "description": "A lightweight chat model allowing accurate, and responsive output without requiring high-end hardware.",
         "tags": [],
         "sizes": ["3b"]
     },
     {
         "name": "tulu3",
-        "icon": "assets/models_logo/tulu3.png",
+        "icon": "assets/models_logo/tulu.png",
         "description": "Tülu 3 is a leading instruction following model family, offering fully open-source data, code, and recipes by the The Allen Institute for AI.",
         "tags": [],
         "sizes": ["8b", "70b"]
     },
     {
         "name": "solar-pro",
-        "icon": "assets/models_logo/solar-pro.png",
+        "icon": "assets/models_logo/solar.png",
         "description": "Solar Pro Preview: an advanced large language model (LLM) with 22 billion parameters designed to fit into a single GPU.",
         "tags": [],
         "sizes": ["22b"]
     },
     {
         "name": "duckdb-nsql",
-        "icon": "assets/models_logo/duckdb-nsql.png",
+        "icon": "assets/models_logo/duckdb.png",
         "description": "7B parameter text-to-SQL model made by MotherDuck and Numbers Station.",
         "tags": [],
         "sizes": ["7b"]
     },
     {
         "name": "falcon2",
-        "icon": "assets/models_logo/falcon2.png",
+        "icon": "assets/models_logo/falcon.png",
         "description": "Falcon2 is an 11B parameters causal decoder-only model built by TII and trained over 5T tokens.",
         "tags": [],
         "sizes": ["11b"]
     },
     {
         "name": "phi4-mini-reasoning",
-        "icon": "assets/models_logo/phi4-mini-reasoning.png",
+        "icon": "assets/models_logo/phi4.png",
         "description": "Phi 4 mini reasoning is a lightweight open model that balances efficiency with advanced reasoning ability.",
         "tags": [],
         "sizes": ["3.8b"]
@@ -1114,7 +1114,7 @@ models = [
     },
     {
         "name": "mistrallite",
-        "icon": "assets/models_logo/mistrallite.png",
+        "icon": "assets/models_logo/mistral.png",
         "description": "MistralLite is a fine-tuned model based on Mistral with enhanced capabilities of processing long contexts.",
         "tags": [],
         "sizes": ["7b"]
@@ -1128,35 +1128,35 @@ models = [
     },
     {
         "name": "bespoke-minicheck",
-        "icon": "assets/models_logo/bespoke-minicheck.png",
+        "icon": "assets/models_logo/bespoke.png",
         "description": "A state-of-the-art fact-checking model developed by Bespoke Labs.",
         "tags": [],
         "sizes": ["7b"]
     },
     {
         "name": "wizard-vicuna",
-        "icon": "assets/models_logo/wizard-vicuna.png",
+        "icon": "assets/models_logo/vicuna.jpeg",
         "description": "Wizard Vicuna is a 13B parameter model based on Llama 2 trained by MelodysDreamj.",
         "tags": [],
         "sizes": ["13b"]
     },
     {
         "name": "nuextract",
-        "icon": "assets/models_logo/nuextract.png",
+        "icon": "assets/models_logo/phi.png",
         "description": "A 3.8B model fine-tuned on a private high-quality synthetic dataset for information extraction, based on Phi-3.",
         "tags": [],
         "sizes": ["3.8b"]
     },
     {
         "name": "granite3-guardian",
-        "icon": "assets/models_logo/granite3-guardian.png",
+        "icon": "assets/models_logo/granite.png",
         "description": "The IBM Granite Guardian 3.0 2B and 8B models are designed to detect risks in prompts and/or responses.",
         "tags": [],
         "sizes": ["2b", "8b"]
     },
     {
         "name": "megadolphin",
-        "icon": "assets/models_logo/megadolphin.png",
+        "icon": "assets/models_logo/dolphin.png",
         "description": "MegaDolphin-2.2-120b is a transformation of Dolphin-2.2-70b created by interleaving the model with itself.",
         "tags": [],
         "sizes": ["120b"]
@@ -1170,7 +1170,7 @@ models = [
     },
     {
         "name": "open-orca-platypus2",
-        "icon": "assets/models_logo/open-orca-platypus2.png",
+        "icon": "assets/models_logo/open-orca.png",
         "description": "Merge of the Open Orca OpenChat model and the Garage-bAInd Platypus 2 model. Designed for chat and code generation.",
         "tags": [],
         "sizes": ["13b"]
@@ -1184,7 +1184,7 @@ models = [
     },
     {
         "name": "command-a",
-        "icon": "assets/models_logo/command-a.png",
+        "icon": "assets/models_logo/command.png",
         "description": "111 billion parameter model optimized for demanding enterprises that require fast, secure, and high-quality AI.",
         "tags": ["tools"],
         "sizes": ["111b"]
@@ -1198,14 +1198,14 @@ models = [
     },
     {
         "name": "sailor2",
-        "icon": "assets/models_logo/sailor2.png",
+        "icon": "assets/models_logo/sailor.png",
         "description": "Sailor2 are multilingual language models made for South-East Asia. Available in 1B, 8B, and 20B parameter sizes.",
         "tags": [],
         "sizes": ["1b", "8b", "20b"]
     },
     {
         "name": "firefunction-v2",
-        "icon": "assets/models_logo/firefunction-v2.png",
+        "icon": "assets/models_logo/firefunction.png",
         "description": "An open weights function calling model based on Llama 3, competitive with GPT-4o function calling capabilities.",
         "tags": ["tools"],
         "sizes": ["70b"]
@@ -1219,7 +1219,7 @@ models = [
     },
     {
         "name": "command-r7b-arabic",
-        "icon": "assets/models_logo/command-r7b-arabic.png",
+        "icon": "assets/models_logo/command.png",
         "description": "A new state-of-the-art version of the lightweight Command R7B model that excels in advanced Arabic language capabilities for enterprises in the Middle East and Northern Africa.",
         "tags": ["tools"],
         "sizes": ["7b"]
