@@ -2,6 +2,8 @@ from PyQt6.QtWidgets import QMainWindow, QWidget, QLabel, QVBoxLayout, QMessageB
 from PyQt6.QtCore import Qt, pyqtSignal
 import os, json
 
+from ui.canvas_widget import CanvasWidget
+
 class NodeEditorWindow(QMainWindow):
 
     closed = pyqtSignal()
@@ -58,8 +60,7 @@ class NodeEditorWindow(QMainWindow):
         right_layout.addWidget(label)
 
         # Canvas
-        self.canvas_widget = QWidget()
-        self.canvas_widget.setStyleSheet("background-color: #202020;")
+        self.canvas_widget = CanvasWidget()
         right_layout.addWidget(self.canvas_widget, stretch=1)
 
         main_layout.addWidget(right_panel, stretch=1)
