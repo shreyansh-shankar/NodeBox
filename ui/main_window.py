@@ -123,6 +123,8 @@ class MainWindow(QWidget):
             self.automation_list.addItem(list_item)
             self.automation_list.setItemWidget(list_item, item_widget)
 
+            edit_button.clicked.connect(lambda _, n=name: self.edit_automation(n))
+
     def fetch_automations(self):
         automations = []
 
@@ -141,6 +143,14 @@ class MainWindow(QWidget):
 
         return automations
     
+    def edit_automation(self, name):
+        from ui.node_editor_window import NodeEditorWindow
+
+        self.editor_window = NodeEditorWindow(name)
+        self.editor_window.closed.connect(self.show)
+        self.editor_window.show()
+        self.hide()
+
     def show_empty_state(self):
         self.automation_list.hide()
         if hasattr(self, 'empty_state_widget'):

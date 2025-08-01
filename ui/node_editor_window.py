@@ -1,20 +1,75 @@
-from PyQt6.QtWidgets import QWidget, QLabel, QVBoxLayout
+from PyQt6.QtWidgets import QMainWindow, QWidget, QLabel, QVBoxLayout, QMessageBox
 from PyQt6.QtCore import Qt, pyqtSignal
+import os, json
 
-class NodeEditorWindow(QWidget):
+class NodeEditorWindow(QMainWindow):
 
     closed = pyqtSignal()
 
-    def __init__(self, automation_name):
+    def __init__(self, automation_name=None):
         super().__init__()
+        self.automation_name = automation_name
         self.setWindowTitle(f"Automation: {automation_name}")
         self.setMinimumSize(1600, 900)
-        self.setStyleSheet("background-color: #121212; color: white;")
+        self.setStyleSheet("background-color: #2a2a2a; color: white;")
 
         layout = QVBoxLayout(self)
         label = QLabel(f"Node Editor for: {automation_name}")
         label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(label)
+
+        # Load existing automation data
+        self.automation_data = self.load_automation()
+        print("Loaded automation data:", self.automation_data)
+
+        self.setup_ui()
+
+    def setup_ui(self):
+        central_widget = QWidget()
+        layout = QVBoxLayout()
+
+        label = QLabel(f"Editing Automation: {self.automation_name}")
+        layout.addWidget(label)
+
+        # TODO: Add your actual canvas/widget where nodes appear
+
+        central_widget.setLayout(layout)
+        self.setCentralWidget(central_widget)
+
+
+    def load_automation(self):
+        path = os.path.expanduser(f"~/.nodebox/automations/{self.automation_name}.json")
+        if not os.path.exists(path):
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(path, 'w') as f:
+                json.dump({"nodes": [], "connections": []}, f, indent=2)
+        
+        try:
+            with open(path, 'r+') as f:
+                try:
+                    data = json.load(f)
+                    changed = False
+                    if "nodes" not in data:
+                        data["nodes"] = []
+                        changed = True
+                    if "connections" not in data:
+                        data["connections"] = []
+                        changed = True
+                    if changed:
+                        f.seek(0)
+                        json.dump(data, f, indent=2)
+                        f.truncate()
+                    return data
+                except json.JSONDecodeError:
+                    # File is empty or corrupted
+                    data = {"nodes": [], "connections": []}
+                    f.seek(0)
+                    json.dump(data, f, indent=2)
+                    f.truncate()
+                    return data
+        except Exception as e:
+            print("Failed to read or initialize automation JSON:", e)
+            return {"nodes": [], "connections": []}
     
     def closeEvent(self, event):
         self.closed.emit()
