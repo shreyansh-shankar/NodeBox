@@ -97,4 +97,8 @@ class BrowseModelsWindow(QWidget):
 
     def open_filter_window(self):
         self.filter_window = FilterWindow(self)
+        self.filter_window = FilterWindow(self)  # Pass parent to keep it tied
+        # Calculate the global position of the filter button
+        button_pos = self.filter_button.mapToGlobal(self.filter_button.rect().bottomLeft())
+        self.filter_window.move(button_pos.x() - 250 , button_pos.y())  # Position it just below the button
         self.filter_window.show()

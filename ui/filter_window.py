@@ -1,15 +1,14 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTabWidget, QCheckBox, QHBoxLayout
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTabWidget, QCheckBox, QHBoxLayout, QPushButton, QScrollArea, QFrame
 from PyQt6.QtCore import Qt
-
 
 class FilterWindow(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Filter Options")
-        self.setFixedSize(400, 500)
+        self.setFixedSize(306, 300)
         self.setStyleSheet("background-color: #1e1e1e; color: white;")
 
-        layout = QVBoxLayout(self)
+        main_layout = QVBoxLayout(self)
 
         self.tabs = QTabWidget()
         self.tabs.setStyleSheet("""
@@ -29,31 +28,63 @@ class FilterWindow(QWidget):
             }
         """)
 
-        # --- Tags Tab ---
-        tags_tab = QWidget()
-        tags_layout = QVBoxLayout(tags_tab)
-        for tag in ["Chat", "Instruct", "Code", "Fun"]:
-            cb = QCheckBox(tag)
-            cb.setStyleSheet("color: white;")
-            tags_layout.addWidget(cb)
-        self.tabs.addTab(tags_tab, "Tags")
+        def create_scrollable_tab(items):
+            scroll_area = QScrollArea()
+            scroll_area.setWidgetResizable(True)
+            scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
-        # --- Company Tab ---
-        company_tab = QWidget()
-        company_layout = QVBoxLayout(company_tab)
-        for company in ["DeepSeek", "Mistral", "Hermes", "Llama", "Phi"]:
-            cb = QCheckBox(company)
-            cb.setStyleSheet("color: white;")
-            company_layout.addWidget(cb)
-        self.tabs.addTab(company_tab, "Company")
+            content_widget = QFrame()
+            content_layout = QVBoxLayout(content_widget)
+            for item in items:
+                cb = QCheckBox(item)
+                cb.setStyleSheet("color: white;")
+                content_layout.addWidget(cb)
+            content_layout.addStretch()
 
-        # --- Size Tab ---
-        size_tab = QWidget()
-        size_layout = QVBoxLayout(size_tab)
-        for size in ["Small", "Medium", "Large"]:
-            cb = QCheckBox(size)
-            cb.setStyleSheet("color: white;")
-            size_layout.addWidget(cb)
-        self.tabs.addTab(size_tab, "Size")
+            scroll_area.setWidget(content_widget)
+            return scroll_area
 
-        layout.addWidget(self.tabs)
+        # Tabs
+        self.tabs.addTab(create_scrollable_tab(["Chat", "Instruct", "Code", "Fun"]), "Tags")
+        self.tabs.addTab(create_scrollable_tab(["DeepSeek", "Mistral", "Hermes", "Llama", "Phi"]), "Company")
+        self.tabs.addTab(create_scrollable_tab(["Small", "Medium", "Large"]), "Size")
+
+        main_layout.addWidget(self.tabs)
+
+        # Buttons at the bottom
+        button_layout = QHBoxLayout()
+        apply_btn = QPushButton("Apply")
+        apply_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #2e7d32;
+                color: white;
+                padding: 6px 12px;
+                border-radius: 4px;
+            }
+            QPushButton:hover {
+                background-color: #388e3c;
+            }
+        """)
+        apply_btn.clicked.connect(self.apply_filters)
+
+        close_btn = QPushButton("Close")
+        close_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #c62828;
+                color: white;
+                padding: 6px 12px;
+                border-radius: 4px;
+            }
+            QPushButton:hover {
+                background-color: #e53935;
+            }
+        """)
+        close_btn.clicked.connect(self.close)
+
+        button_layout.addWidget(apply_btn, alignment=Qt.AlignmentFlag.AlignLeft)
+        button_layout.addWidget(close_btn, alignment=Qt.AlignmentFlag.AlignRight)
+        main_layout.addLayout(button_layout)
+
+    def apply_filters(self):
+        # You can insert filter logic here if needed
+        self.close()
