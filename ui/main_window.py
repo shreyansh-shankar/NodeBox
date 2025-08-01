@@ -9,8 +9,10 @@ from PyQt6.QtCore import Qt, QPoint #type: ignore
 
 from ui.browsemodel_window import BrowseModelsWindow
 from ui.newautomation_window import NewAutomationWindow
-from utils.paths import AUTOMATIONS_FILE, CONFIG_FILE
+from utils.paths import AUTOMATIONS_DIR
 
+import os
+import json
 
 class MainWindow(QWidget):
     def __init__(self):
@@ -44,9 +46,17 @@ class MainWindow(QWidget):
         # 🔁 Automation List
         self.main_layout.addWidget(QLabel("Your Automations:"))
         self.automation_list = QListWidget()
+        self.automation_list.setStyleSheet("""
+            QListWidget {
+                border: none;
+                padding: 5px;
+                margin: 0px;
+                background-color: transparent;
+            }
+        """)
         self.main_layout.addWidget(self.automation_list)
 
-        # 👉 Load sample automations (placeholder)
+        # 👉 Load sample automations
         self.load_automations()
 
         # 🧺 Floating Browse Models Button
@@ -78,15 +88,17 @@ class MainWindow(QWidget):
     def load_automations(self):
         self.automation_list.clear()
 
-        automations = self.fetch_automations()  # dummy for now
+        automations = self.fetch_automations()
 
         if not automations:
             self.show_empty_state()
             self.automation_list.setFixedHeight(0)
             return
 
-        self.automation_list.setFixedHeight(self.height() * 0.4)
-        self.clear_empty_state()  # hide empty state if showing
+        self.clear_empty_state()
+        self.automation_list.show()
+        self.automation_list.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        self.automation_list.setMinimumHeight(300)
 
         for name in automations:
             item_widget = QWidget()
@@ -112,9 +124,25 @@ class MainWindow(QWidget):
             self.automation_list.setItemWidget(list_item, item_widget)
 
     def fetch_automations(self):
-        return []
+        automations = []
+
+        if not AUTOMATIONS_DIR.exists():
+            return automations
+
+        for file in AUTOMATIONS_DIR.glob("*.json"):
+            try:
+                with open(file, "r") as f:
+                    data = json.load(f)
+                    name = data.get("name", file.stem)
+                    automations.append(name)
+            except Exception as e:
+                print(f"⚠️ Error loading {file.name}: {e}")
+                continue
+
+        return automations
     
     def show_empty_state(self):
+        self.automation_list.hide()
         if hasattr(self, 'empty_state_widget'):
             self.empty_state_widget.show()
             return
