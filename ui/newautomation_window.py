@@ -2,13 +2,14 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QMessageBox
 from PyQt6.QtCore import Qt
 
+from ui.node_editor_window import NodeEditorWindow
 from utils.storage import save_automation, load_automations
 from utils.paths import AUTOMATIONS_DIR
-import json
-import os
+import json, os
 
 class NewAutomationWindow(QWidget):
-    def __init__(self):
+    def __init__(self, main_window=None):
+        self.main_window = main_window
         super().__init__()
         self.setWindowTitle("Create New Automation")
         self.setFixedSize(400, 200)
@@ -66,6 +67,20 @@ class NewAutomationWindow(QWidget):
             # Create an empty JSON file
             with open(file_path, "w") as f:
                 json.dump({}, f, indent=4)
+            
+            # Open Node Editor
+            self.node_editor = NodeEditorWindow(name)
+            self.node_editor.closed.connect(self.reopen_main_window)
+            self.node_editor.show()
+
+            if self.main_window:
+                self.main_window.close()
+
+            # Close this window
             self.close()
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to create automation file:\n{str(e)}")
+
+    def reopen_main_window(self):
+        if self.main_window:
+            self.main_window.show()
