@@ -1,20 +1,14 @@
 from PyQt6.QtWidgets import QWidget, QLabel, QVBoxLayout
-from PyQt6.QtGui import QPainter, QColor, QPen
-from PyQt6.QtCore import Qt, QPoint, QPointF
+from PyQt6.QtGui import QPainter, QColor, QPen, QFont, QColor, QFontMetrics
+from PyQt6.QtCore import Qt, QPoint, QPointF, QRectF
 
 class NodeWidget(QWidget):
-    def __init__(self, title, canvas, pos=None):
+    def __init__(self, title, canvas, pos=None, inputs=None, outputs=None):
         super().__init__(canvas)
         self.canvas = canvas
         self.title = title
         self.logical_pos = pos if pos else QPointF(0, 0)
         self.setFixedSize(150, 80)
-        self._initUI()
-
-    def _initUI(self):
-        self.label = QLabel(self.title, self)
-        self.label.move(10, 10)
-        self.setStyleSheet("background-color: #333333; color: white; border: 1px solid #888888;")
 
     def update_position(self):
         """ Update screen position based on canvas pan and zoom """
@@ -23,10 +17,25 @@ class NodeWidget(QWidget):
         screen_pos = self.logical_pos * scale + offset
         self.move(screen_pos.toPoint())
         self.resize(self.sizeHint() * scale)
-
+    
     def paintEvent(self, event):
-        # Optional custom node painting
         painter = QPainter(self)
-        painter.setBrush(Qt.GlobalColor.lightGray)
-        painter.drawRect(self.rect())
-        painter.drawText(self.rect(), Qt.AlignmentFlag.AlignCenter, self.title)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+
+        # Background rectangle
+        rect = self.rect().adjusted(1, 1, -1, -1)
+        painter.setBrush(QColor(34, 34, 34))
+        painter.setPen(QPen(QColor(136, 136, 136), 2))
+        painter.drawRoundedRect(rect, 10, 10)
+
+        # Draw centered text
+        painter.setPen(QColor('white'))
+        font = QFont('Arial', 15)
+        font.setWeight(QFont.Weight.Bold)
+        painter.setFont(font)
+
+        text_rect = QRectF(rect)
+        text_height = QFontMetrics(font).height()
+        text_rect.setTop(rect.top() + (rect.height() - text_height) / 2)
+
+        painter.drawText(text_rect, Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop, self.title)
