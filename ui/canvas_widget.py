@@ -1,6 +1,8 @@
-from PyQt6.QtWidgets import QWidget
+from PyQt6.QtWidgets import QWidget, QInputDialog
 from PyQt6.QtGui import QPainter, QColor, QPen, QMouseEvent, QKeyEvent, QWheelEvent, QFont
-from PyQt6.QtCore import Qt, QRect, QPoint, QPointF
+from PyQt6.QtCore import Qt, QRect, QPoint, QPointF, QTimer
+
+from ui.node import NodeWidget
 
 class CanvasWidget(QWidget):
     def __init__(self, parent=None):
@@ -14,10 +16,15 @@ class CanvasWidget(QWidget):
         self.space_held = False
         self.last_mouse_pos = QPointF()
 
+        self.initial_centering_done = False
+        QTimer.singleShot(0, self.center_initial_view)
+
         self.scale = 1.0
 
         self.setMouseTracking(True)
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+
+        self.nodes = []
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -54,6 +61,7 @@ class CanvasWidget(QWidget):
         painter.setFont(QFont("Arial", 10))
         canvas_pos = self.mapFromGlobal(self.cursor().pos())
         canvas_pos = QPointF(canvas_pos)
+
         logical_pos = QPointF(
             (canvas_pos.x() - self.offset.x()) / self.scale,
             -(canvas_pos.y() - self.offset.y()) / self.scale  # Flip Y axis
@@ -66,13 +74,26 @@ class CanvasWidget(QWidget):
             self.drag_start = event.pos()
         if event.button() == Qt.MouseButton.MiddleButton or (event.button() == Qt.MouseButton.LeftButton and self.space_held):
             self.drag_start = event.pos()
+        if event.button() == Qt.MouseButton.RightButton:
+            name, ok = QInputDialog.getText(self, "Create Node", "Enter node name:")
+            if ok and name:
+                node = NodeWidget(name, self) 
+                canvas_pos = (event.position() - self.offset) / self.scale
+                node.logical_pos = canvas_pos
+                node.update_position()
+                self.nodes.append(node)
+                node.show()
 
     def mouseMoveEvent(self, event: QMouseEvent):
+        self.last_mouse_pos = event.position()
+
         if event.buttons() & Qt.MouseButton.LeftButton and self.space_held and self.drag_start:
             delta = QPointF(event.pos() - self.drag_start)
             self.offset += delta  # Invert to drag canvas
             self.drag_start = event.pos()
-            self.update()
+            for node in self.nodes:
+                node.update_position()
+        self.update()
 
     def mouseReleaseEvent(self, event: QMouseEvent):
         if event.button() == Qt.MouseButton.LeftButton:
@@ -110,3 +131,13 @@ class CanvasWidget(QWidget):
         self.offset = QPointF(self.offset) + (after_scale - before_scale) * self.scale
 
         self.update()
+
+        for node in self.nodes:
+                node.update_position()
+
+    def center_initial_view(self):
+        if not self.initial_centering_done:
+            self.offset = QPointF(self.width() / 2, self.height() / 2)
+            self.initial_centering_done = True
+            self.update()
+

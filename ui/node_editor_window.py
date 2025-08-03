@@ -15,11 +15,6 @@ class NodeEditorWindow(QMainWindow):
         self.setMinimumSize(1600, 900)
         self.setStyleSheet("background-color: #2a2a2a; color: white;")
 
-        layout = QVBoxLayout(self)
-        label = QLabel(f"Node Editor for: {automation_name}")
-        label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(label)
-
         # Load existing automation data
         self.automation_data = self.load_automation()
         print("Loaded automation data:", self.automation_data)
