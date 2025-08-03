@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import QWidget, QInputDialog
-from PyQt6.QtGui import QPainter, QColor, QPen, QMouseEvent, QKeyEvent, QWheelEvent, QFont
+from PyQt6.QtGui import QPainter, QColor, QPen, QMouseEvent, QKeyEvent, QWheelEvent, QFont, QPainterPath
 from PyQt6.QtCore import Qt, QRect, QPoint, QPointF, QTimer
 
 from ui.node import NodeWidget
@@ -23,6 +23,11 @@ class CanvasWidget(QWidget):
 
         self.setMouseTracking(True)
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+
+        self.dragging_connection = False
+        self.connection_start_pos = None
+        self.connection_current_pos = None
+        self.connection_start_port = None
 
         self.nodes = []
 
@@ -53,8 +58,25 @@ class CanvasWidget(QWidget):
         for y in range(y_start, int(bottom), self.grid_size):
             painter.drawLine(int(left), int(y), int(right), int(y))
 
+        #Draw coordinates
         painter.resetTransform()
         self.draw_coordinates(painter)
+
+        # Draw dragging Bezier connection if active
+        if self.dragging_connection and self.connection_start_pos and self.connection_current_pos:
+            painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+            painter.setPen(QPen(QColor(200, 200, 0), 2))
+
+            start = self.connection_start_pos
+            end = self.connection_current_pos
+
+            cp1 = QPointF(start.x() + 80, start.y())
+            cp2 = QPointF(end.x() - 80, end.y())
+
+            path = QPainterPath()
+            path.moveTo(QPointF(start))
+            path.cubicTo(cp1, cp2, QPointF(end))
+            painter.drawPath(path)
 
     def draw_coordinates(self, painter: QPainter):
         painter.setPen(Qt.GlobalColor.white)
@@ -141,3 +163,21 @@ class CanvasWidget(QWidget):
             self.initial_centering_done = True
             self.update()
 
+    def start_connection_drag(self, port_type, start_pos):
+        self.dragging_connection = True
+        self.connection_start_port = port_type
+        self.connection_start_pos = start_pos
+        self.connection_current_pos = start_pos
+        self.update()
+
+    def update_connection_drag(self, current_pos):
+        if self.dragging_connection:
+            self.connection_current_pos = current_pos
+            self.update()
+
+    def end_connection_drag(self):
+        self.dragging_connection = False
+        self.connection_start_pos = None
+        self.connection_current_pos = None
+        self.connection_start_port = None
+        self.update()
