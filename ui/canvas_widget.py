@@ -70,12 +70,23 @@ class CanvasWidget(QWidget):
             start = self.connection_start_pos
             end = self.connection_current_pos
 
-            cp1 = QPointF(start.x() + 80, start.y())
-            cp2 = QPointF(end.x() - 80, end.y())
+            # Choose control points based on the drag start port
+            if self.connection_start_port == 'output':
+                cp1 = QPointF(start.x() + 40, start.y())
+                cp2 = QPointF(end.x() - 40, end.y())
+            elif self.connection_start_port == 'input':
+                cp1 = QPointF(start.x() - 40, start.y())
+                cp2 = QPointF(end.x() + 40, end.y())
+            else:
+                cp1 = start
+                cp2 = end
 
             path = QPainterPath()
             path.moveTo(QPointF(start))
             path.cubicTo(cp1, cp2, QPointF(end))
+            painter.drawPath(path)
+
+            painter.setPen(QPen(QColor(200, 200, 0), 2, Qt.PenStyle.SolidLine))
             painter.drawPath(path)
 
     def draw_coordinates(self, painter: QPainter):
