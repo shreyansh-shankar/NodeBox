@@ -8,8 +8,6 @@ def load_automations():
             return json.load(f)
     return []
 
-def save_automation(new_automation: dict):
-    automations = load_automations()
-    automations.append(new_automation)
-    with open(AUTOMATIONS_FILE, 'w') as f:
-        json.dump(automations, f, indent=4)
+def save_automation(new_automation: dict, filename: str):
+    with open(filename, 'w') as f:
+        json.dump(new_automation, f, indent=4)

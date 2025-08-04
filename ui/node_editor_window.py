@@ -55,7 +55,7 @@ class NodeEditorWindow(QMainWindow):
         right_layout.addWidget(label)
 
         # Canvas
-        self.canvas_widget = CanvasWidget()
+        self.canvas_widget = CanvasWidget(automation_name=self.automation_name, automation_data=self.automation_data)
         right_layout.addWidget(self.canvas_widget, stretch=1)
 
         main_layout.addWidget(right_panel, stretch=1)

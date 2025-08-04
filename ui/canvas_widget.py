@@ -2,14 +2,23 @@ from PyQt6.QtWidgets import QWidget, QInputDialog
 from PyQt6.QtGui import QPainter, QColor, QPen, QMouseEvent, QKeyEvent, QWheelEvent, QFont, QPainterPath
 from PyQt6.QtCore import Qt, QRect, QPoint, QPointF, QTimer
 
+import os, json
+
 from ui.node import NodeWidget
 
 class CanvasWidget(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, automation_name=None, automation_data=None, parent=None):
         super().__init__(parent)
+        self.automation_name = automation_name
+        self.automation_data = automation_data or {"nodes": [], "connections": []}
+
         self.grid_size = 50
         self.grid_color = QColor("#404040")  # Light gray grid
         self.bg_color = QColor("#202020")
+
+        self.nodes = {}
+        self.connections = []
+        self.node_positions = {}
 
         self.offset = QPointF(0, 0)     # Total pan offset
         self.drag_start = None
@@ -31,7 +40,8 @@ class CanvasWidget(QWidget):
         self.connection_current_pos = None
         self.connection_start_port = None
 
-        self.nodes = []
+        self.load_canvas_state()
+
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -91,6 +101,10 @@ class CanvasWidget(QWidget):
             painter.setPen(QPen(QColor(200, 200, 0), 2, Qt.PenStyle.SolidLine))
             painter.drawPath(path)
 
+    def update_node_position(self, node_id, logical_pos):
+        self.node_positions[node_id] = logical_pos
+        self.save_canvas_state()
+
     def draw_coordinates(self, painter: QPainter):
         painter.setPen(Qt.GlobalColor.white)
         painter.setFont(QFont("Arial", 10))
@@ -106,13 +120,11 @@ class CanvasWidget(QWidget):
         
     def mousePressEvent(self, event: QMouseEvent):
         if event.button() == Qt.MouseButton.LeftButton:
-            clicked_on_node = any(node.geometry().contains(node.mapFromParent(event.pos())) for node in self.nodes)
+            clicked_on_node = any(node.geometry().contains(node.mapFromParent(event.pos())) for node in self.nodes.values())
             if not clicked_on_node and self.selected_node:
                 self.selected_node.selected = False
                 self.selected_node.update()
                 self.selected_node = None
-        if event.button() == Qt.MouseButton.LeftButton and self.space_held:
-            self.drag_start = event.pos()
         if event.button() == Qt.MouseButton.MiddleButton or (event.button() == Qt.MouseButton.LeftButton and self.space_held):
             self.drag_start = event.pos()
         if event.button() == Qt.MouseButton.RightButton:
@@ -122,8 +134,10 @@ class CanvasWidget(QWidget):
                 canvas_pos = (event.position() - self.offset) / self.scale
                 node.logical_pos = canvas_pos
                 node.update_position()
-                self.nodes.append(node)
+                self.nodes[node.id] = node
                 node.show()
+                self.save_canvas_state()
+                print("[DEBUG] Node added. Saving state...")
 
     def mouseMoveEvent(self, event: QMouseEvent):
         self.last_mouse_pos = event.position()
@@ -132,7 +146,7 @@ class CanvasWidget(QWidget):
             delta = QPointF(event.pos() - self.drag_start)
             self.offset += delta  # Invert to drag canvas
             self.drag_start = event.pos()
-            for node in self.nodes:
+            for node in self.nodes.values():
                 node.update_position()
         self.update()
 
@@ -173,8 +187,8 @@ class CanvasWidget(QWidget):
 
         self.update()
 
-        for node in self.nodes:
-                node.update_position()
+        for node in self.nodes.values():
+            node.update_position()
 
     def center_initial_view(self):
         if not self.initial_centering_done:
@@ -211,3 +225,61 @@ class CanvasWidget(QWidget):
         self.selected_node = node
         node.selected = True
         node.update()
+    
+    def save_canvas_state(self):
+        os.makedirs(os.path.expanduser("~/.nodebox/automations"), exist_ok=True)
+
+
+        nodes_data = []
+        for node in self.nodes.values():
+            nodes_data.append({
+                "id": node.id,
+                "name": node.title,
+                "position": [int(node.logical_pos.x()), int(node.logical_pos.y())]
+            })
+
+        connections_data = []
+        for conn in self.connections:
+            connections_data.append({
+                "from": [conn.output_port.node.id, conn.output_port.port_type],
+                "to": [conn.input_port.node.id, conn.input_port.port_type]
+            })
+
+        automation_data = {
+            "nodes": nodes_data,
+            "connections": connections_data
+        }
+
+        path = os.path.expanduser(f"~/.nodebox/automations/{self.automation_name}.json")
+        with open(path, 'w') as f:
+            json.dump(automation_data, f, indent=4)
+
+    def add_connection(self, from_node, to_node):
+        print(f"[DEBUG] Connection added from {from_node.title} to {to_node.title}")
+        # TODO: Implement actual connection object/visuals
+
+
+    def load_canvas_state(self):
+        # Load nodes
+        for node_data in self.automation_data.get("nodes", []):
+            node_id = node_data["id"]
+            title = node_data["name"]
+            pos = QPointF(*node_data["position"])
+
+            node = NodeWidget(title=title, canvas=self, pos=pos)
+            node.id = node_id
+            self.nodes[node_id] = node
+            self.node_positions[node_id] = pos
+            node.update_position()
+            node.show()
+
+        # Load connections
+        for conn in self.automation_data.get("connections", []):
+            from_id, from_port = conn["from"]
+            to_id, to_port = conn["to"]
+
+            from_node = self.nodes.get(from_id)
+            to_node = self.nodes.get(to_id)
+
+            if from_node and to_node:
+                self.add_connection(from_node, to_node)

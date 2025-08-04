@@ -2,12 +2,15 @@ from PyQt6.QtWidgets import QWidget, QLabel, QVBoxLayout
 from PyQt6.QtGui import QPainter, QColor, QPen, QFont, QColor, QFontMetrics, QPainterPath
 from PyQt6.QtCore import Qt, QPoint, QPointF, QRectF, pyqtSignal
 
+import uuid
+
 class NodeWidget(QWidget):
 
     startConnectionDrag = pyqtSignal(str, QPoint)
 
     def __init__(self, title, canvas, pos=None, inputs=None, outputs=None):
         super().__init__(canvas)
+        self.id = str(uuid.uuid4())
         self.canvas = canvas
         self.title = title
         self.logical_pos = pos if pos else QPointF(0, 0)
@@ -99,8 +102,14 @@ class NodeWidget(QWidget):
 
         if self.is_dragging and self.selected:
             new_pos = self.mapToParent(event.pos() - self.drag_offset)
-            self.move(new_pos)
-            self.canvas.update()
+            
+            canvas_offset = self.canvas.offset
+            scale = self.canvas.scale
+            logical_pos = (QPointF(new_pos) - canvas_offset) / scale
+
+            self.logical_pos = logical_pos
+            self.canvas.update_node_position(self.id, self.logical_pos)
+            self.update_position()
 
         if self.dragging:
             scene_pos = self.mapToParent(pos)
@@ -137,6 +146,7 @@ class NodeWidget(QWidget):
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
             self.is_dragging = False
+            self.canvas.save_canvas_state()
 
         if event.button() == Qt.MouseButton.LeftButton and self.dragging:
             self.canvas.end_connection_drag()
