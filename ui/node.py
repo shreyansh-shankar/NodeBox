@@ -1,6 +1,6 @@
-from PyQt6.QtWidgets import QWidget, QLabel, QVBoxLayout
-from PyQt6.QtGui import QPainter, QColor, QPen, QFont, QColor, QFontMetrics, QPainterPath
-from PyQt6.QtCore import Qt, QPoint, QPointF, QRectF, pyqtSignal
+from PyQt6.QtWidgets import QWidget, QLabel, QVBoxLayout #type: ignore
+from PyQt6.QtGui import QPainter, QColor, QPen, QFont, QColor, QFontMetrics, QPainterPath #type: ignore
+from PyQt6.QtCore import Qt, QPoint, QPointF, QRectF, pyqtSignal #type: ignore
 
 import uuid
 
@@ -16,31 +16,37 @@ class NodeWidget(QWidget):
         self.logical_pos = pos if pos else QPointF(0, 0)
         self.setFixedSize(150, 80)
 
+        # to track if the node is selected or not
         self.selected = False
         
+        # to track if the node itself is being dragged or not
         self.is_dragging = False
         self.drag_offset = QPointF()
 
+        # to track if a connection is tried to be dragged
         self.dragging = False
         self.drag_start_port = None
-        self.drag_current_pos = None
 
         # Port-related state
         self.input_port_pos = None
         self.output_port_pos = None
+        
         self.port_radius = 12
-        self.hovered_port = None  # 'input' or 'output'
+
+        # to track which port is hovered currently of the node
+        self.hovered_port = None
 
         self.setMouseTracking(True)
 
+    # checks if the cursor is hovering on the input or output port
     def is_in_input_port(self, pos: QPoint):
         return (pos - self.input_port_pos).manhattanLength() < self.port_radius
-
 
     def is_in_output_port(self, pos: QPoint):
         port_center = QPoint(self.width(), self.height() // 2)
         return (pos - self.output_port_pos).manhattanLength() < self.port_radius
 
+    # on mouse enter or leave it updates visual feedback
     def enterEvent(self, event):
         self.update()
 
@@ -48,7 +54,7 @@ class NodeWidget(QWidget):
         self.hovered_port = None
         self.update()
 
-
+    # updates position on the canvas when it is zoomed or panned
     def update_position(self):
         """ Update screen position based on canvas pan and zoom """
         scale = self.canvas.scale
@@ -61,7 +67,7 @@ class NodeWidget(QWidget):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
-        # Background rectangle
+        # static ui rendering of the node
         rect = self.rect().adjusted(1, 1, -1, -1)
 
         if self.selected:
@@ -73,7 +79,6 @@ class NodeWidget(QWidget):
         painter.setPen(QPen(border_color, 2))
         painter.drawRoundedRect(rect, 10, 10)
 
-        # Draw centered text
         painter.setPen(QColor('white'))
         font = QFont('Arial', 15)
         font.setWeight(QFont.Weight.Bold)
@@ -85,13 +90,13 @@ class NodeWidget(QWidget):
 
         painter.drawText(text_rect, Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop, self.title)
 
-        # Draw input port (left)
+        # Draw input port (left) dynamic on hover
         self.input_port_pos = QPoint(self.port_radius - 5, rect.center().y())
         painter.setBrush(QColor(200, 80, 80) if self.hovered_port == 'input' else QColor(120, 120, 120))
         painter.setPen(Qt.PenStyle.NoPen)
         painter.drawEllipse(self.input_port_pos, self.port_radius, self.port_radius)
 
-        # Draw output port (right)
+        # Draw output port (right) dynamic on hover
         self.output_port_pos = QPoint(rect.width() - self.port_radius + 5, rect.center().y())
         painter.setBrush(QColor(80, 200, 80) if self.hovered_port == 'output' else QColor(120, 120, 120))
         painter.drawEllipse(self.output_port_pos, self.port_radius, self.port_radius)
@@ -100,6 +105,7 @@ class NodeWidget(QWidget):
     def mouseMoveEvent(self, event):
         pos = event.position().toPoint()
 
+        # to check if we are trying to drag the node itself
         if self.is_dragging and self.selected:
             new_pos = self.mapToParent(event.pos() - self.drag_offset)
             
@@ -111,9 +117,12 @@ class NodeWidget(QWidget):
             self.canvas.update_node_position(self.id, self.logical_pos)
             self.update_position()
 
+        # checks if we are trying to drag from port
         if self.dragging:
             scene_pos = self.mapToParent(pos)
             self.canvas.update_connection_drag(scene_pos)
+        
+        # to check we are hovering over a port or not
         else:
             prev_hover = self.hovered_port
             if self.is_in_input_port(pos):
@@ -128,6 +137,7 @@ class NodeWidget(QWidget):
 
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
+            # to initiate dragging a wire from the input or output port 
             if self.is_in_input_port(event.pos()):
                 self.dragging = True
                 self.drag_start_port = 'input'
@@ -138,6 +148,7 @@ class NodeWidget(QWidget):
                 self.drag_start_port = 'output'
                 scene_pos = self.mapToParent(self.output_port_pos)
                 self.canvas.start_connection_drag('output', scene_pos)
+            # to initiate the dragging of the node itself on the canvas
             else:
                 self.canvas.select_node(self)
                 self.is_dragging = True
@@ -148,9 +159,9 @@ class NodeWidget(QWidget):
             self.is_dragging = False
             self.canvas.save_canvas_state()
 
+        # to track if the connection is released on a port
         if event.button() == Qt.MouseButton.LeftButton and self.dragging:
             self.canvas.end_connection_drag()
             self.dragging = False
             self.drag_start_port = None
-            self.drag_current_pos = None
             self.update()

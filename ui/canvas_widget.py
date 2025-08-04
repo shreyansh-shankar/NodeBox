@@ -1,6 +1,6 @@
-from PyQt6.QtWidgets import QWidget, QInputDialog
-from PyQt6.QtGui import QPainter, QColor, QPen, QMouseEvent, QKeyEvent, QWheelEvent, QFont, QPainterPath
-from PyQt6.QtCore import Qt, QRect, QPoint, QPointF, QTimer
+from PyQt6.QtWidgets import QWidget, QInputDialog #type: ignore
+from PyQt6.QtGui import QPainter, QColor, QPen, QMouseEvent, QKeyEvent, QWheelEvent, QFont, QPainterPath #type: ignore
+from PyQt6.QtCore import Qt, QRect, QPoint, QPointF, QTimer #type: ignore
 
 import os, json
 
@@ -18,7 +18,6 @@ class CanvasWidget(QWidget):
 
         self.nodes = {}
         self.connections = []
-        self.node_positions = {}
 
         self.offset = QPointF(0, 0)     # Total pan offset
         self.drag_start = None
@@ -102,7 +101,6 @@ class CanvasWidget(QWidget):
             painter.drawPath(path)
 
     def update_node_position(self, node_id, logical_pos):
-        self.node_positions[node_id] = logical_pos
         self.save_canvas_state()
 
     def draw_coordinates(self, painter: QPainter):
@@ -125,19 +123,18 @@ class CanvasWidget(QWidget):
                 self.selected_node.selected = False
                 self.selected_node.update()
                 self.selected_node = None
-        if event.button() == Qt.MouseButton.MiddleButton or (event.button() == Qt.MouseButton.LeftButton and self.space_held):
+        if event.button() == Qt.MouseButton.LeftButton and self.space_held:
             self.drag_start = event.pos()
         if event.button() == Qt.MouseButton.RightButton:
             name, ok = QInputDialog.getText(self, "Create Node", "Enter node name:")
             if ok and name:
-                node = NodeWidget(name, self) 
+                node = NodeWidget(name, self)
                 canvas_pos = (event.position() - self.offset) / self.scale
                 node.logical_pos = canvas_pos
                 node.update_position()
                 self.nodes[node.id] = node
                 node.show()
                 self.save_canvas_state()
-                print("[DEBUG] Node added. Saving state...")
 
     def mouseMoveEvent(self, event: QMouseEvent):
         self.last_mouse_pos = event.position()
@@ -229,7 +226,6 @@ class CanvasWidget(QWidget):
     def save_canvas_state(self):
         os.makedirs(os.path.expanduser("~/.nodebox/automations"), exist_ok=True)
 
-
         nodes_data = []
         for node in self.nodes.values():
             nodes_data.append({
@@ -241,8 +237,8 @@ class CanvasWidget(QWidget):
         connections_data = []
         for conn in self.connections:
             connections_data.append({
-                "from": [conn.output_port.node.id, conn.output_port.port_type],
-                "to": [conn.input_port.node.id, conn.input_port.port_type]
+                "from": conn.output_port.node.id,
+                "to": conn.input_port.node.id
             })
 
         automation_data = {
@@ -269,14 +265,13 @@ class CanvasWidget(QWidget):
             node = NodeWidget(title=title, canvas=self, pos=pos)
             node.id = node_id
             self.nodes[node_id] = node
-            self.node_positions[node_id] = pos
             node.update_position()
             node.show()
 
         # Load connections
         for conn in self.automation_data.get("connections", []):
-            from_id, from_port = conn["from"]
-            to_id, to_port = conn["to"]
+            from_id = conn["from"]
+            to_id = conn["to"]
 
             from_node = self.nodes.get(from_id)
             to_node = self.nodes.get(to_id)
