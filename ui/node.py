@@ -13,8 +13,13 @@ class NodeWidget(QWidget):
         self.logical_pos = pos if pos else QPointF(0, 0)
         self.setFixedSize(150, 80)
 
+        self.selected = False
+        
+        self.is_dragging = False
+        self.drag_offset = QPointF()
+
         self.dragging = False
-        self.drag_start_port = None  # 'input' or 'output'
+        self.drag_start_port = None
         self.drag_current_pos = None
 
         # Port-related state
@@ -55,8 +60,14 @@ class NodeWidget(QWidget):
 
         # Background rectangle
         rect = self.rect().adjusted(1, 1, -1, -1)
+
+        if self.selected:
+            border_color = QColor(255, 215, 0)
+        else:
+            border_color = QColor(136, 136, 136)
+
         painter.setBrush(QColor(34, 34, 34))
-        painter.setPen(QPen(QColor(136, 136, 136), 2))
+        painter.setPen(QPen(border_color, 2))
         painter.drawRoundedRect(rect, 10, 10)
 
         # Draw centered text
@@ -86,6 +97,11 @@ class NodeWidget(QWidget):
     def mouseMoveEvent(self, event):
         pos = event.position().toPoint()
 
+        if self.is_dragging and self.selected:
+            new_pos = self.mapToParent(event.pos() - self.drag_offset)
+            self.move(new_pos)
+            self.canvas.update()
+
         if self.dragging:
             scene_pos = self.mapToParent(pos)
             self.canvas.update_connection_drag(scene_pos)
@@ -113,8 +129,15 @@ class NodeWidget(QWidget):
                 self.drag_start_port = 'output'
                 scene_pos = self.mapToParent(self.output_port_pos)
                 self.canvas.start_connection_drag('output', scene_pos)
+            else:
+                self.canvas.select_node(self)
+                self.is_dragging = True
+                self.drag_offset = event.pos()
     
     def mouseReleaseEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            self.is_dragging = False
+
         if event.button() == Qt.MouseButton.LeftButton and self.dragging:
             self.canvas.end_connection_drag()
             self.dragging = False

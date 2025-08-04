@@ -47,5 +47,5 @@ class GraphSceneWidget(QWidget):
             path.moveTo(start)
             path.cubicTo(cp1, cp2, end)
 
-            painter.setPen(QPen(QColor(200, 200, 0), 2))
+            painter.setPen(QPen(QColor(255, 215, 0), 2))
             painter.drawPath(path)

@@ -16,6 +16,8 @@ class CanvasWidget(QWidget):
         self.space_held = False
         self.last_mouse_pos = QPointF()
 
+        self.selected_node = None
+
         self.initial_centering_done = False
         QTimer.singleShot(0, self.center_initial_view)
 
@@ -103,6 +105,12 @@ class CanvasWidget(QWidget):
         painter.drawText(10, self.height() - 10, text)
         
     def mousePressEvent(self, event: QMouseEvent):
+        if event.button() == Qt.MouseButton.LeftButton:
+            clicked_on_node = any(node.geometry().contains(node.mapFromParent(event.pos())) for node in self.nodes)
+            if not clicked_on_node and self.selected_node:
+                self.selected_node.selected = False
+                self.selected_node.update()
+                self.selected_node = None
         if event.button() == Qt.MouseButton.LeftButton and self.space_held:
             self.drag_start = event.pos()
         if event.button() == Qt.MouseButton.MiddleButton or (event.button() == Qt.MouseButton.LeftButton and self.space_held):
@@ -192,3 +200,14 @@ class CanvasWidget(QWidget):
         self.connection_current_pos = None
         self.connection_start_port = None
         self.update()
+
+    def select_node(self, node):
+        # Deselect previous
+        if self.selected_node and self.selected_node != node:
+            self.selected_node.selected = False
+            self.selected_node.update()
+
+        # Select new
+        self.selected_node = node
+        node.selected = True
+        node.update()
