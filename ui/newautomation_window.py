@@ -3,7 +3,6 @@ from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton
 from PyQt6.QtCore import Qt
 
 from ui.node_editor_window import NodeEditorWindow
-from utils.storage import save_automation, load_automations
 from utils.paths import AUTOMATIONS_DIR
 import json, os
 
