@@ -4,9 +4,9 @@ from PyQt6.QtCore import Qt, QPoint, QPointF, QRectF, pyqtSignal #type: ignore
 
 import uuid
 
-class NodeWidget(QWidget):
+from ui.ports import PortWidget
 
-    startConnectionDrag = pyqtSignal(str, QPoint)
+class NodeWidget(QWidget):
 
     def __init__(self, title, canvas, pos=None, inputs=None, outputs=None):
         super().__init__(canvas)
@@ -14,7 +14,7 @@ class NodeWidget(QWidget):
         self.canvas = canvas
         self.title = title
         self.logical_pos = pos if pos else QPointF(0, 0)
-        self.setFixedSize(150, 80)
+        self.setFixedSize(180, 100)
 
         # to track if the node is selected or not
         self.selected = False
@@ -23,20 +23,15 @@ class NodeWidget(QWidget):
         self.is_dragging = False
         self.drag_offset = QPointF()
 
-        # to track if a connection is tried to be dragged
-        self.dragging = False
-        self.drag_start_port = None
-
-        # Port-related state
-        self.input_port_pos = None
-        self.output_port_pos = None
-        
-        self.port_radius = 12
-
-        # to track which port is hovered currently of the node
-        self.hovered_port = None
-
         self.setMouseTracking(True)
+
+        # Create input and output ports as siblings (parent is canvas, not self)
+        self.input_port = PortWidget(parent=canvas, node=self, type="input")
+        self.input_port.show()
+        self.input_port.raise_()
+        self.output_port = PortWidget(parent=canvas, node=self, type="output")
+        self.output_port.show()
+        self.output_port.raise_()
 
     # on mouse enter or leave it updates visual feedback
     def enterEvent(self, event):
@@ -54,6 +49,24 @@ class NodeWidget(QWidget):
         screen_pos = self.logical_pos * scale + offset
         self.move(screen_pos.toPoint())
         self.resize(self.sizeHint() * scale)
+
+        # Position ports (relative to screen position, not local position)
+        node_rect = self.geometry()
+
+        # Left center for input
+        input_x = node_rect.left() - self.input_port.width() // 2
+        input_y = node_rect.top() + node_rect.height() // 2 - self.input_port.height() // 2
+        self.input_port.move(input_x, input_y)
+
+        # Right center for output
+        output_x = node_rect.right() - self.output_port.width() // 2
+        output_y = node_rect.top() + node_rect.height() // 2 - self.output_port.height() // 2
+        self.output_port.move(output_x, output_y)
+
+        # Optional: Resize port if zoom is applied
+        port_scale = scale
+        self.input_port.resize(self.input_port.sizeHint() * port_scale)
+        self.output_port.resize(self.output_port.sizeHint() * port_scale)
     
     def paintEvent(self, event):
         painter = QPainter(self)
