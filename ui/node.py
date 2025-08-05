@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QWidget, QLabel, QVBoxLayout #type: ignore
+from PyQt6.QtWidgets import QWidget, QLabel, QVBoxLayout, QPushButton #type: ignore
 from PyQt6.QtGui import QPainter, QColor, QPen, QFont, QColor, QFontMetrics, QPainterPath #type: ignore
 from PyQt6.QtCore import Qt, QPoint, QPointF, QRectF, pyqtSignal #type: ignore
 
@@ -35,6 +35,44 @@ class NodeWidget(QWidget):
         self.output_port.raise_()
         self.output_port.clicked.connect(canvas.handle_port_click)
 
+        # --- Buttons (hidden by default) ---
+        self.delete_button = QPushButton("x", self)
+        self.delete_button.setFixedSize(25, 25)
+        self.delete_button.setStyleSheet("""
+            QPushButton {
+                background-color: #aa0000;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                font-size: 18px;
+                padding: 0px;
+            }
+            QPushButton:hover {
+                background-color: #ff0000;
+            }
+        """)
+        self.delete_button.hide()
+
+        self.open_button = QPushButton("O", self)
+        self.open_button.setFixedSize(25, 25)
+        self.open_button.setStyleSheet("""
+            QPushButton {
+                background-color: #0066aa;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                font-size: 15px;
+                padding: 0px;
+            }
+            QPushButton:hover {
+                background-color: #0099ff;
+            }
+        """)
+        self.open_button.hide()
+
+        self.delete_button.raise_()
+        self.open_button.raise_()
+
     # on mouse enter or leave it updates visual feedback
     def enterEvent(self, event):
         self.update()
@@ -69,8 +107,20 @@ class NodeWidget(QWidget):
         port_scale = scale
         self.input_port.resize(self.input_port.sizeHint() * port_scale)
         self.output_port.resize(self.output_port.sizeHint() * port_scale)
+
+        # Position buttons at bottom-right corner
+        margin = 10
+        bx = self.width() - self.delete_button.width() - margin
+        by = self.height() - self.delete_button.height() - margin
+        self.delete_button.move(bx, by)
+
+        self.open_button.move(bx - self.open_button.width() - margin, by)
     
+    def on_delete_clicked(self):
+        self.canvas.delete_node(self)
+
     def paintEvent(self, event):
+        super().paintEvent(event)
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
@@ -96,6 +146,14 @@ class NodeWidget(QWidget):
         text_rect.setTop(rect.top() + (rect.height() - text_height) / 2)
 
         painter.drawText(text_rect, Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop, self.title)
+
+        # Show/hide buttons based on selection
+        if self.selected:
+            self.delete_button.show()
+            self.open_button.show()
+        else:
+            self.delete_button.hide()
+            self.open_button.hide()
     
     def mouseMoveEvent(self, event):
         pos = event.position().toPoint()
