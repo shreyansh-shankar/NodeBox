@@ -5,7 +5,6 @@ from PyQt6.QtCore import Qt, QRect, QPoint, QPointF, QTimer #type: ignore
 import os, json
 
 from ui.node import NodeWidget
-from ui.connectionclass import Connection
 
 class CanvasWidget(QWidget):
     def __init__(self, automation_name=None, automation_data=None, parent=None):
@@ -78,7 +77,6 @@ class CanvasWidget(QWidget):
         for connection in self.connections:
             connection.draw(painter)
 
-
         # connection related logic
         if self.pending_connection:
             self.pending_connection.draw(painter)
@@ -119,7 +117,7 @@ class CanvasWidget(QWidget):
                 node.show()
                 self.save_canvas_state()
         
-        clicked_port = self.get_port_at(event.pos())  # Your own logic
+        clicked_port = self.get_port_at(event.pos())
         if clicked_port:
             self.handle_port_click(clicked_port)
         else:
