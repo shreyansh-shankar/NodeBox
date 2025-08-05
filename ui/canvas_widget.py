@@ -17,7 +17,6 @@ class CanvasWidget(QWidget):
         self.bg_color = QColor("#202020")
 
         self.nodes = {}
-        self.connections = []
 
         self.offset = QPointF(0, 0)     # Total pan offset
         self.drag_start = None
@@ -33,11 +32,6 @@ class CanvasWidget(QWidget):
 
         self.setMouseTracking(True)
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
-
-        self.dragging_connection = False
-        self.connection_start_pos = None
-        self.connection_current_pos = None
-        self.connection_start_port = None
 
         self.load_canvas_state()
 
@@ -72,33 +66,6 @@ class CanvasWidget(QWidget):
         #Draw coordinates
         painter.resetTransform()
         self.draw_coordinates(painter)
-
-        # Draw dragging Bezier connection if active
-        if self.dragging_connection and self.connection_start_pos and self.connection_current_pos:
-            painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-            painter.setPen(QPen(QColor(200, 200, 0), 2))
-
-            start = self.connection_start_pos
-            end = self.connection_current_pos
-
-            # Choose control points based on the drag start port
-            if self.connection_start_port == 'output':
-                cp1 = QPointF(start.x() + 40, start.y())
-                cp2 = QPointF(end.x() - 40, end.y())
-            elif self.connection_start_port == 'input':
-                cp1 = QPointF(start.x() - 40, start.y())
-                cp2 = QPointF(end.x() + 40, end.y())
-            else:
-                cp1 = start
-                cp2 = end
-
-            path = QPainterPath()
-            path.moveTo(QPointF(start))
-            path.cubicTo(cp1, cp2, QPointF(end))
-            painter.drawPath(path)
-
-            painter.setPen(QPen(QColor(200, 200, 0), 2, Qt.PenStyle.SolidLine))
-            painter.drawPath(path)
 
     def update_node_position(self, node_id, logical_pos):
         self.save_canvas_state()
@@ -193,25 +160,6 @@ class CanvasWidget(QWidget):
             self.initial_centering_done = True
             self.update()
 
-    def start_connection_drag(self, port_type, start_pos):
-        self.dragging_connection = True
-        self.connection_start_port = port_type
-        self.connection_start_pos = start_pos
-        self.connection_current_pos = start_pos
-        self.update()
-
-    def update_connection_drag(self, current_pos):
-        if self.dragging_connection:
-            self.connection_current_pos = current_pos
-            self.update()
-
-    def end_connection_drag(self):
-        self.dragging_connection = False
-        self.connection_start_pos = None
-        self.connection_current_pos = None
-        self.connection_start_port = None
-        self.update()
-
     def select_node(self, node):
         # Deselect previous
         if self.selected_node and self.selected_node != node:
@@ -234,25 +182,14 @@ class CanvasWidget(QWidget):
                 "position": [int(node.logical_pos.x()), int(node.logical_pos.y())]
             })
 
-        connections_data = []
-        for conn in self.connections:
-            connections_data.append({
-                "from": conn.output_port.node.id,
-                "to": conn.input_port.node.id
-            })
-
         automation_data = {
             "nodes": nodes_data,
-            "connections": connections_data
+            "connections": []
         }
 
         path = os.path.expanduser(f"~/.nodebox/automations/{self.automation_name}.json")
         with open(path, 'w') as f:
             json.dump(automation_data, f, indent=4)
-
-    def add_connection(self, from_node, to_node):
-        print(f"[DEBUG] Connection added from {from_node.title} to {to_node.title}")
-        # TODO: Implement actual connection object/visuals
 
 
     def load_canvas_state(self):
@@ -267,14 +204,3 @@ class CanvasWidget(QWidget):
             self.nodes[node_id] = node
             node.update_position()
             node.show()
-
-        # Load connections
-        for conn in self.automation_data.get("connections", []):
-            from_id = conn["from"]
-            to_id = conn["to"]
-
-            from_node = self.nodes.get(from_id)
-            to_node = self.nodes.get(to_id)
-
-            if from_node and to_node:
-                self.add_connection(from_node, to_node)
