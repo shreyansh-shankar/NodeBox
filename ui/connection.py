@@ -10,15 +10,21 @@ class BezierConnection:
         self.end_point = None  # will be updated during drag
         self.end_port = None
 
+        self._finalized = False
+
     def set_end_point(self, point):
         self.end_point = point
 
     def finalize(self):
-        if self.end_port:
+        if self.start_port and self.end_port:
             self.end_point = None
+            self._finalized = True
 
     def draw(self, painter):
-        if self.end_port:
+        if not self.start_port:
+            return
+
+        if self._finalized and self.end_port:
             end_pos = self.end_port.mapTo(self.canvas, self.end_port.rect().center())
         elif self.end_point:
             end_pos = self.end_point
@@ -27,12 +33,10 @@ class BezierConnection:
 
         start_pos = self.start_port.mapTo(self.canvas, self.start_port.rect().center())
 
-        # Convert to QPointF for QPainterPath
         start_f = QPointF(start_pos)
         end_f = QPointF(end_pos)
 
         path = QPainterPath(start_f)
-
         dx = (end_f.x() - start_f.x()) * 0.5
 
         c1 = QPointF(start_f.x() + dx, start_f.y())

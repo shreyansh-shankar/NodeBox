@@ -208,10 +208,26 @@ class CanvasWidget(QWidget):
                 "name": node.title,
                 "position": [int(node.logical_pos.x()), int(node.logical_pos.y())]
             })
+        
+        connections_data = []
+        for connection in self.connections:
+            from_port = connection.start_port
+            to_port = connection.end_port
 
+            if not from_port or not to_port:
+                continue
+            
+            connections_data.append({
+                "from_node_id": from_port.node.id,
+                "from_port_type": from_port.type,
+                "to_node_id": to_port.node.id,
+                "to_port_type": to_port.type
+            })
+
+    
         automation_data = {
             "nodes": nodes_data,
-            "connections": []
+            "connections": connections_data
         }
 
         path = os.path.expanduser(f"~/.nodebox/automations/{self.automation_name}.json")
@@ -220,6 +236,8 @@ class CanvasWidget(QWidget):
 
 
     def load_canvas_state(self):
+        from ui.connection import BezierConnection
+
         # Load nodes
         for node_data in self.automation_data.get("nodes", []):
             node_id = node_data["id"]
@@ -232,8 +250,26 @@ class CanvasWidget(QWidget):
             node.update_position()
             node.show()
 
-    # ports and connection related logic
+        # Load connections
+        for conn_data in self.automation_data.get("connections", []):
+            from_node = self.nodes.get(conn_data["from_node_id"])
+            to_node = self.nodes.get(conn_data["to_node_id"])
 
+            if not from_node or not to_node:
+                continue
+
+            from_port = getattr(from_node, f'{conn_data["from_port_type"]}_port', None)
+            to_port = getattr(to_node, f'{conn_data["to_port_type"]}_port', None)
+
+            if from_port and to_port:
+                connection = BezierConnection(start_port=from_port, canvas=self)
+                connection.end_port = to_port
+                connection.finalize()
+                self.connections.append(connection)
+
+                self.update()
+
+    # ports and connection related logic
     def start_connection(self, port_widget):
         from ui.connection import BezierConnection  # define below
         self.connection_start_port = port_widget
@@ -270,6 +306,7 @@ class CanvasWidget(QWidget):
         self.connections.append(self.pending_connection)
         self.pending_connection = None
         self.connection_start_port = None
+        self.save_canvas_state()
         self.update()
 
     def cancel_connection(self):
