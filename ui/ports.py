@@ -3,12 +3,12 @@ from PyQt6.QtGui import QPainter, QColor #type: ignore
 from PyQt6.QtCore import Qt, QSize, pyqtSignal #type: ignore
 
 class PortWidget(QWidget):
-    clicked = pyqtSignal()
+    clicked = pyqtSignal(object)
 
     def __init__(self, parent=None, node=None, type = None):
         super().__init__(parent)
         self.type = type
-        self.radius = 12
+        self.radius = 10
         self.node = node
 
         self.default_color = QColor("#D1D1D1")
@@ -32,11 +32,13 @@ class PortWidget(QWidget):
     def enterEvent(self, event):
         self.is_hovered = True
         self.color = self.hover_color
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.update()
 
     def leaveEvent(self, event):
         self.is_hovered = False
         self.is_pressed = False
+        self.setCursor(Qt.CursorShape.ArrowCursor)
         self.color = self.default_color
         self.update()
 
@@ -45,7 +47,7 @@ class PortWidget(QWidget):
             self.is_pressed = True
             self.color = self.clicked_color
             self.update()
-            self.clicked.emit()
+            self.clicked.emit(self)
 
     def mouseReleaseEvent(self, event):
         if self.is_hovered:

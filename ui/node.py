@@ -29,9 +29,11 @@ class NodeWidget(QWidget):
         self.input_port = PortWidget(parent=canvas, node=self, type="input")
         self.input_port.show()
         self.input_port.raise_()
+        self.input_port.clicked.connect(canvas.handle_port_click)
         self.output_port = PortWidget(parent=canvas, node=self, type="output")
         self.output_port.show()
         self.output_port.raise_()
+        self.output_port.clicked.connect(canvas.handle_port_click)
 
     # on mouse enter or leave it updates visual feedback
     def enterEvent(self, event):

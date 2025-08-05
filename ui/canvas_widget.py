@@ -5,6 +5,7 @@ from PyQt6.QtCore import Qt, QRect, QPoint, QPointF, QTimer #type: ignore
 import os, json
 
 from ui.node import NodeWidget
+from ui.connectionclass import Connection
 
 class CanvasWidget(QWidget):
     def __init__(self, automation_name=None, automation_data=None, parent=None):
@@ -32,6 +33,12 @@ class CanvasWidget(QWidget):
 
         self.setMouseTracking(True)
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+
+        # port and connection related logic
+        self.pending_connection = None  
+        self.connection_start_port = None
+
+        self.connections = []
 
         self.load_canvas_state()
 
@@ -66,6 +73,15 @@ class CanvasWidget(QWidget):
         #Draw coordinates
         painter.resetTransform()
         self.draw_coordinates(painter)
+
+        # Draw all finalized connections
+        for connection in self.connections:
+            connection.draw(painter)
+
+
+        # connection related logic
+        if self.pending_connection:
+            self.pending_connection.draw(painter)
 
     def update_node_position(self, node_id, logical_pos):
         self.save_canvas_state()
@@ -102,9 +118,20 @@ class CanvasWidget(QWidget):
                 self.nodes[node.id] = node
                 node.show()
                 self.save_canvas_state()
+        
+        clicked_port = self.get_port_at(event.pos())  # Your own logic
+        if clicked_port:
+            self.handle_port_click(clicked_port)
+            return  # avoid interfering with node selection
+
+        self.update()  # Trigger repaint
 
     def mouseMoveEvent(self, event: QMouseEvent):
         self.last_mouse_pos = event.position()
+        if self.pending_connection:
+            self.pending_connection.set_end_point(event.position())
+            self.update()
+        super().mouseMoveEvent(event)
 
         if event.buttons() & Qt.MouseButton.LeftButton and self.space_held and self.drag_start:
             delta = QPointF(event.pos() - self.drag_start)
@@ -204,3 +231,44 @@ class CanvasWidget(QWidget):
             self.nodes[node_id] = node
             node.update_position()
             node.show()
+
+    # ports and connection related logic
+
+    def start_connection(self, port_widget):
+        from ui.connection import BezierConnection  # define below
+        self.connection_start_port = port_widget
+        self.pending_connection = BezierConnection(start_port=port_widget, canvas=self)
+        self.update()
+
+    def complete_connection(self, target_port):
+        if (
+            self.pending_connection and 
+            self.connection_start_port and 
+            target_port != self.connection_start_port
+        ):
+            self.pending_connection.end_port = target_port
+            self.pending_connection.finalize()
+            self.connections.append(self.pending_connection)  # ✅ Store it!
+            self.pending_connection = None
+            self.connection_start_port = None
+            self.update()
+        else:
+            self.cancel_connection()
+
+    def cancel_connection(self):
+        self.pending_connection = None
+        self.connection_start_port = None
+        self.update()
+    
+    def handle_port_click(self, port):
+        if self.pending_connection:
+            self.complete_connection(port)
+        else:
+            self.start_connection(port)
+    
+    def get_port_at(self, pos):
+        for node in self.nodes.values():
+            for port in [node.input_port, node.output_port]:
+                if port.geometry().contains(port.mapFromParent(pos)):
+                    return port
+        return None
