@@ -326,3 +326,55 @@ class CanvasWidget(QWidget):
                 if port.geometry().contains(port.mapFromParent(pos)):
                     return port
         return None
+    
+    def delete_node(self, node):
+        """
+        Remove the node widget, its ports, and any connections referencing it.
+        Save state and repaint.
+        """
+        # 1) Cancel pending connection if it involves this node
+        if self.pending_connection:
+            sp = self.pending_connection.start_port
+            ep = self.pending_connection.end_port
+            if (sp and sp.node == node) or (ep and ep.node == node):
+                self.cancel_connection()
+
+        # 2) Remove finalized connections that reference this node
+        new_connections = []
+        for conn in self.connections:
+            sp = getattr(conn, "start_port", None)
+            ep = getattr(conn, "end_port", None)
+            if (sp and sp.node == node) or (ep and ep.node == node):
+                # skip (effectively delete) connections touching this node
+                continue
+            new_connections.append(conn)
+        self.connections = new_connections
+
+        # 3) Delete the node's ports (they are parented to canvas)
+        try:
+            if hasattr(node, "input_port") and node.input_port:
+                node.input_port.deleteLater()
+            if hasattr(node, "output_port") and node.output_port:
+                node.output_port.deleteLater()
+        except Exception:
+            pass
+
+        # 4) Remove node from self.nodes dict
+        if node.id in self.nodes:
+            # node objects are values; self.nodes maps id -> node
+            del self.nodes[node.id]
+
+        # 5) If it was selected, clear selection
+        if self.selected_node is node:
+            self.selected_node = None
+
+        # 6) Delete node widget safely
+        node.deleteLater()
+
+        # 7) Persist and redraw
+        try:
+            self.save_canvas_state()
+        except Exception:
+            pass
+        self.update()
+

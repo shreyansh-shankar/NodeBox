@@ -73,6 +73,8 @@ class NodeWidget(QWidget):
         self.delete_button.raise_()
         self.open_button.raise_()
 
+        self.delete_button.clicked.connect(self.on_delete_clicked)
+
     # on mouse enter or leave it updates visual feedback
     def enterEvent(self, event):
         self.update()
@@ -172,6 +174,13 @@ class NodeWidget(QWidget):
 
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
+            # If clicked a child (button), do not start dragging
+            local = event.position().toPoint()
+            child = self.childAt(local)
+            if child is self.delete_button or child is self.open_button:
+                # Let the button handle the click; do nothing else here
+                return
+            
             # to initiate the dragging of the node itself on the canvas
             self.canvas.select_node(self)
             self.is_dragging = True
