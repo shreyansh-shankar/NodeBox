@@ -5,6 +5,37 @@ from PyQt6.QtWidgets import ( #type: ignore
 )
 from PyQt6.QtCore import Qt #type: ignore
 
+# Starter template shown when code editor is blank
+TEMPLATE_CODE = """# Node code template
+# ------------------
+# - Use `inputs` (dict) to access all incoming variables:
+#       inputs['variable_name']
+# - Input variables (valid identifiers) are also injected as local variables:
+#       e.g., `text` if an upstream node provided `text`
+# - At the end of this script, set the `outputs` dict to expose values to downstream nodes.
+#
+# Example structure:
+#   1) Read inputs
+#   2) Process them
+#   3) Assign results into `outputs = { ... }`
+#
+# NOTE: Keep values serializable (str, int, float, list, dict, etc.)
+
+# --- Example ---
+text = inputs.get("text", "")
+user_id = inputs.get("user_id", None)
+
+# Sample processing:
+cleaned_text = text.strip()
+summary = cleaned_text[:200]  # naive "summary"
+
+# Provide outputs as a dict named `outputs`
+outputs = {
+    "cleaned_text": cleaned_text,
+    "summary": summary,
+}
+"""
+
 class NodeEditorDialog(QDialog):
     """
     Basic Node Editor UI:
@@ -36,6 +67,8 @@ class NodeEditorDialog(QDialog):
         self.code_edit = QTextEdit()
         # Prefill code if node provides stored code (optional attr 'code')
         existing_code = initial_code if initial_code else getattr(node, "code", "")
+        if not (existing_code and existing_code.strip()):
+            existing_code = TEMPLATE_CODE
         self.code_edit.setPlainText(existing_code)
 
         self.outputs_edit = QTextEdit()
@@ -116,7 +149,7 @@ class NodeEditorDialog(QDialog):
 
     def on_save(self):
         code = self.code_edit.toPlainText()
-        outputs_raw = self.outputs_edit.text().strip()
+        outputs_raw = self.outputs_edit.toPlainText().strip()
 
         # parse outputs: split by comma, strip spaces; ignore empty names
         outputs = [o.strip() for o in outputs_raw.split(",") if o.strip()]
