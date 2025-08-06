@@ -73,6 +73,7 @@ class NodeWidget(QWidget):
         self.delete_button.raise_()
         self.open_button.raise_()
 
+        self.open_button.clicked.connect(self.on_open_clicked)
         self.delete_button.clicked.connect(self.on_delete_clicked)
 
     # on mouse enter or leave it updates visual feedback
@@ -118,6 +119,9 @@ class NodeWidget(QWidget):
 
         self.open_button.move(bx - self.open_button.width() - margin, by)
     
+    def on_open_clicked(self):
+        self.canvas.open_node(self)
+
     def on_delete_clicked(self):
         """Ask the user to confirm deleting this node, then call canvas.delete_node if confirmed."""
         # Parent the dialog to Canvas (so it appears centered over the main window)

@@ -1,11 +1,10 @@
-from PyQt6.QtWidgets import QWidget, QInputDialog #type: ignore
+from PyQt6.QtWidgets import QWidget, QInputDialog, QDialog #type: ignore
 from PyQt6.QtGui import QPainter, QColor, QPen, QMouseEvent, QKeyEvent, QWheelEvent, QFont, QPainterPath #type: ignore
 from PyQt6.QtCore import Qt, QRect, QPoint, QPointF, QTimer #type: ignore
 
 import os, json
 
 from ui.node import NodeWidget
-
 class CanvasWidget(QWidget):
     def __init__(self, automation_name=None, automation_data=None, parent=None):
         super().__init__(parent)
@@ -327,6 +326,42 @@ class CanvasWidget(QWidget):
                     return port
         return None
     
+    def open_node(self, node):
+        from ui.nodeeditor_dialog import NodeEditorDialog
+
+        # Determine inputs for the node: gather variable names from incoming connections.
+        # For the basic UI we can show placeholder inputs or actual upstream outputs.
+        inputs = []
+        for conn in self.connections:
+            if conn.end_port and conn.end_port.node == node:
+                # a connection that feeds this node; use the upstream node's output names if available
+                upstream_node = conn.start_port.node
+                upstream_outputs = getattr(upstream_node, "output_vars", [])
+                # if upstream has outputs list, include them; otherwise include a generic name
+                if upstream_outputs:
+                    inputs.extend(upstream_outputs)
+                else:
+                    # fallback: create a synthetic name based on upstream node title
+                    inputs.append(f"{upstream_node.title}_out")
+
+        # Deduplicate while preserving order
+        seen = set()
+        inputs = [x for x in inputs if not (x in seen or seen.add(x))]
+
+        # Provide existing code if node has it
+        initial_code = getattr(node, "code", "")
+
+        dlg = NodeEditorDialog(node=node, inputs=inputs, initial_code=initial_code, parent=self)
+        if dlg.exec() == QDialog.accepted:
+            data = dlg.result_data
+            # Apply changes to node:
+            node.title = data["title"]
+            node.code = data["code"]
+            node.output_vars = data["outputs"]
+            node.update()           # repaint
+            node.update_position()  # reposition ports if needed
+            self.save_canvas_state()
+
     def delete_node(self, node):
         """
         Remove the node widget, its ports, and any connections referencing it.

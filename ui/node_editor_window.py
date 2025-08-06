@@ -1,5 +1,5 @@
-from PyQt6.QtWidgets import QMainWindow, QWidget, QLabel, QVBoxLayout, QMessageBox, QHBoxLayout, QFrame, QLineEdit
-from PyQt6.QtCore import Qt, pyqtSignal
+from PyQt6.QtWidgets import QMainWindow, QWidget, QLabel, QVBoxLayout, QMessageBox, QHBoxLayout, QFrame, QLineEdit #type: ignore
+from PyQt6.QtCore import Qt, pyqtSignal #type: ignore
 import os, json
 
 from ui.canvas_widget import CanvasWidget
