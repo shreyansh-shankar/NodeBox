@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QWidget, QLabel, QVBoxLayout, QPushButton #type: ignore
+from PyQt6.QtWidgets import QWidget, QLabel, QVBoxLayout, QPushButton, QMessageBox #type: ignore
 from PyQt6.QtGui import QPainter, QColor, QPen, QFont, QColor, QFontMetrics, QPainterPath #type: ignore
 from PyQt6.QtCore import Qt, QPoint, QPointF, QRectF, pyqtSignal #type: ignore
 
@@ -119,7 +119,31 @@ class NodeWidget(QWidget):
         self.open_button.move(bx - self.open_button.width() - margin, by)
     
     def on_delete_clicked(self):
-        self.canvas.delete_node(self)
+        """Ask the user to confirm deleting this node, then call canvas.delete_node if confirmed."""
+        # Parent the dialog to Canvas (so it appears centered over the main window)
+        parent = self.canvas if self.canvas is not None else self
+        msg = QMessageBox(parent)
+        msg.setIcon(QMessageBox.Icon.Warning)
+        msg.setWindowTitle("Delete node")
+        msg.setText(f"Delete node '{self.title}'?")
+        msg.setInformativeText("This will remove the node and all its connections. This action cannot be undone.")
+        msg.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        msg.setDefaultButton(QMessageBox.StandardButton.No)
+
+        result = msg.exec()
+
+        if result == QMessageBox.StandardButton.Yes:
+            # user confirmed
+            try:
+                self.canvas.delete_node(self)
+            except Exception as e:
+                # optionally show an error
+                err = QMessageBox(parent)
+                err.setIcon(QMessageBox.Icon.Critical)
+                err.setWindowTitle("Delete failed")
+                err.setText("Failed to delete the node.")
+                err.setInformativeText(str(e))
+                err.exec()
 
     def paintEvent(self, event):
         super().paintEvent(event)
