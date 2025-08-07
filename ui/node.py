@@ -16,6 +16,9 @@ class NodeWidget(QWidget):
         self.logical_pos = pos if pos else QPointF(0, 0)
         self.setFixedSize(180, 100)
 
+        self.code = ""
+        self.outputs = []
+
         # to track if the node is selected or not
         self.selected = False
         

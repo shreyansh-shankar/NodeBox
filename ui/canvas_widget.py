@@ -205,7 +205,9 @@ class CanvasWidget(QWidget):
             nodes_data.append({
                 "id": node.id,
                 "name": node.title,
-                "position": [int(node.logical_pos.x()), int(node.logical_pos.y())]
+                "position": [int(node.logical_pos.x()), int(node.logical_pos.y())],
+                "code": getattr(node, "code", ""),
+                "outputs": getattr(node, "outputs", [])
             })
         
         connections_data = []
@@ -242,10 +244,14 @@ class CanvasWidget(QWidget):
             node_id = node_data["id"]
             title = node_data["name"]
             pos = QPointF(*node_data["position"])
+            code = node_data.get("code", "")
+            outputs = node_data.get("outputs", [])
 
             node = NodeWidget(title=title, canvas=self, pos=pos)
             node.id = node_id
             self.nodes[node_id] = node
+            node.code = code
+            node.outputs = outputs
             node.update_position()
             node.show()
 

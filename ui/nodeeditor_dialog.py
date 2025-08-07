@@ -5,6 +5,8 @@ from PyQt6.QtWidgets import ( #type: ignore
 )
 from PyQt6.QtCore import Qt #type: ignore
 
+import traceback
+
 # Starter template shown when code editor is blank
 TEMPLATE_CODE = """# Node code template
 # ------------------
@@ -136,7 +138,7 @@ class NodeEditorDialog(QDialog):
         """)
 
         # Outputs edit background
-        # self.outputs_edit.setReadOnly(True)
+        self.outputs_edit.setReadOnly(True)
         self.outputs_edit.setFixedWidth(900)
         self.outputs_edit.setFixedHeight(165)
         self.outputs_edit.setStyleSheet("""
@@ -147,17 +149,57 @@ class NodeEditorDialog(QDialog):
             }
         """)
 
+        self.evaluate_code_for_outputs()
+        self.code_edit.textChanged.connect(self.evaluate_code_for_outputs)
+
     def on_save(self):
         code = self.code_edit.toPlainText()
-        outputs_raw = self.outputs_edit.toPlainText().strip()
+        outputs_raw = outputs_raw = self.outputs_edit.toPlainText()
 
-        # parse outputs: split by comma, strip spaces; ignore empty names
-        outputs = [o.strip() for o in outputs_raw.split(",") if o.strip()]
+        output_vars = [o.strip() for o in outputs_raw.split(",") if o.strip()]
+
+        self.node.code = code
+        self.node.outputs = outputs_raw
+
+        self.node.canvas.save_canvas_state()
 
         # Prepare result dict
         self.result_data = {
             "code": code,
-            "outputs": outputs,
+            "outputs": output_vars,
         }
 
         self.accept()
+    
+    def evaluate_code_for_outputs(self):
+        code = self.code_edit.toPlainText()
+
+        # Dummy inputs to prevent crashes during dev/testing
+        dummy_inputs = {
+            "text": "example input",
+            "user_id": 123
+        }
+
+        # Safe local namespace
+        local_vars = {}
+        global_vars = {
+            "__builtins__": __builtins__,  # Can restrict if needed
+            "inputs": dummy_inputs,
+            **dummy_inputs
+        }
+
+        try:
+            exec(code, global_vars, local_vars)
+
+            # Fetch outputs if defined
+            outputs = local_vars.get("outputs", {})
+            if isinstance(outputs, dict):
+                # Set output var names in the output window
+                output_keys = ", ".join(outputs.keys())
+                self.outputs_edit.setText(output_keys)
+            else:
+                self.outputs_edit.setText("")
+
+        except Exception as e:
+            # Could show errors in the future in a status area or log them
+            self.outputs_edit.setText(f"# Error in code\n# {e.__class__.__name__}: {str(e)}")
