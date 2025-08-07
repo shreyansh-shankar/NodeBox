@@ -101,7 +101,7 @@ class NodeEditorDialog(QDialog):
         right_layout = QVBoxLayout()
         right_layout.addWidget(QLabel("Python Code"))
         right_layout.addWidget(self.code_edit)
-        right_layout.addWidget(QLabel("Output variable names"))
+        right_layout.addWidget(QLabel("Output"))
         right_layout.addWidget(self.outputs_edit)
 
         # Main layout: inputs on left (narrow), code on right (wide)
@@ -159,7 +159,7 @@ class NodeEditorDialog(QDialog):
         output_vars = [o.strip() for o in outputs_raw.split(",") if o.strip()]
 
         self.node.code = code
-        self.node.outputs = outputs_raw
+        self.node.outputs = output_vars
 
         self.node.canvas.save_canvas_state()
 

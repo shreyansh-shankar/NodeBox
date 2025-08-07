@@ -342,13 +342,9 @@ class CanvasWidget(QWidget):
             if conn.end_port and conn.end_port.node == node:
                 # a connection that feeds this node; use the upstream node's output names if available
                 upstream_node = conn.start_port.node
-                upstream_outputs = getattr(upstream_node, "output_vars", [])
+                upstream_outputs = getattr(upstream_node, "outputs", [])
                 # if upstream has outputs list, include them; otherwise include a generic name
-                if upstream_outputs:
-                    inputs.extend(upstream_outputs)
-                else:
-                    # fallback: create a synthetic name based on upstream node title
-                    inputs.append(f"{upstream_node.title}_out")
+                inputs.extend(upstream_outputs)
 
         # Deduplicate while preserving order
         seen = set()

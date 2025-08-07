@@ -17,7 +17,6 @@ class NodeEditorWindow(QMainWindow):
 
         # Load existing automation data
         self.automation_data = self.load_automation()
-        print("Loaded automation data:", self.automation_data)
 
         self.setup_ui()
 
