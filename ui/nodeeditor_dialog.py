@@ -1,11 +1,13 @@
 # ui/node_editor.py
 from PyQt6.QtWidgets import ( #type: ignore
     QDialog, QLabel, QLineEdit, QTextEdit, QListWidget, QPushButton,
-    QVBoxLayout, QHBoxLayout, QFormLayout, QDialogButtonBox, QWidget, QMessageBox
+    QVBoxLayout, QHBoxLayout, QFormLayout, QDialogButtonBox, QWidget, QMessageBox, QPlainTextEdit
 )
 from PyQt6.QtCore import Qt #type: ignore
 
 import traceback
+import sys
+import io
 
 # Starter template shown when code editor is blank
 TEMPLATE_CODE = """# Node code template
@@ -86,23 +88,42 @@ class NodeEditorDialog(QDialog):
         self.button_box = QDialogButtonBox(
             QDialogButtonBox.StandardButton.Save | QDialogButtonBox.StandardButton.Cancel
         )
+
+        # Add Play button
+        self.play_button = self.button_box.addButton("▶ Run", QDialogButtonBox.ButtonRole.ActionRole)
+        self.play_button.clicked.connect(self.on_run_code)
+
         self.button_box.accepted.connect(self.on_save)
         self.button_box.rejected.connect(self.reject)
-
-        # Layouts
-        form = QFormLayout()
 
         left_layout = QVBoxLayout()
         left_layout.addWidget(QLabel("Available Inputs"))
         left_layout.addWidget(self.inputs_list)
+
+        # Outputs edit background (moved here)
+        self.outputs_edit = QTextEdit()
+        self.outputs_edit.setReadOnly(True)
+        self.outputs_edit.setFixedWidth(300)
+        self.outputs_edit.setFixedHeight(500)
+        self.outputs_edit.setStyleSheet("""
+            QTextEdit {
+                background-color: #1e1e1e;
+                color: #ffffff;
+                border: 1px solid #444444;
+            }
+        """)
+        left_layout.addWidget(QLabel("Detected Outputs"))
+        left_layout.addWidget(self.outputs_edit)
+        
         left_widget = QWidget()
         left_widget.setLayout(left_layout)
 
         right_layout = QVBoxLayout()
         right_layout.addWidget(QLabel("Python Code"))
         right_layout.addWidget(self.code_edit)
-        right_layout.addWidget(QLabel("Output"))
-        right_layout.addWidget(self.outputs_edit)
+        self.terminal_output = QPlainTextEdit()
+        right_layout.addWidget(QLabel("Terminal Window"))
+        right_layout.addWidget(self.terminal_output)
 
         # Main layout: inputs on left (narrow), code on right (wide)
         main_layout = QHBoxLayout()
@@ -115,7 +136,7 @@ class NodeEditorDialog(QDialog):
 
         # Inputs list background
         self.inputs_list.setFixedWidth(300)
-        self.inputs_list.setFixedHeight(1000)
+        self.inputs_list.setFixedHeight(500)
         self.inputs_list.setStyleSheet("""
             QListWidget {
                 background-color: #1e1e1e;
@@ -137,30 +158,26 @@ class NodeEditorDialog(QDialog):
             }
         """)
 
-        # Outputs edit background
-        self.outputs_edit.setReadOnly(True)
-        self.outputs_edit.setFixedWidth(900)
-        self.outputs_edit.setFixedHeight(165)
-        self.outputs_edit.setStyleSheet("""
-            QTextEdit {
-                background-color: #1e1e1e;
-                color: #ffffff;
+        self.terminal_output.setReadOnly(True)
+        self.terminal_output.setFixedHeight(200)
+        self.terminal_output.setStyleSheet("""
+            QPlainTextEdit {
+                background-color: #000000;
+                color: #00ff00;
+                font-family: Consolas, 'Courier New', monospace;
+                font-size: 12px;
                 border: 1px solid #444444;
             }
         """)
 
-        self.evaluate_code_for_outputs()
-        self.code_edit.textChanged.connect(self.evaluate_code_for_outputs)
-
     def on_save(self):
         code = self.code_edit.toPlainText()
-        outputs_raw = outputs_raw = self.outputs_edit.toPlainText()
+        outputs_raw = self.outputs_edit.toPlainText()
 
         output_vars = [o.strip() for o in outputs_raw.split(",") if o.strip()]
 
         self.node.code = code
         self.node.outputs = output_vars
-
         self.node.canvas.save_canvas_state()
 
         # Prepare result dict
@@ -171,35 +188,43 @@ class NodeEditorDialog(QDialog):
 
         self.accept()
     
-    def evaluate_code_for_outputs(self):
+    def on_run_code(self):
+        """Run the code and show output in terminal window."""
         code = self.code_edit.toPlainText()
-
-        # Dummy inputs to prevent crashes during dev/testing
         dummy_inputs = {
             "text": "example input",
             "user_id": 123
         }
 
-        # Safe local namespace
         local_vars = {}
         global_vars = {
-            "__builtins__": __builtins__,  # Can restrict if needed
+            "__builtins__": __builtins__,
             "inputs": dummy_inputs,
             **dummy_inputs
         }
 
+        self.terminal_output.clear()
+
+        # Redirect stdout/stderr
+        stdout_buffer = io.StringIO()
+        stderr_buffer = io.StringIO()
+        old_stdout, old_stderr = sys.stdout, sys.stderr
+        sys.stdout, sys.stderr = stdout_buffer, stderr_buffer
+
         try:
             exec(code, global_vars, local_vars)
-
-            # Fetch outputs if defined
             outputs = local_vars.get("outputs", {})
             if isinstance(outputs, dict):
-                # Set output var names in the output window
                 output_keys = ", ".join(outputs.keys())
                 self.outputs_edit.setText(output_keys)
-            else:
-                self.outputs_edit.setText("")
 
         except Exception as e:
-            # Could show errors in the future in a status area or log them
-            self.outputs_edit.setText(f"# Error in code\n# {e.__class__.__name__}: {str(e)}")
+            self.terminal_output.appendPlainText(f"Error: {e}")
+        finally:
+            sys.stdout, sys.stderr = old_stdout, old_stderr
+
+        # Show output in terminal
+        output_text = stdout_buffer.getvalue() + stderr_buffer.getvalue()
+        if output_text.strip():
+            self.terminal_output.appendPlainText(output_text)
+
