@@ -2,7 +2,7 @@ from PyQt6.QtWidgets import QMainWindow, QWidget, QLabel, QVBoxLayout, QMessageB
 from PyQt6.QtCore import Qt, pyqtSignal #type: ignore
 import os, json
 
-from ui.canvas_widget import CanvasWidget
+from canvasmanager.canvas_widget import CanvasWidget
 
 class NodeEditorWindow(QMainWindow):
 
