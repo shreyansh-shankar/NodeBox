@@ -65,8 +65,13 @@ class NodeEditorDialog(QDialog):
         # --- UI widgets ---
         self.inputs_list = QListWidget()
         self.inputs_list.setSelectionMode(QListWidget.SelectionMode.NoSelection)
-        for v in self.inputs:
-            self.inputs_list.addItem(str(v))
+        if isinstance(self.inputs, dict):
+            for k, v in self.inputs.items():
+                self.inputs_list.addItem(f"{k} = {v}")
+        else:
+            for v in self.inputs:
+                self.inputs_list.addItem(str(v))
+
 
         self.code_edit = QTextEdit()
         # Prefill code if node provides stored code (optional attr 'code')
@@ -174,10 +179,15 @@ class NodeEditorDialog(QDialog):
         code = self.code_edit.toPlainText()
         outputs_raw = self.outputs_edit.toPlainText()
 
-        output_vars = [o.strip() for o in outputs_raw.split(",") if o.strip()]
+        # Always define output_vars
+        if isinstance(self.node.outputs, dict):
+            output_vars = list(self.node.outputs.keys())
+        else:
+            output_vars = [o.strip() for o in outputs_raw.split(",") if o.strip()]
+            self.node.outputs = {name: None for name in output_vars}
+
 
         self.node.code = code
-        self.node.outputs = output_vars
         self.node.canvas.save_canvas_state()
 
         # Prepare result dict
@@ -191,16 +201,20 @@ class NodeEditorDialog(QDialog):
     def on_run_code(self):
         """Run the code and show output in terminal window."""
         code = self.code_edit.toPlainText()
-        dummy_inputs = {
-            "text": "example input",
-            "user_id": 123
-        }
+        
+        actual_inputs = self.inputs if isinstance(self.inputs, dict) else {}
+        if not actual_inputs:
+            # fallback to dummy values
+            actual_inputs = {
+                "text": "example input",
+                "user_id": 123
+            }
 
         local_vars = {}
         global_vars = {
             "__builtins__": __builtins__,
-            "inputs": dummy_inputs,
-            **dummy_inputs
+            "inputs": actual_inputs,
+            **actual_inputs
         }
 
         self.terminal_output.clear()
@@ -215,6 +229,7 @@ class NodeEditorDialog(QDialog):
             exec(code, global_vars, local_vars)
             outputs = local_vars.get("outputs", {})
             if isinstance(outputs, dict):
+                self.node.outputs = outputs
                 output_keys = ", ".join(outputs.keys())
                 self.outputs_edit.setText(output_keys)
 

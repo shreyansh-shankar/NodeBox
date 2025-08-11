@@ -202,12 +202,20 @@ class CanvasWidget(QWidget):
 
         nodes_data = []
         for node in self.nodes.values():
+
+            outputs_data = getattr(node, "outputs", {})
+
+            # If it's still a list (old style), convert to dict with None
+            if isinstance(outputs_data, list):
+                outputs_data = {name: None for name in outputs_data}
+
+
             nodes_data.append({
                 "id": node.id,
                 "name": node.title,
                 "position": [int(node.logical_pos.x()), int(node.logical_pos.y())],
                 "code": getattr(node, "code", ""),
-                "outputs": getattr(node, "outputs", [])
+                "outputs": outputs_data
             })
         
         connections_data = []
@@ -245,7 +253,11 @@ class CanvasWidget(QWidget):
             title = node_data["name"]
             pos = QPointF(*node_data["position"])
             code = node_data.get("code", "")
-            outputs = node_data.get("outputs", [])
+            outputs = node_data.get("outputs", {})
+
+            # Backward compatibility: convert list to dict with None
+            if isinstance(outputs, list):
+                outputs = {name: None for name in outputs}
 
             node = NodeWidget(title=title, canvas=self, pos=pos)
             node.id = node_id
@@ -293,19 +305,19 @@ class CanvasWidget(QWidget):
             self.cancel_connection()
             return
 
-        # ❌ Same node
+        # same node
         if start_port.node == target_port.node:
             print("Invalid connection: Cannot connect ports on the same node.")
             self.cancel_connection()
             return
 
-        # ❌ Same type (input -> input or output -> output)
+        # same type (input -> input or output -> output)
         if start_port.type == target_port.type:
             print("Invalid connection: Cannot connect ports of same type.")
             self.cancel_connection()
             return
 
-        # ✅ Passed all checks
+        # passed all checks
         self.pending_connection.end_port = target_port
         self.pending_connection.finalize()
         self.connections.append(self.pending_connection)
@@ -337,23 +349,28 @@ class CanvasWidget(QWidget):
 
         # Determine inputs for the node: gather variable names from incoming connections.
         # For the basic UI we can show placeholder inputs or actual upstream outputs.
-        inputs = []
+        inputs_dict = {}
+        
         for conn in self.connections:
             if conn.end_port and conn.end_port.node == node:
-                # a connection that feeds this node; use the upstream node's output names if available
                 upstream_node = conn.start_port.node
-                upstream_outputs = getattr(upstream_node, "outputs", [])
-                # if upstream has outputs list, include them; otherwise include a generic name
-                inputs.extend(upstream_outputs)
+                upstream_outputs = getattr(upstream_node, "outputs", {})
 
-        # Deduplicate while preserving order
-        seen = set()
-        inputs = [x for x in inputs if not (x in seen or seen.add(x))]
+                if isinstance(upstream_outputs, dict):
+                    # Merge all outputs from upstream node
+                    inputs_dict.update(upstream_outputs)
+                elif isinstance(upstream_outputs, list):
+                    # If upstream only stored names, set placeholder None
+                    for var in upstream_outputs:
+                        inputs_dict[var] = None
+                else:
+                    # Unexpected format, skip
+                    continue
 
         # Provide existing code if node has it
         initial_code = getattr(node, "code", "")
 
-        dlg = NodeEditorDialog(node=node, inputs=inputs, initial_code=initial_code, parent=self)
+        dlg = NodeEditorDialog(node=node, inputs=inputs_dict, initial_code=initial_code, parent=self)
         if dlg.exec() == QDialog.accepted:
             data = dlg.result_data
             # Apply changes to node:

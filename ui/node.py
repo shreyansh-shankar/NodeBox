@@ -17,7 +17,14 @@ class NodeWidget(QWidget):
         self.setFixedSize(180, 100)
 
         self.code = ""
-        self.outputs = []
+        if outputs is None:
+            self.outputs = {}
+        elif isinstance(outputs, list):  # backward compatibility
+            self.outputs = {name: None for name in outputs}
+        elif isinstance(outputs, dict):
+            self.outputs = outputs
+        else:
+            raise TypeError(f"Unexpected outputs type: {type(outputs)}")
 
         # to track if the node is selected or not
         self.selected = False
