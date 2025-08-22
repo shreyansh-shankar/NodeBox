@@ -1,8 +1,8 @@
 # model_card.py
 
-from PyQt6.QtWidgets import QWidget, QLabel, QVBoxLayout, QHBoxLayout, QFrame #type: ignore
-from PyQt6.QtGui import QPixmap, QFont, QCursor, QDesktopServices #type: ignore
-from PyQt6.QtCore import Qt, QUrl #type: ignore
+from PyQt6.QtWidgets import QWidget, QLabel, QVBoxLayout, QHBoxLayout, QFrame, QPushButton #type: ignore
+from PyQt6.QtGui import QPixmap, QFont, QCursor, QDesktopServices, QIcon #type: ignore
+from PyQt6.QtCore import Qt, QUrl, QSize #type: ignore
 
 class ModelCard(QFrame):
     def __init__(self, model_data, parent=None):
@@ -68,8 +68,34 @@ class ModelCard(QFrame):
         info_layout.addWidget(name)
         info_layout.addWidget(description)
 
+        # Download Button (Top-Right)
+        self.download_button = QPushButton()
+        self.download_button.setIcon(QIcon.fromTheme("download"))  # fallback system icon
+        self.download_button.setIconSize(QSize(32, 32))
+        self.download_button.setFixedSize(42, 42)
+        self.download_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        self.download_button.setStyleSheet("""
+            QPushButton {
+                border: 1px solid white;
+                border-radius: 16px;
+                background-color: #262626;
+            }
+            QPushButton:hover {
+                background-color: #058401;
+            }
+            QPushButton:pressed {
+                background-color: #059e00;
+            }
+        """)
+
+        # Place button on far right
+        right_layout = QVBoxLayout()
+        right_layout.addWidget(self.download_button, alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignRight)
+        right_layout.addStretch()
+
         top_layout.addWidget(icon_label)
         top_layout.addLayout(info_layout)
+        top_layout.addLayout(right_layout)
 
         # Bottom: Tags + Sizes
         bottom_layout = QVBoxLayout()
@@ -110,6 +136,12 @@ class ModelCard(QFrame):
         main_layout.addLayout(top_layout)
         main_layout.addStretch()
         main_layout.addLayout(bottom_layout)
+
+        # Connect download button
+        self.download_button.clicked.connect(self.on_download_clicked)
+
+    def on_download_clicked(self):
+        print(f"Download clicked for model: {self.model['name']}")
 
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:

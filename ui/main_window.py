@@ -106,15 +106,12 @@ class MainWindow(QWidget):
             item_widget.setLayout(item_layout)
 
             label = QLabel(name)
-            run_button = QPushButton("Run")
-            edit_button = QPushButton("Edit")
+            edit_button = QPushButton("Open")
 
-            run_button.setFixedWidth(60)
-            edit_button.setFixedWidth(60)
+            edit_button.setFixedWidth(80)
 
             item_layout.addWidget(label)
             item_layout.addStretch()
-            item_layout.addWidget(run_button)
             item_layout.addWidget(edit_button)
 
             list_item = QListWidgetItem()
