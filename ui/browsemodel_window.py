@@ -8,6 +8,7 @@ from PyQt6.QtCore import Qt #type: ignore
 from ui.model_card import ModelCard
 from models_data import models
 from ui.filter_window import FilterWindow
+from ui.downlaod_manager import DownloadManager
 
 class BrowseModelsWindow(QWidget):
     def __init__(self):
@@ -15,6 +16,8 @@ class BrowseModelsWindow(QWidget):
         self.setWindowTitle("Browse Models")
         self.setMinimumSize(1200, 800)
         self.setStyleSheet("background-color: #121212;")
+
+        self._downloads = []
 
         main_layout = QVBoxLayout(self)
 
@@ -93,6 +96,7 @@ class BrowseModelsWindow(QWidget):
         for idx, model in enumerate(filtered_models):
             row, col = divmod(idx, 2)
             card = ModelCard(model)
+            card.downloadRequested.connect(self.open_download_manager)
             self.grid.addWidget(card, row, col)
 
     def open_filter_window(self):
@@ -102,3 +106,9 @@ class BrowseModelsWindow(QWidget):
         button_pos = self.filter_button.mapToGlobal(self.filter_button.rect().bottomLeft())
         self.filter_window.move(button_pos.x() - 250 , button_pos.y())  # Position it just below the button
         self.filter_window.show()
+
+    def open_download_manager(self, model):
+        sizes = model.get("sizes", ["latest"])
+        dlg = DownloadManager(model_name=model["name"], sizes=sizes, parent=self)
+        self._downloads.append(dlg)  # prevent GC
+        dlg.exec()  # use exec

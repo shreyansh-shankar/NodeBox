@@ -2,9 +2,12 @@
 
 from PyQt6.QtWidgets import QWidget, QLabel, QVBoxLayout, QHBoxLayout, QFrame, QPushButton #type: ignore
 from PyQt6.QtGui import QPixmap, QFont, QCursor, QDesktopServices, QIcon #type: ignore
-from PyQt6.QtCore import Qt, QUrl, QSize #type: ignore
+from PyQt6.QtCore import Qt, QUrl, QSize, pyqtSignal #type: ignore
 
 class ModelCard(QFrame):
+
+    downloadRequested = pyqtSignal(dict)
+
     def __init__(self, model_data, parent=None):
         super().__init__(parent)
         self.model = model_data
@@ -138,10 +141,7 @@ class ModelCard(QFrame):
         main_layout.addLayout(bottom_layout)
 
         # Connect download button
-        self.download_button.clicked.connect(self.on_download_clicked)
-
-    def on_download_clicked(self):
-        print(f"Download clicked for model: {self.model['name']}")
+        self.download_button.clicked.connect(lambda: self.downloadRequested.emit(self.model))
 
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
