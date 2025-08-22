@@ -631,7 +631,7 @@ models = [
     },
     {
         "name": "neural-chat",
-        "icon": "assets/models_logo/neuralchat.png",
+        "icon": "assets/models_logo/intel.png",
         "description": "Fine-tuned Mistral model with strong domain and language coverage.",
         "tags": [],
         "sizes": ["7b"]
@@ -722,21 +722,21 @@ models = [
     },
     {
         "name": "nous-hermes",
-        "icon": "assets/models_logo/nous.png",
+        "icon": "assets/models_logo/hermes.png",
         "description": "General use models based on Llama and Llama 2 from Nous Research.",
         "tags": ["nous"],
         "sizes": ["7b", "13b"]
     },
     {
         "name": "dbrx",
-        "icon": "assets/models_logo/dbrx.png",
+        "icon": "assets/models_logo/ailogo.jpg",
         "description": "DBRX is an open, general-purpose LLM created by Databricks.",
         "tags": [],
         "sizes": ["132b"]
     },
     {
         "name": "exaone3.5",
-        "icon": "assets/models_logo/exaone.png",
+        "icon": "assets/models_logo/ailogo.jpg",
         "description": "EXAONE 3.5 is a collection of instruction-tuned bilingual models ranging from 2.4B to 32B by LG AI Research.",
         "tags": ["bilingual"],
         "sizes": ["2.4b", "7.8b", "32b"]
@@ -764,21 +764,21 @@ models = [
     },
     {
         "name": "nemotron-mini",
-        "icon": "assets/models_logo/nemotron.png",
+        "icon": "assets/models_logo/ailogo.jpg",
         "description": "Commercial-friendly small LLM by NVIDIA optimized for roleplay, RAG QA, and function calling.",
         "tags": ["tools"],
         "sizes": ["4b"]
     },
     {
         "name": "starling-lm",
-        "icon": "assets/models_logo/starling.png",
+        "icon": "assets/models_logo/ailogo.jpg",
         "description": "A large language model trained by reinforcement learning from AI feedback focused on chatbot helpfulness.",
         "tags": [],
         "sizes": ["7b"]
     },
     {
         "name": "falcon",
-        "icon": "assets/models_logo/falcon.png",
+        "icon": "assets/models_logo/ailogo.jpg",
         "description": "A model built by TII for summarization, text generation, and chat.",
         "tags": [],
         "sizes": ["7b", "40b", "180b"]
@@ -792,21 +792,21 @@ models = [
     },
     {
         "name": "solar",
-        "icon": "assets/models_logo/solar.png",
+        "icon": "assets/models_logo/ailogo.jpg",
         "description": "A compact, yet powerful 10.7B LLM designed for single-turn conversation.",
         "tags": [],
         "sizes": ["10.7b"]
     },
     {
         "name": "xwinlm",
-        "icon": "assets/models_logo/xwin.png",
+        "icon": "assets/models_logo/ailogo.jpg",
         "description": "Conversational model based on Llama 2 performing competitively on various benchmarks.",
         "tags": [],
         "sizes": ["7b", "13b"]
     },
     {
         "name": "internlm2",
-        "icon": "assets/models_logo/internlm.png",
+        "icon": "assets/models_logo/ailogo.jpg",
         "description": "InternLM2.5 is a 7B parameter model tailored for practical scenarios with outstanding reasoning capability.",
         "tags": [],
         "sizes": ["1m", "1.8b", "7b", "20b"]
@@ -820,14 +820,14 @@ models = [
     },
     {
         "name": "athene-v2",
-        "icon": "assets/models_logo/athene.png",
+        "icon": "assets/models_logo/ailogo.jpg",
         "description": "Athene-V2 is a 72B parameter model which excels at code completion, mathematics, and log extraction tasks.",
         "tags": ["tools"],
         "sizes": ["72b"]
     },
     {
         "name": "nemotron",
-        "icon": "assets/models_logo/nemotron.png",
+        "icon": "assets/models_logo/ailogo.jpg",
         "description": "Llama-3.1-Nemotron-70B-Instruct is a large language model customized by NVIDIA to improve the helpfulness of LLM generated responses to user queries.",
         "tags": ["tools"],
         "sizes": ["70b"]
@@ -841,7 +841,7 @@ models = [
     },
     {
         "name": "opencoder",
-        "icon": "assets/models_logo/opencoder.png",
+        "icon": "assets/models_logo/ailogo.jpg",
         "description": "OpenCoder is an open and reproducible code LLM family which includes 1.5B and 8B models, supporting chat in English and Chinese languages.",
         "tags": [],
         "sizes": ["1.5b", "8b"]
@@ -862,7 +862,7 @@ models = [
     },
     {
         "name": "exaone-deep",
-        "icon": "assets/models_logo/exaone.png",
+        "icon": "assets/models_logo/ailogo.jpg",
         "description": "EXAONE Deep exhibits superior capabilities in various reasoning tasks including math and coding benchmarks, ranging from 2.4B to 32B parameters developed and released by LG AI Research.",
         "tags": [],
         "sizes": ["2.4b", "7.8b", "32b"]
@@ -876,7 +876,7 @@ models = [
     },
     {
         "name": "paraphrase-multilingual",
-        "icon": "assets/models_logo/paraphrase-multilingual.png",
+        "icon": "assets/models_logo/ailogo.jpg",
         "description": "Sentence-transformers model that can be used for tasks like clustering or semantic search.",
         "tags": ["embedding"],
         "sizes": ["278m"]
@@ -890,28 +890,28 @@ models = [
     },
     {
         "name": "aya-expanse",
-        "icon": "assets/models_logo/aya.png",
+        "icon": "assets/models_logo/ailogo.jpg",
         "description": "Cohere For AI's language models trained to perform well across 23 different languages.",
         "tags": ["tools"],
         "sizes": ["8b", "32b"]
     },
     {
         "name": "orca2",
-        "icon": "assets/models_logo/orca.png",
+        "icon": "assets/models_logo/ailogo.jpg",
         "description": "Orca 2 is built by Microsoft research, and are a fine-tuned version of Meta's Llama 2 models. The model is designed to excel particularly in reasoning.",
         "tags": [],
         "sizes": ["7b", "13b"]
     },
     {
         "name": "smallthinker",
-        "icon": "assets/models_logo/smallthinker.png",
+        "icon": "assets/models_logo/ailogo.jpg",
         "description": "A new small reasoning model fine-tuned from the Qwen 2.5 3B Instruct model.",
         "tags": [],
         "sizes": ["3b"]
     },
     {
         "name": "falcon3",
-        "icon": "assets/models_logo/falcon.png",
+        "icon": "assets/models_logo/ailogo.jpg",
         "description": "A family of efficient AI models under 10B parameters performant in science, math, and coding through innovative training techniques.",
         "tags": [],
         "sizes": ["1b", "3b", "7b", "10b"]
@@ -946,7 +946,7 @@ models = [
     },
     {
         "name": "stable-beluga",
-        "icon": "assets/models_logo/stable-beluga.png",
+        "icon": "assets/models_logo/ailogo.jpg",
         "description": "Llama 2 based model fine tuned on an Orca-style dataset. Originally called Free Willy.",
         "tags": [],
         "sizes": ["7b", "13b", "70b"]
@@ -988,7 +988,7 @@ models = [
     },
     {
         "name": "reader-lm",
-        "icon": "assets/models_logo/reader.png",
+        "icon": "assets/models_logo/ailogo.jpg",
         "description": "A series of models that convert HTML content to Markdown content, which is useful for content conversion tasks.",
         "tags": [],
         "sizes": ["0.5b", "1.5b"]
@@ -1023,7 +1023,7 @@ models = [
     },
     {
         "name": "nexusraven",
-        "icon": "assets/models_logo/nexusraven.png",
+        "icon": "assets/models_logo/ailogo.jpg",
         "description": "Nexus Raven is a 13B instruction tuned model for function calling tasks.",
         "tags": [],
         "sizes": ["13b"]
@@ -1058,7 +1058,7 @@ models = [
     },
     {
         "name": "marco-o1",
-        "icon": "assets/models_logo/marco.png",
+        "icon": "assets/models_logo/ailogo.jpg",
         "description": "An open large reasoning model for real-world solutions by the Alibaba International Digital Commerce Group (AIDC-AI).",
         "tags": [],
         "sizes": ["7b"]
@@ -1072,42 +1072,42 @@ models = [
     },
     {
         "name": "tulu3",
-        "icon": "assets/models_logo/tulu.png",
+        "icon": "assets/models_logo/ailogo.jpg",
         "description": "Tülu 3 is a leading instruction following model family, offering fully open-source data, code, and recipes by the The Allen Institute for AI.",
         "tags": [],
         "sizes": ["8b", "70b"]
     },
     {
         "name": "solar-pro",
-        "icon": "assets/models_logo/solar.png",
+        "icon": "assets/models_logo/ailogo.jpg",
         "description": "Solar Pro Preview: an advanced large language model (LLM) with 22 billion parameters designed to fit into a single GPU.",
         "tags": [],
         "sizes": ["22b"]
     },
     {
         "name": "duckdb-nsql",
-        "icon": "assets/models_logo/duckdb.png",
+        "icon": "assets/models_logo/ailogo.jpg",
         "description": "7B parameter text-to-SQL model made by MotherDuck and Numbers Station.",
         "tags": [],
         "sizes": ["7b"]
     },
     {
         "name": "falcon2",
-        "icon": "assets/models_logo/falcon.png",
+        "icon": "assets/models_logo/ailogo.jpg",
         "description": "Falcon2 is an 11B parameters causal decoder-only model built by TII and trained over 5T tokens.",
         "tags": [],
         "sizes": ["11b"]
     },
     {
         "name": "phi4-mini-reasoning",
-        "icon": "assets/models_logo/phi4.png",
+        "icon": "assets/models_logo/phi.png",
         "description": "Phi 4 mini reasoning is a lightweight open model that balances efficiency with advanced reasoning ability.",
         "tags": [],
         "sizes": ["3.8b"]
     },
     {
         "name": "magicoder",
-        "icon": "assets/models_logo/magicoder.png",
+        "icon": "assets/models_logo/ailogo.jpg",
         "description": "Magicoder is a family of 7B parameter models trained on 75K synthetic instruction data using OSS-Instruct.",
         "tags": [],
         "sizes": ["7b"]
@@ -1121,14 +1121,14 @@ models = [
     },
     {
         "name": "codebooga",
-        "icon": "assets/models_logo/codebooga.png",
+        "icon": "assets/models_logo/ailogo.jpg",
         "description": "A high-performing code instruct model created by merging two existing code models.",
         "tags": [],
         "sizes": ["34b"]
     },
     {
         "name": "bespoke-minicheck",
-        "icon": "assets/models_logo/bespoke.png",
+        "icon": "assets/models_logo/ailogo.jpg",
         "description": "A state-of-the-art fact-checking model developed by Bespoke Labs.",
         "tags": [],
         "sizes": ["7b"]
@@ -1163,21 +1163,21 @@ models = [
     },
     {
         "name": "notux",
-        "icon": "assets/models_logo/notux.png",
+        "icon": "assets/models_logo/ailogo.jpg",
         "description": "A top-performing mixture of experts model, fine-tuned with high-quality data.",
         "tags": [],
         "sizes": ["8x7b"]
     },
     {
         "name": "open-orca-platypus2",
-        "icon": "assets/models_logo/open-orca.png",
+        "icon": "assets/models_logo/ailogo.jpg",
         "description": "Merge of the Open Orca OpenChat model and the Garage-bAInd Platypus 2 model. Designed for chat and code generation.",
         "tags": [],
         "sizes": ["13b"]
     },
     {
         "name": "notus",
-        "icon": "assets/models_logo/notus.png",
+        "icon": "assets/models_logo/ailogo.jpg",
         "description": "A 7B chat model fine-tuned with high-quality data and based on Zephyr.",
         "tags": [],
         "sizes": ["7b"]
@@ -1191,28 +1191,28 @@ models = [
     },
     {
         "name": "goliath",
-        "icon": "assets/models_logo/goliath.png",
+        "icon": "assets/models_logo/ailogo.jpg",
         "description": "A language model created by combining two fine-tuned Llama 2 70B models into one.",
         "tags": [],
         "sizes": []
     },
     {
         "name": "sailor2",
-        "icon": "assets/models_logo/sailor.png",
+        "icon": "assets/models_logo/ailogo.jpg",
         "description": "Sailor2 are multilingual language models made for South-East Asia. Available in 1B, 8B, and 20B parameter sizes.",
         "tags": [],
         "sizes": ["1b", "8b", "20b"]
     },
     {
         "name": "firefunction-v2",
-        "icon": "assets/models_logo/firefunction.png",
+        "icon": "assets/models_logo/ailogo.jpg",
         "description": "An open weights function calling model based on Llama 3, competitive with GPT-4o function calling capabilities.",
         "tags": ["tools"],
         "sizes": ["70b"]
     },
     {
         "name": "alfred",
-        "icon": "assets/models_logo/alfred.png",
+        "icon": "assets/models_logo/ailogo.jpg",
         "description": "A robust conversational model designed to be used for both chat and instruct use cases.",
         "tags": [],
         "sizes": ["40b"]
