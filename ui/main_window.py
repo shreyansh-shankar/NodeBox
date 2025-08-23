@@ -85,6 +85,33 @@ class MainWindow(QWidget):
 
         self.browse_button.clicked.connect(self.open_browse_models_window)
 
+        # 🗂️ Floating View Downloaded Models Button
+        self.downloaded_button = QPushButton("📂 View Local Models", self)
+        self.downloaded_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.downloaded_button.setStyleSheet("""
+            QPushButton {
+                background-color: #2b2b2b;
+                color: white;
+                border-radius: 12px;
+                padding: 8px 14px;
+                font-family: 'Poppins';
+                font-size: 14px;
+            }
+            QPushButton:hover {
+                background-color: #000000;
+            }
+        """)
+
+        # Optional shadow effect
+        shadow_downloaded = QGraphicsDropShadowEffect(self)
+        shadow_downloaded.setBlurRadius(10)
+        shadow_downloaded.setOffset(2, 2)
+        self.downloaded_button.setGraphicsEffect(shadow_downloaded)
+        self.downloaded_button.resize(200, 40)  # width slightly bigger to fit text
+
+        # Connect to a handler (create a method for it)
+        self.downloaded_button.clicked.connect(self.view_downloaded_models)
+
     def load_automations(self):
         self.automation_list.clear()
 
@@ -236,10 +263,24 @@ class MainWindow(QWidget):
     def resizeEvent(self, event):
         super().resizeEvent(event)
         margin = 20
+
         x = self.width() - self.browse_button.width() - margin
         y = self.height() - self.browse_button.height() - margin
         self.browse_button.move(x, y)
 
+        # Bottom-left for View Downloaded Models
+        x_left = margin
+        y_bottom = self.height() - self.browse_button.height() - margin
+        self.downloaded_button.move(x_left, y_bottom)
+
+
     def open_browse_models_window(self):
         self.browse_window = BrowseModelsWindow()
         self.browse_window.show()
+    
+    def view_downloaded_models(self):
+        # Replace with your actual window or logic
+        from ui.downloaded_models_window import DownloadedModelsWindow
+        self.downloaded_window = DownloadedModelsWindow()
+        self.downloaded_window.show()
+
