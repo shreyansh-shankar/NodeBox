@@ -1,7 +1,7 @@
 # downloaded_models_window.py
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QLabel, QListWidget, QListWidgetItem,
-    QHBoxLayout, QPushButton, QSizePolicy, QGraphicsDropShadowEffect
+    QHBoxLayout, QPushButton, QMessageBox
 )
 from PyQt6.QtGui import QFont, QIcon
 from PyQt6.QtCore import Qt
@@ -60,14 +60,16 @@ class DownloadedModelsWindow(QWidget):
             version_label = QLabel(model.get("version", ""))
             version_label.setStyleSheet("color: #888; font-size: 12px;")
 
-            view_button = QPushButton("View")
-            view_button.setFixedWidth(80)
-            view_button.clicked.connect(lambda _, m=model: self.view_model_details(m))
+            # 🔴 Delete Button
+            delete_button = QPushButton("Delete")
+            delete_button.setFixedWidth(80)
+            delete_button.setStyleSheet("QPushButton { color: white; }")
+            delete_button.clicked.connect(lambda _, m=model: self.delete_model(m))
 
             item_layout.addWidget(name_label)
             item_layout.addWidget(version_label)
             item_layout.addStretch()
-            item_layout.addWidget(view_button)
+            item_layout.addWidget(delete_button)
 
             list_item = QListWidgetItem()
             list_item.setSizeHint(item_widget.sizeHint())
@@ -102,8 +104,26 @@ class DownloadedModelsWindow(QWidget):
             return []
 
 
-    def view_model_details(self, model):
-        """Placeholder function to view model details."""
-        from PyQt6.QtWidgets import QMessageBox
-        details = json.dumps(model, indent=2)
-        QMessageBox.information(self, f"Model: {model.get('name', '')}", details)
+    def delete_model(self, model):
+        """Delete a model using `ollama rm`."""
+        model_name = model.get("name", "")
+        if not model_name:
+            return
+
+        confirm = QMessageBox.question(
+            self,
+            "Confirm Delete",
+            f"Are you sure you want to delete model '{model_name}'?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        )
+
+        if confirm == QMessageBox.StandardButton.Yes:
+            try:
+                subprocess.run(
+                    ["ollama", "rm", model_name],
+                    capture_output=True, text=True, check=True
+                )
+                QMessageBox.information(self, "Deleted", f"Model '{model_name}' deleted successfully.")
+                self.load_models()  # Refresh list
+            except subprocess.CalledProcessError as e:
+                QMessageBox.critical(self, "Error", f"Failed to delete model '{model_name}':\n{e}")
