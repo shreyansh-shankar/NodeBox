@@ -3,7 +3,6 @@ from PyQt6.QtGui import QPainter, QColor, QPen, QMouseEvent, QKeyEvent, QWheelEv
 from PyQt6.QtCore import Qt, QRect, QPoint, QPointF, QTimer #type: ignore
 
 from ui.node import NodeWidget
-from predefined_nodes.readfile_node import ReadFileNode
 
 class CanvasWidget(QWidget):
     def __init__(self, automation_name=None, automation_data=None, parent=None):
@@ -206,10 +205,8 @@ class CanvasWidget(QWidget):
         node_type = event.mimeData().text()
         pos = (event.position() - self.offset) / self.scale  # convert to logical coords
 
-        if node_type == "Base Node":
+        if node_type == "Custom Node":
             node = NodeWidget("Base Node", self, pos=QPointF(pos))
-        elif node_type == "Read File":
-            node = ReadFileNode(self, QPointF(pos))
         else:
             node = NodeWidget(node_type, self, pos=QPointF(pos))
 

@@ -42,7 +42,7 @@ class NodeEditorWindow(QMainWindow):
         search_bar.setStyleSheet("padding: 5px; font-size: 14px; background-color: #333333")
         sidebar_layout.addWidget(search_bar)
 
-        nodes = ["Base Node", "Read File"]
+        nodes = ["Custom Node"]
         for n in nodes:
             sidebar_layout.addWidget(NodePaletteItem(n, sidebar))
 
