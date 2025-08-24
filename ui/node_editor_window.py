@@ -1,8 +1,10 @@
 from PyQt6.QtWidgets import QMainWindow, QWidget, QLabel, QVBoxLayout, QMessageBox, QHBoxLayout, QFrame, QLineEdit #type: ignore
 from PyQt6.QtCore import Qt, pyqtSignal #type: ignore
+
 import os, json
 
 from canvasmanager.canvas_widget import CanvasWidget
+from ui.node_pallete import NodePaletteItem
 
 class NodeEditorWindow(QMainWindow):
 
@@ -39,6 +41,11 @@ class NodeEditorWindow(QMainWindow):
         search_bar.setPlaceholderText("Search nodes...")
         search_bar.setStyleSheet("padding: 5px; font-size: 14px; background-color: #333333")
         sidebar_layout.addWidget(search_bar)
+
+        nodes = ["Base Node", "Read File"]
+        for n in nodes:
+            sidebar_layout.addWidget(NodePaletteItem(n, sidebar))
+
 
         sidebar_layout.addStretch()
         main_layout.addWidget(sidebar)

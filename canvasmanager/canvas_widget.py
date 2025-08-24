@@ -3,6 +3,8 @@ from PyQt6.QtGui import QPainter, QColor, QPen, QMouseEvent, QKeyEvent, QWheelEv
 from PyQt6.QtCore import Qt, QRect, QPoint, QPointF, QTimer #type: ignore
 
 from ui.node import NodeWidget
+from predefined_nodes.readfile_node import ReadFileNode
+
 class CanvasWidget(QWidget):
     def __init__(self, automation_name=None, automation_data=None, parent=None):
         super().__init__(parent)
@@ -21,6 +23,7 @@ class CanvasWidget(QWidget):
         self.last_mouse_pos = QPointF()
 
         self.selected_node = None
+        self.setAcceptDrops(True)
 
         self.initial_centering_done = False
         QTimer.singleShot(0, self.center_initial_view)
@@ -194,3 +197,27 @@ class CanvasWidget(QWidget):
         self.selected_node = node
         node.selected = True
         node.update()
+    
+    def dragEnterEvent(self, event):
+        if event.mimeData().hasText():
+            event.acceptProposedAction()
+
+    def dropEvent(self, event):
+        node_type = event.mimeData().text()
+        pos = (event.position() - self.offset) / self.scale  # convert to logical coords
+
+        if node_type == "Base Node":
+            node = NodeWidget("Base Node", self, pos=QPointF(pos))
+        elif node_type == "Read File":
+            node = ReadFileNode(self, QPointF(pos))
+        else:
+            node = NodeWidget(node_type, self, pos=QPointF(pos))
+
+        # ---- critical: store node and initialize ----
+        self.nodes[node.id] = node
+        node.logical_pos = QPointF(pos)
+        node.update_position()
+        node.show()
+
+        self.save_canvas_state()
+        event.acceptProposedAction()
