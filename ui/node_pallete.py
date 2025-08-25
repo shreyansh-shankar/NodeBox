@@ -1,6 +1,6 @@
-from PyQt6.QtWidgets import QLabel
-from PyQt6.QtCore import Qt, QMimeData
-from PyQt6.QtGui import QDrag
+from PyQt6.QtWidgets import QLabel #type: ignore
+from PyQt6.QtCore import Qt, QMimeData #type: ignore
+from PyQt6.QtGui import QDrag #type: ignore
 
 class NodePaletteItem(QLabel):
     def __init__(self, node_type, parent=None):
