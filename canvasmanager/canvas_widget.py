@@ -222,3 +222,6 @@ class CanvasWidget(QWidget):
 
         self.save_canvas_state()
         event.acceptProposedAction()
+
+    def run_all_nodes(*args):
+        print("Running all nodes...")

@@ -1,6 +1,5 @@
-# model_card.py
-
 from PyQt6.QtWidgets import QWidget, QLabel, QVBoxLayout, QHBoxLayout, QFrame, QPushButton #type: ignore
+from PyQt6.QtSvgWidgets import QSvgWidget #type: ignore
 from PyQt6.QtGui import QPixmap, QFont, QCursor, QDesktopServices, QIcon #type: ignore
 from PyQt6.QtCore import Qt, QUrl, QSize, pyqtSignal #type: ignore
 
@@ -73,7 +72,8 @@ class ModelCard(QFrame):
 
         # Download Button (Top-Right)
         self.download_button = QPushButton()
-        self.download_button.setIcon(QIcon.fromTheme("download"))  # fallback system icon
+        svg_path = "assets/icons/download.svg"
+        self.download_button.setIcon(QIcon(svg_path))
         self.download_button.setIconSize(QSize(32, 32))
         self.download_button.setFixedSize(42, 42)
         self.download_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
@@ -81,6 +81,7 @@ class ModelCard(QFrame):
             QPushButton {
                 border: 1px solid white;
                 border-radius: 16px;
+                border: 0px;
                 background-color: #262626;
             }
             QPushButton:hover {

@@ -1,5 +1,6 @@
-from PyQt6.QtWidgets import QMainWindow, QWidget, QLabel, QVBoxLayout, QMessageBox, QHBoxLayout, QFrame, QLineEdit #type: ignore
-from PyQt6.QtCore import Qt, pyqtSignal #type: ignore
+from PyQt6.QtWidgets import QMainWindow, QWidget, QLabel, QVBoxLayout, QPushButton, QHBoxLayout, QFrame, QLineEdit #type: ignore
+from PyQt6.QtCore import Qt, pyqtSignal, QSize #type: ignore
+from PyQt6.QtGui import QIcon #type: ignore
 
 import os, json
 
@@ -46,7 +47,6 @@ class NodeEditorWindow(QMainWindow):
         for n in nodes:
             sidebar_layout.addWidget(NodePaletteItem(n, sidebar))
 
-
         sidebar_layout.addStretch()
         main_layout.addWidget(sidebar)
 
@@ -54,18 +54,51 @@ class NodeEditorWindow(QMainWindow):
         right_panel = QWidget()
         right_layout = QVBoxLayout(right_panel)
 
-        # Label
+        # Title row (label + play button)
+        title_row = QHBoxLayout()
+
         label = QLabel(f"Editing Automation: {self.automation_name}")
-        label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         label.setStyleSheet("font-size: 18px; font-weight: bold; padding: 5px;")
-        right_layout.addWidget(label)
+
+        title_row.addWidget(label)
+        title_row.addStretch()
+
+        # Play button (SVG)
+        play_button = QPushButton()
+        svg_path = os.path.join("assets/icons/play.svg")
+        play_button.setIcon(QIcon(svg_path))
+        play_button.setIconSize(QSize(28, 28))
+        play_button.setFixedSize(40, 40)
+        play_button.setStyleSheet("""
+            QPushButton {
+                border: none;
+                border-radius: 8px;
+                background-color: #2d2d2d;
+            }
+            QPushButton:hover {
+                background-color: #3a3a3a;
+            }
+            QPushButton:pressed {
+                background-color: #444444;
+            }
+        """)
+
+        title_row.addWidget(play_button, alignment=Qt.AlignmentFlag.AlignRight)
+
+        right_layout.addLayout(title_row)
 
         # Canvas
-        self.canvas_widget = CanvasWidget(automation_name=self.automation_name, automation_data=self.automation_data)
+        self.canvas_widget = CanvasWidget(
+            automation_name=self.automation_name, 
+            automation_data=self.automation_data
+        )
         right_layout.addWidget(self.canvas_widget, stretch=1)
 
         main_layout.addWidget(right_panel, stretch=1)
 
+        # Store button for later functionality
+        self.play_button = play_button
+        self.play_button.clicked.connect(self.canvas_widget.run_all_nodes)
 
     def load_automation(self):
         path = os.path.expanduser(f"~/.nodebox/automations/{self.automation_name}.json")
