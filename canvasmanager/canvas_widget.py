@@ -3,6 +3,7 @@ from PyQt6.QtGui import QPainter, QColor, QPen, QMouseEvent, QKeyEvent, QWheelEv
 from PyQt6.QtCore import Qt, QRect, QPoint, QPointF, QTimer #type: ignore
 
 from ui.node import NodeWidget
+from utils.node_runner import execute_all_nodes
 
 class CanvasWidget(QWidget):
     def __init__(self, automation_name=None, automation_data=None, parent=None):
@@ -223,5 +224,7 @@ class CanvasWidget(QWidget):
         self.save_canvas_state()
         event.acceptProposedAction()
 
-    def run_all_nodes(*args):
+    def run_all_nodes(self, *args):
         print("Running all nodes...")
+        output = execute_all_nodes(self.nodes.values(), self.connections)
+        print(output)

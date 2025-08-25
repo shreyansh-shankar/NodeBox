@@ -1,0 +1,69 @@
+from collections import defaultdict, deque
+
+def execute_all_nodes(nodes, connections):
+    print("List of all nodes:")
+    print("\n")
+    for node in nodes:
+        print(f"Node {node.title}")
+        print('-------------------------------------------------------------------')
+        print(f"{node.code}")
+        print('-------------------------------------------------------------------')
+    
+    print("\n")
+    print("List of all connections:")
+    print("\n")
+    for conn in connections:
+        print(f"Connection: {conn}")
+        print(f"Start Port: {conn.start_port}, PortNode: {conn.start_port.node.title}, PortType: {conn.start_port.type}")
+        print(f"End Port: {conn.end_port}, PortNode: {conn.end_port.node.title}, PortType: {conn.end_port.type} \n")
+
+    # ------------------------------
+    # Execution Logic
+    # ------------------------------
+
+    dependents = defaultdict(list)
+    incoming_count = defaultdict(int)
+
+    # Build graph
+    for conn in connections:
+        src = conn.start_port.node
+        dst = conn.end_port.node
+        dependents[src].append(dst)
+        incoming_count[dst] += 1
+
+    ready_queue = deque([node for node in nodes if incoming_count[node] == 0])
+    node_outputs = {}
+
+    while ready_queue:
+        node = ready_queue.popleft()
+
+        # Inject upstream outputs
+        local_vars = {}
+        for conn in connections:
+            if conn.end_port.node == node:
+                src_node = conn.start_port.node
+                if src_node in node_outputs:
+                    # merge outputs into local_vars
+                    local_vars.update(node_outputs[src_node])
+
+        # Execute the node’s code with injected inputs
+        try:
+            exec(node.code, {}, local_vars)
+        except Exception as e:
+            print(f"❌ Error executing node {node.title}: {e}")
+            continue
+
+        # Collect outputs
+        node_outputs[node] = local_vars.get("outputs", {})
+
+        print(f"\n✅ Executed node: {node.title}")
+        print("Outputs:", node_outputs[node])
+
+        # Schedule dependents
+        for dependent in dependents[node]:
+            incoming_count[dependent] -= 1
+            if incoming_count[dependent] == 0:
+                ready_queue.append(dependent)
+
+    return node_outputs
+
