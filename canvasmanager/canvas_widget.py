@@ -206,7 +206,11 @@ class CanvasWidget(QWidget):
         pos = (event.position() - self.offset) / self.scale  # convert to logical coords
 
         if node_type == "Custom Node":
-            node = NodeWidget("Base Node", self, pos=QPointF(pos))
+            name, ok = QInputDialog.getText(self, "Create Node", "Enter node name:")
+            if ok and name:
+                node = NodeWidget(name, self, pos=QPointF(pos))
+            else:
+                return
         else:
             node = NodeWidget(node_type, self, pos=QPointF(pos))
 
