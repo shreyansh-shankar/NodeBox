@@ -228,3 +228,4 @@ class CanvasWidget(QWidget):
         print("Running all nodes...")
         output = execute_all_nodes(self.nodes.values(), self.connections)
         print(output)
+        self.save_canvas_state()

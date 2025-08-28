@@ -55,6 +55,7 @@ def execute_all_nodes(nodes, connections):
 
         # Collect outputs
         node_outputs[node] = local_vars.get("outputs", {})
+        node.outputs = node_outputs[node]
 
         print(f"\n✅ Executed node: {node.title}")
         print("Outputs:", node_outputs[node])
