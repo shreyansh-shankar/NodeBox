@@ -7,6 +7,14 @@ import utils.paths
 
 import os, sys, subprocess
 
+def resource_path(relative_path: str) -> str:
+    """Get absolute path to resource, works in dev and PyInstaller bundle"""
+    if hasattr(sys, "_MEIPASS"):
+        base_path = sys._MEIPASS  # folder where PyInstaller extracts files
+    else:
+        base_path = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(base_path, relative_path)
+
 def start_ollama():
     """Start ollama serve in the background."""
     try:
@@ -32,7 +40,8 @@ def main():
     QFontDatabase.addApplicationFont("assets/fonts/Poppins-SemiBold.ttf")
 
     # 2. Apply dark stylesheet
-    with open(os.path.join("qss", "dark.qss"), "r") as file:
+    qss_file = resource_path("qss/dark.qss")
+    with open(qss_file, "r") as file:
         app.setStyleSheet(file.read())
 
     # Load fonts and set default
