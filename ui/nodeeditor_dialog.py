@@ -80,15 +80,6 @@ class NodeEditorDialog(QDialog):
             existing_code = TEMPLATE_CODE
         self.code_edit.setPlainText(existing_code)
 
-        self.outputs_edit = QTextEdit()
-        # If node already has outputs metadata, show them
-        existing_outputs = getattr(node, "output_vars", None)
-        if existing_outputs:
-            if isinstance(existing_outputs, (list, tuple)):
-                self.outputs_edit.setText(", ".join(existing_outputs))
-            else:
-                self.outputs_edit.setText(str(existing_outputs))
-
         # Buttons
         self.button_box = QDialogButtonBox(
             QDialogButtonBox.StandardButton.Save | QDialogButtonBox.StandardButton.Cancel
@@ -175,6 +166,18 @@ class NodeEditorDialog(QDialog):
             }
         """)
 
+        # If node already has saved outputs, show them
+        existing_outputs = getattr(node, "outputs", None)
+        if existing_outputs:
+            if isinstance(existing_outputs, dict):
+                formatted = "\n".join(f"{k}: {v}" for k, v in existing_outputs.items())
+                self.outputs_edit.setText(formatted)
+            elif isinstance(existing_outputs, (list, tuple)):
+                formatted = "\n".join(map(str, existing_outputs))
+                self.outputs_edit.setText(formatted)
+            else:
+                self.outputs_edit.setText(str(existing_outputs))
+
     def on_save(self):
         code = self.code_edit.toPlainText()
         outputs_raw = self.outputs_edit.toPlainText()
@@ -230,8 +233,8 @@ class NodeEditorDialog(QDialog):
             outputs = local_vars.get("outputs", {})
             if isinstance(outputs, dict):
                 self.node.outputs = outputs
-                output_keys = ", ".join(outputs.keys())
-                self.outputs_edit.setText(output_keys)
+                formatted = "\n".join(f"{k}: {v}" for k, v in outputs.items())
+                self.outputs_edit.setText(formatted)
 
         except Exception as e:
             self.terminal_output.appendPlainText(f"Error: {e}")
