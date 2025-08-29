@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NodeBox App</title>
-    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
     <!-- Hero Section -->
@@ -50,4 +50,29 @@
         <p>Contact: <a href="mailto:contact@nodebox.com">contact@nodebox.com</a></p>
     </section>
 </body>
+
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyC2ZTKc_L3sNKTCsMML7OTcKrS92VNm8p0",
+    authDomain: "nodebox-c47bf.firebaseapp.com",
+    projectId: "nodebox-c47bf",
+    storageBucket: "nodebox-c47bf.firebasestorage.app",
+    messagingSenderId: "35344086023",
+    appId: "1:35344086023:web:1d2b0da30044b8c5faa6a2",
+    measurementId: "G-2VEL244Y80"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+</script>
+
 </html>

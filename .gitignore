@@ -3,3 +3,5 @@ __pycache__
 ui/__pycache__
 
 build
+
+.firebase/
