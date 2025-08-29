@@ -2,10 +2,20 @@ from PyQt6.QtWidgets import QMainWindow, QWidget, QLabel, QVBoxLayout, QPushButt
 from PyQt6.QtCore import Qt, pyqtSignal, QSize #type: ignore
 from PyQt6.QtGui import QIcon #type: ignore
 
-import os, json
+import os, json, sys
 
 from canvasmanager.canvas_widget import CanvasWidget
 from ui.node_pallete import NodePaletteItem
+
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 class NodeEditorWindow(QMainWindow):
 
@@ -65,7 +75,7 @@ class NodeEditorWindow(QMainWindow):
 
         # Play button (SVG)
         play_button = QPushButton()
-        svg_path = os.path.join("assets/icons/play.svg")
+        svg_path = resource_path("assets/icons/play.svg")
         play_button.setIcon(QIcon(svg_path))
         play_button.setIconSize(QSize(28, 28))
         play_button.setFixedSize(40, 40)

@@ -3,6 +3,18 @@ from PyQt6.QtSvgWidgets import QSvgWidget #type: ignore
 from PyQt6.QtGui import QPixmap, QFont, QCursor, QDesktopServices, QIcon #type: ignore
 from PyQt6.QtCore import Qt, QUrl, QSize, pyqtSignal #type: ignore
 
+import sys, os
+
+# resource_path helper
+def resource_path(relative_path: str) -> str:
+    """Get absolute path to resource, works in dev and in PyInstaller bundle"""
+    if hasattr(sys, "_MEIPASS"):
+        base_path = sys._MEIPASS
+    else:
+        # Go one level up from the script folder to reach project root
+        base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    return os.path.join(base_path, relative_path)
+
 class ModelCard(QFrame):
 
     downloadRequested = pyqtSignal(dict)
@@ -50,7 +62,8 @@ class ModelCard(QFrame):
         icon_label.setFixedSize(72, 72)
         icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)  # Center image in the box
 
-        pixmap = QPixmap(model_data['icon'])
+        icon_path = resource_path(model_data['icon'])
+        pixmap = QPixmap(icon_path)
         pixmap = pixmap.scaled(48, 48, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
         icon_label.setPixmap(pixmap)
 
@@ -72,7 +85,7 @@ class ModelCard(QFrame):
 
         # Download Button (Top-Right)
         self.download_button = QPushButton()
-        svg_path = "assets/icons/download.svg"
+        svg_path = resource_path("assets/icons/download.svg")
         self.download_button.setIcon(QIcon(svg_path))
         self.download_button.setIconSize(QSize(32, 32))
         self.download_button.setFixedSize(42, 42)
