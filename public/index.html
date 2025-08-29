@@ -1,78 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NodeBox App</title>
     <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/styles/navbar.css">
+    <link rel="stylesheet" href="/styles/herosection.css">
 </head>
+
 <body>
-    <!-- Hero Section -->
-    <header class="hero">
-        <h1>NodeBox</h1>
-        <p>The ultimate desktop experience</p>
-        <a href="/downloads.html" class="btn">Download Now</a>
+    <header>
+        <!-- Navbar -->
+        <nav class="navbar">
+            <a href="/" class="logo">NodeBox</a>
+
+            <ul class="nav-links">
+                <li><a href="#downloads" class="active">Downloads</a></li>
+                <li><a href="#docs">Docs</a></li>
+                <li><a href="https://github.com/yourrepo" target="_blank">GitHub</a></li>
+            </ul>
+
+            <a href="#get-started" class="btn-primary">Get Started</a>
+        </nav>
     </header>
 
-    <!-- Features Section -->
-    <section class="features">
-        <h2>Features</h2>
-        <div class="feature-list">
-            <div class="feature-item">
-                <h3>Feature 1</h3>
-                <p>Short description</p>
-            </div>
-            <div class="feature-item">
-                <h3>Feature 2</h3>
-                <p>Short description</p>
-            </div>
-            <div class="feature-item">
-                <h3>Feature 3</h3>
-                <p>Short description</p>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1 class="headline">Your Local Automation Platform</h1>
+            <p class="subtext">
+                Design and deploy workflows with Python-native nodes. Run automations on your machine without API costs
+                or cloud dependencies.
+            </p>
+
+            <div class="hero-ctas">
+                <a href="#get-started" class="btn-primary">Start Free</a>
+                <a href="#learn-more" class="btn-secondary">Learn More</a>
             </div>
         </div>
     </section>
 
-    <!-- Screenshots Section -->
-    <section class="screenshots">
-        <h2>Screenshots</h2>
-        <div class="screenshot-grid">
-            <img src="/images/screenshot1.png" alt="Screenshot 1">
-            <img src="/images/screenshot2.png" alt="Screenshot 2">
-            <img src="/images/screenshot3.png" alt="Screenshot 3">
-        </div>
-    </section>
-
-    <!-- About / Contact Section -->
-    <section class="about">
-        <h2>About</h2>
-        <p>NodeBox is a modern desktop app that lets you do amazing things...</p>
-        <p>Contact: <a href="mailto:contact@nodebox.com">contact@nodebox.com</a></p>
-    </section>
 </body>
 
 <script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-analytics.js";
 
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  const firebaseConfig = {
-    apiKey: "AIzaSyC2ZTKc_L3sNKTCsMML7OTcKrS92VNm8p0",
-    authDomain: "nodebox-c47bf.firebaseapp.com",
-    projectId: "nodebox-c47bf",
-    storageBucket: "nodebox-c47bf.firebasestorage.app",
-    messagingSenderId: "35344086023",
-    appId: "1:35344086023:web:1d2b0da30044b8c5faa6a2",
-    measurementId: "G-2VEL244Y80"
-  };
+    const firebaseConfig = {
+        apiKey: "AIzaSyC2ZTKc_L3sNKTCsMML7OTcKrS92VNm8p0",
+        authDomain: "nodebox-c47bf.firebaseapp.com",
+        projectId: "nodebox-c47bf",
+        storageBucket: "nodebox-c47bf.firebasestorage.app",
+        messagingSenderId: "35344086023",
+        appId: "1:35344086023:web:1d2b0da30044b8c5faa6a2",
+        measurementId: "G-2VEL244Y80"
+    };
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
 </script>
 
 </html>

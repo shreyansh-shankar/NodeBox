@@ -1,0 +1,187 @@
+/* ===== Hero Section ===== */
+.hero {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 6rem 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.headline {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 800;
+  line-height: 1.75;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.5rem;
+  margin-top: 7rem;
+  font-family: "IBM Plex Serif", serif;
+
+
+  /* Gradient Text */
+  background: linear-gradient(90deg, #6366f1, #22d3ee, #a855f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 300% 300%;
+  animation: gradientFlow 8s ease infinite;
+
+  /* Smooth entry animation */
+  opacity: 0;
+  transform: translateY(30px);
+  animation: fadeSlideUp 1.2s ease forwards 0.2s;
+}
+
+.subtext {
+  font-size: clamp(1rem, 2vw, 1.3rem);
+  color: rgba(255, 255, 255, 0.8);
+  max-width: 750px;
+  margin: 0 auto 2.5rem;
+  line-height: 1.6;
+  font-family: "Sansation", sans-serif;
+
+  /* Fade-up but slower for hierarchy */
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeSlideUp 1.2s ease forwards 0.6s;
+}
+
+/* Gradient Flow Animation */
+@keyframes gradientFlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Entry Animation */
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive breathing space */
+@media (max-width: 768px) {
+  .hero {
+    padding: 4rem 1.5rem;
+  }
+  .headline {
+    font-size: 2.2rem;
+  }
+  .subtext {
+    font-size: 1rem;
+  }
+}
+
+/* ===== Hero CTA Buttons ===== */
+.hero-ctas {
+  display: flex;
+  gap: 1.6rem;
+  justify-content: center;
+  margin: 2.5rem 0 3.5rem 0;
+  flex-wrap: wrap;
+}
+
+/* Base Button Styles */
+.hero-ctas .btn-primary,
+.hero-ctas .btn-secondary {
+  position: relative;
+  overflow: hidden;
+  font-family: "Sansation", sans-serif;
+  padding: 1rem 2.4rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  border-radius: 14px;
+  transition: all 0.25s ease;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  cursor: pointer;
+  z-index: 1;
+  isolation: isolate; /* keeps glow effects contained */
+}
+
+/* ===== Primary Button ===== */
+.hero-ctas .btn-primary {
+  background: linear-gradient(135deg, #00d8ff, #0072ff);
+  color: #fff;
+  border: none;
+  box-shadow: 0 8px 22px rgba(0, 200, 255, 0.35);
+}
+
+/* Hover Effects */
+.hero-ctas .btn-primary::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #00ffcc, #0066ff);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  z-index: -1;
+}
+
+.hero-ctas .btn-primary:hover::before {
+  opacity: 1;
+}
+
+.hero-ctas .btn-primary:hover {
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 12px 30px rgba(0, 200, 255, 0.55);
+}
+
+/* Subtle pulse animation */
+.hero-ctas .btn-primary:active {
+  transform: scale(0.97);
+}
+
+/* ===== Secondary Button ===== */
+.hero-ctas .btn-secondary {
+  background: transparent;
+  color: #00d8ff;
+  border: 2px solid #00d8ff;
+  box-shadow: 0 0 0 rgba(0, 200, 255, 0);
+}
+
+/* Gradient Border Effect on Hover */
+.hero-ctas .btn-secondary::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #00ffcc, #0072ff);
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.hero-ctas .btn-secondary:hover::before {
+  opacity: 1;
+}
+
+.hero-ctas .btn-secondary:hover {
+  color: #fff;
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 10px 25px rgba(0, 200, 255, 0.25);
+}
+
+/* Subtle pulse animation */
+.hero-ctas .btn-secondary:active {
+  transform: scale(0.97);
+}
+
+/* ===== Fancy Glow Animations ===== */
+@keyframes glowPulse {
+  0% { box-shadow: 0 0 0 rgba(0, 200, 255, 0); }
+  50% { box-shadow: 0 0 25px rgba(0, 200, 255, 0.4); }
+  100% { box-shadow: 0 0 0 rgba(0, 200, 255, 0); }
+}
+
+.hero-ctas .btn-primary:hover,
+.hero-ctas .btn-secondary:hover {
+  animation: glowPulse 1.6s infinite;
+}
