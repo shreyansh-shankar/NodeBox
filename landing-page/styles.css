@@ -1,0 +1,53 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+header, section, main {
+    padding: 2rem;
+    text-align: center;
+}
+
+.hero {
+    background-color: #4f46e5;
+    color: white;
+    padding: 4rem 2rem;
+}
+
+.hero .btn {
+    background-color: white;
+    color: #4f46e5;
+    padding: 0.75rem 1.5rem;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.features, .screenshots, .about {
+    margin: 2rem 0;
+}
+
+.feature-list {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+}
+
+.feature-item {
+    background: #f3f3f3;
+    padding: 1rem;
+    border-radius: 8px;
+    width: 200px;
+}
+
+.screenshot-grid {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.screenshot-grid img {
+    width: 200px;
+    border-radius: 5px;
+}
