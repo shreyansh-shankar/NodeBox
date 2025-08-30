@@ -110,85 +110,45 @@
   box-shadow: 0 0 12px rgba(0, 200, 255, 0.4);
 }
 
-/* Responsive breakpoint */
-@media (max-width: 800px) {
-  .navbar {
-    padding: 1rem 1.5rem;
-  }
+/* Hide hamburger on desktop */
+.menu-toggle {
+  display: none;
+  font-size: 1.8rem;
+  cursor: pointer;
+  background: none;
+  border: none;
+  color: white;
+}
 
-  /* Hide nav links by default */
+/* Mobile Styles */
+@media (max-width: 768px) {
   .nav-links {
-    position: fixed;
-    top: 0;
-    right: -100%;
-    height: 100vh;
-    width: 70%;
-    background: rgba(15, 20, 30, 0.95);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    display: none;
+    /* hidden by default */
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 2rem;
-    transition: right 0.35s ease;
-    z-index: 99;
-  }
-
-  /* Show when active */
-  .nav-links.active {
+    background: #111;
+    /* adjust to your theme */
+    position: absolute;
+    top: 60px;
+    /* below navbar */
     right: 0;
+    width: 200px;
+    padding: 1rem;
+    border-radius: 8px;
   }
 
-  .nav-links a {
-    font-size: 1.2rem;
+  .nav-links.show {
+    display: flex;
+    transition: 0.7s ease-in-out;
+    /* show when toggled */
   }
 
-  /* Hide CTA inside nav-links for mobile */
-  .navbar .btn-primary {
-    display: none;
-  }
-
-  /* Mobile Hamburger */
   .menu-toggle {
+    display: block;
+  }
+
+  .btn-primary {
     display: none;
-    flex-direction: column;
-    cursor: pointer;
-    gap: 0.4rem;
-  }
-
-  .menu-toggle div {
-    width: 25px;
-    height: 3px;
-    background: #fff;
-    transition: 0.3s;
-  }
-
-  /* Responsive */
-  @media (max-width: 768px) {
-    .nav-links {
-      position: fixed;
-      top: 70px;
-      right: -100%;
-      background: rgba(10, 10, 10, 0.95);
-      flex-direction: column;
-      width: 200px;
-      height: 100vh;
-      padding: 2rem;
-      gap: 1.5rem;
-      transition: right 0.3s ease;
-    }
-
-    .nav-links.active {
-      right: 0;
-    }
-
-    .menu-toggle {
-      display: flex;
-    }
-
-    .btn-primary {
-      display: none;
-      /* Hide for mobile to keep clean */
-    }
+    /* optional: hide button on small screens */
   }
 }

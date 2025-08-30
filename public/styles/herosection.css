@@ -91,6 +91,7 @@
 /* Base Button Styles */
 .hero-ctas .btn-primary,
 .hero-ctas .btn-secondary {
+  display: flex;
   position: relative;
   overflow: hidden;
   font-family: "Sansation", sans-serif;
