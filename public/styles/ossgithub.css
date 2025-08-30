@@ -1,0 +1,116 @@
+/* Section container */
+.open-source {
+  padding: 100px 20px;
+  text-align: center;
+  background: linear-gradient(180deg, #1e293b, #0f172a 80%);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Section Title with animated gradient */
+.open-source .section-title {
+  font-size: 2.8rem;
+  margin-bottom: 12px;
+  background: linear-gradient(90deg, #60a5fa, #22d3ee, #a855f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 300% 300%;
+  animation: gradientFlow 8s linear infinite;
+  font-family: "IBM Plex Serif", serif;
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all 0.8s ease-out;
+}
+
+/* Section Subtitle with fade-in */
+.open-source .section-subtitle {
+  font-size: 1.2rem;
+  margin-bottom: 40px;
+  color: #d1d5db;
+  font-family: "Sansation", sans-serif;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.8s ease-out 0.2s;
+}
+
+/* Buttons container */
+.community-links {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  flex-wrap: wrap;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.8s ease-out 0.4s;
+}
+
+/* Buttons with hover & pulse */
+.community-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 28px;
+  border-radius: 12px;
+  font-family: "Sansation", sans-serif;
+  font-size: 1rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  color: #fff;
+  background: linear-gradient(135deg, #60a5fa, #22d3ee, #a855f7);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.community-links a:hover {
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.35);
+  animation: pulse 1.5s infinite;
+}
+
+/* Background floating circles */
+.open-source::before {
+  content: '';
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  background: linear-gradient(to top, #1e293b 0%, rgba(30,41,59,0) 100%);
+  border-radius: 50%;
+  top: -50px;
+  left: -100px;
+  animation: floatCircle 8s ease-in-out infinite;
+}
+
+.open-source::after {
+  content: '';
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  background: rgba(168, 85, 247, 0.08);
+  border-radius: 50%;
+  bottom: -60px;
+  right: -80px;
+  animation: floatCircle 10s ease-in-out infinite reverse;
+}
+
+/* Animations */
+@keyframes gradientFlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1) translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.35); }
+  50% { transform: scale(1.05) translateY(-7px); box-shadow: 0 15px 30px rgba(0,0,0,0.45); }
+  100% { transform: scale(1) translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.35); }
+}
+
+@keyframes floatCircle {
+  0%, 100% { transform: translateY(0) translateX(0); }
+  50% { transform: translateY(20px) translateX(15px); }
+}
+
+/* Scroll-trigger class */
+.scroll-visible {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}

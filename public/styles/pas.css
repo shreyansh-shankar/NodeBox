@@ -35,6 +35,7 @@
   background: linear-gradient(90deg,#f97316,#ef4444);   /* orange → red */
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  font-family: "IBM Plex Serif", serif;
 }
 
 .solution h2 {
@@ -47,6 +48,7 @@
   color: rgba(255,255,255,0.85);
   line-height: 1.7;
   margin-bottom: 1rem;
+  font-family: "Sansation", sans-serif;
 }
 
 /* Pretty bullet lists with colored dots */
@@ -63,6 +65,7 @@
   align-items: start;
   margin: 0.6rem 0;
   color: rgba(255,255,255,0.82);
+  font-family: "Sansation", sans-serif;
 }
 
 .problem li::before, .solution li::before {
