@@ -1,0 +1,86 @@
+.powered-by {
+  overflow: hidden;
+  width: 100%;
+  padding: 50px 0;
+  text-align: center;
+  color: #fff;
+
+  /* Gradient background blending with use-cases section */
+  background: linear-gradient(135deg, #0f0f1a, #1e1e2f, #021020, #0a1a40);
+  position: relative;
+}
+
+/* Floating radial effects similar to use-cases */
+.powered-by::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 20% 30%, rgba(0, 198, 255, 0.15), transparent 70%),
+              radial-gradient(circle at 80% 70%, rgba(255, 0, 200, 0.1), transparent 70%);
+  animation: floatBG 25s linear infinite;
+  z-index: 1;
+}
+
+/* Ensure content stays above the animated background */
+.powered-by > * {
+  position: relative;
+  z-index: 2;
+}
+
+.powered-by h2 {
+  color: #fff;
+  font-family: 'Poppins', sans-serif;
+  margin-bottom: 50px;
+  font-size: 2.5rem;
+  font-family: "Sansation", sans-serif;
+}
+
+.icon-track {
+  display: flex;
+  width: max-content;
+  justify-content: flex-start;
+  animation: scroll 25s linear infinite;
+}
+
+.icon-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 50px;
+}
+
+.icon-item i {
+  color: #00ffff;
+  font-size: 4rem; /* increased size */
+  margin-bottom: 10px;
+  transition: transform 0.3s, filter 0.3s;
+  cursor: pointer;
+}
+
+.icon-item span {
+  color: #fff;
+  font-size: 1.5rem;
+  margin-top: 5px;
+  font-family: "Sansation", sans-serif;
+}
+
+.icon-item i:hover {
+  transform: scale(1.4);
+  filter: brightness(1.5);
+}
+
+.custom-icon {
+    font-size: 60px; /* same as font-awesome icons */
+    width: 60px;
+    height: 60px;
+    display: block;
+    margin: 0 auto 10px;
+}
+
+@keyframes scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}

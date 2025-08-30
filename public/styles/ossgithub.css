@@ -40,7 +40,6 @@
   gap: 30px;
   flex-wrap: wrap;
   opacity: 0;
-  transform: translateY(20px);
   transition: all 0.8s ease-out 0.4s;
 }
 
@@ -54,16 +53,16 @@
   font-family: "Sansation", sans-serif;
   font-size: 1rem;
   text-decoration: none;
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
   color: #fff;
   background: linear-gradient(135deg, #60a5fa, #22d3ee, #a855f7);
   box-shadow: 0 5px 15px rgba(0,0,0,0.2);
 }
 
 .community-links a:hover {
-  transform: translateY(-5px) scale(1.05);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.35);
-  animation: pulse 1.5s infinite;
+  transform: scale(1.07); /* slightly larger */
+  box-shadow: 0 12px 25px rgba(0,0,0,0.3); /* softer shadow */
+  background: linear-gradient(135deg, #3b82f6, #06b6d4, #9333ea); /* slight color shift */
 }
 
 /* Background floating circles */
@@ -77,6 +76,7 @@
   top: -50px;
   left: -100px;
   animation: floatCircle 8s ease-in-out infinite;
+  transition: 0.5s;
 }
 
 .open-source::after {
