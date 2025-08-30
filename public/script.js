@@ -1,9 +1,12 @@
-const menuToggle = document.querySelector('.menu-toggle');
-const navLinks = document.querySelector('.nav-links');
+document.addEventListener('DOMContentLoaded', () => {
+    const menuToggle = document.querySelector('.menu-toggle');
+    const navLinks = document.querySelector('.nav-links');
 
-menuToggle.addEventListener('click', () => {
-    navLinks.classList.toggle('show');
+    menuToggle.addEventListener('click', () => {
+        navLinks.classList.toggle('show');
+    });
 });
+
 
 document.addEventListener("DOMContentLoaded", () => {
   const featureCards = document.querySelectorAll(".feature-card");
