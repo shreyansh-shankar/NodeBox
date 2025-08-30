@@ -1,28 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Downloads - NodeBox</title>
-    <link rel="stylesheet" href="/styles.css">
+    <title>Downloads - NodeBoxLab</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles/downlaods.css">
+    <link rel="stylesheet" href="styles/navbar.css">
+    <link rel="stylesheet" href="styles/herosection.css">
 </head>
+
 <body>
+
     <header>
-        <h1>Downloads</h1>
-        <nav>
-            <a href="/index.html">Home</a>
-            <a href="/docs.html">Docs</a>
+        <!-- Navbar -->
+        <nav class="navbar">
+            <a href="index.html" class="logo">NodeBox</a>
+
+            <!-- Hamburger Icon -->
+            <button class="menu-toggle" aria-label="Toggle menu">
+                ☰
+            </button>
+
+            <ul class="nav-links">
+                <li><a href="downloads.html" class="active">Downloads</a></li>
+                <li><a href="docs.html">Docs</a></li>
+                <li><a href="https://github.com/shreyansh-shankar/Nodebox" target="_blank">GitHub</a></li>
+            </ul>
+
+            <a href="#get-started" class="btn-primary">Get Started</a>
         </nav>
     </header>
 
-    <main>
-        <h2>Get NodeBox</h2>
-        <p>Download the latest version of NodeBox for your platform:</p>
-        <ul>
-            <li><a href="/downloads/NodeBox-Windows.exe">Windows</a></li>
-            <li><a href="/downloads/NodeBox-Mac.dmg">Mac</a></li>
-            <li><a href="/downloads/NodeBox-Linux.AppImage">Linux</a></li>
-        </ul>
-    </main>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1 class="headline">Your Local Automation Platform</h1>
+            <p class="subtext">
+                Design and deploy workflows with Python-native nodes. Run automations on your machine without API costs
+                or cloud dependencies.
+            </p>
+
+            <div class="hero-ctas">
+                <a href="#get-started" class="btn-primary">Start Free</a>
+                <a href="#learn-more" class="btn-secondary">Learn More</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Downloads Section -->
+    <section class="downloads-section">
+        <h1>Download NodeBoxLab</h1>
+        <p>Choose your platform to download the latest version</p>
+
+        <div class="downloads-container">
+            <!-- Linux -->
+            <div class="download-item">
+                <img src="images/linux.png" alt="Linux">
+                <h3>Linux</h3>
+                <a href="#" download>Download</a>
+            </div>
+
+            <!-- Windows -->
+            <div class="download-item">
+                <img src="images/windows.png" alt="Windows">
+                <h3>Windows</h3>
+                <a href="#" download>Download</a>
+            </div>
+
+            <!-- macOS -->
+            <div class="download-item">
+                <img src="images/macos.png" alt="macOS">
+                <h3>macOS</h3>
+                <a href="#" download>Download</a>
+            </div>
+        </div>
+    </section>
+
+    <script src="script.js"></script>
 </body>
+
 </html>
