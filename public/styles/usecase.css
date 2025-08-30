@@ -1,0 +1,264 @@
+/* Use Cases Section */
+.use-cases {
+    padding: 120px 0;
+    background: linear-gradient(135deg, #0f0f1a, #1e1e2f);
+    color: #ffffff;
+    position: relative;
+    overflow: hidden;
+}
+
+.use-cases .section-title {
+    font-size: 3rem;
+    text-align: center;
+    margin-bottom: 15px;
+    font-weight: 700;
+    background: linear-gradient(90deg, #00c6ff, #0072ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-family: "IBM Plex Serif", serif;
+}
+
+.use-cases .section-subtitle {
+    text-align: center;
+    font-size: 1.2rem;
+    max-width: 700px;
+    margin: 0 auto 60px auto;
+    color: #b0b0b0;
+    font-family: "Sansation", sans-serif;
+}
+
+/* Carousel wrapper */
+.cases-carousel {
+    overflow: hidden;
+    width: 100%;
+    position: relative;
+    background: none;
+    border-radius: 30px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    border: none;
+    background-color: #ffffff00;
+}
+
+/* Optional: gradient overlay animation in background */
+.use-cases::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at 20% 30%, rgba(0, 198, 255, 0.15), transparent 70%),
+        radial-gradient(circle at 80% 70%, rgba(255, 0, 200, 0.1), transparent 70%);
+    animation: floatBG 25s linear infinite;
+    z-index: 1;
+}
+
+@keyframes floatBG {
+    0% {
+        transform: rotate(0deg) translate(0, 0);
+    }
+
+    50% {
+        transform: rotate(180deg) translate(50px, 50px);
+    }
+
+    100% {
+        transform: rotate(360deg) translate(0, 0);
+    }
+}
+
+.wrapper {
+    width: 90%;
+    position: relative;
+    margin: 5%;
+}
+
+.wrapper i {
+    height: 50px;
+    width: 50px;
+    background: rgb(12, 12, 14);
+    text-align: center;
+    line-height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    font-size: 1.25 rem;
+    transform: translateY(-50%);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.23);
+    z-index: 3;
+
+}
+
+.wrapper i:first-child {
+    left: -22px;
+}
+
+.wrapper i:last-child {
+    right: -22px;
+}
+
+.wrapper .carousel {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: calc((100% / 3) - 12px);
+    gap: 16px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+}
+
+.carousel::-webkit-scrollbar {
+    display: none;
+}
+
+.carousel {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    overflow-x: auto;
+}
+
+.carousel :where(.card) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.carousel.dragging {
+    scroll-snap-type: none;
+    scroll-behavior: auto;
+}
+
+.carousel.no-transition {
+    scroll-behavior: auto;
+}
+
+.carousel.dragging .card {
+    cursor: grab;
+    user-select: none;
+}
+
+/* Carousel card container */
+.carousel .card {
+    scroll-snap-align: start;
+    height: 340px;
+    list-style: none;
+    background: linear-gradient(135deg, #1e1f3f, #2c2d58);
+    border-radius: 16px;
+    display: flex;
+    cursor: pointer;
+    width: 100%;
+    padding: 20px 25px;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    transition: transform 0.5s ease, box-shadow 0.5s ease, background 0.5s ease;
+    overflow: hidden;
+    z-index: 2;
+}
+
+/* Card hover effect */
+.carousel .card:hover {
+    transform: translateY(-10px) scale(1.03);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+    background: linear-gradient(120deg, rgb(15, 5, 110), rgba(6, 95, 95, 0));
+    transition: 1.3s ease-in;
+}
+
+/* Card inner glow animation */
+.carousel .card::before {
+    content: '';
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(120deg, rgba(255, 255, 255, 0.2), rgba(0, 0, 0, 0));
+    transform: rotate(45deg);
+    transition: all 0.5s ease;
+    pointer-events: none;
+}
+
+.carousel .card:hover::before {
+    top: -20%;
+    left: -20%;
+    transition: all 0.5s ease;
+}
+
+/* Card heading */
+.card h2 {
+    font-weight: 600;
+    font-size: 1.8rem;
+    margin: 25px 0 10px;
+    color: #fff;
+    text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.4);
+    transition: color 0.7s ease;
+    font-family: "Sansation", sans-serif;
+}
+
+/* Card subtext */
+.card span {
+    color: #c0c0ff;
+    font-size: 1.35rem;
+    text-align: center;
+    transition: color 0.3s ease;
+    font-family: "Sansation", sans-serif;
+}
+
+/* Hover color animation */
+.carousel .card:hover h2 {
+    color: #fcfcfc;
+}
+
+.carousel .card:hover span {
+    color: #dddddd;
+}
+
+/* Optional: small floating animation for cards */
+@keyframes floatCard {
+    0% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-5px);
+    }
+
+    100% {
+        transform: translateY(0);
+    }
+}
+
+.carousel .card {
+    animation: floatCard 6s ease-in-out infinite;
+}
+
+/* Gradient border effect (optional) */
+.carousel .card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    padding: 2px;
+    background: linear-gradient(60deg, #1d162e, #7873f5, #0e8abb);
+    -webkit-mask:
+        linear-gradient(#021b6d 0 0) content-box,
+        linear-gradient(#05cca1 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+}
+
+@media screen and (max-width: 900px) {
+    .wrapper .carousel {
+        grid-auto-columns: calc((100% / 2) - 9px);
+
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .wrapper .carousel {
+        grid-auto-columns: 100%;
+
+    }
+}
