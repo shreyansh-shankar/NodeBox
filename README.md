@@ -154,7 +154,7 @@ Follow these steps to build your very first automation inside the app:
 
   <p>
     For more details, visit our website:  
-    <a href="https://yourprojectwebsite.com" target="_blank">🌐 nodeboxlab.web.app</a>
+    <a href="https://nodeboxlab.web.app" target="_blank">🌐 nodeboxlab.web.app</a>
   </p>
 </section>
 
