@@ -1,26 +1,113 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Documentation - NodeBox</title>
-    <link rel="stylesheet" href="/styles.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Project Docs</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="styles/docs.css" />
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles/navbar.css">
 </head>
+
 <body>
+
     <header>
-        <h1>Documentation</h1>
-        <nav>
-            <a href="/index.html">Home</a>
-            <a href="/downloads.html">Downloads</a>
+        <!-- Navbar -->
+        <nav class="navbar">
+            <a href="/" class="logo">NodeBox</a>
+
+            <!-- Hamburger Icon -->
+            <button class="menu-toggle" aria-label="Toggle menu">
+                ☰
+            </button>
+
+            <ul class="nav-links">
+                <li><a href="downloads.html" class="active">Downloads</a></li>
+                <li><a href="docs.html">Docs</a></li>
+                <li><a href="https://github.com/shreyansh-shankar/Nodebox" target="_blank">GitHub</a></li>
+            </ul>
+
+            <a href="#get-started" class="btn-primary">Get Started</a>
         </nav>
     </header>
 
-    <main>
-        <h2>Getting Started</h2>
-        <p>Step-by-step guide on installing and using NodeBox...</p>
+    <div class="docs-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <h2>Documentation</h2>
+            <nav>
+                <ul>
+                    <li><a href="#">Getting Started</a></li>
+                    <li><a href="#">How to Contribute</a></li>
+                    <li><a href="#">Code Reference</a></li>
+                    <li><a href="#">Examples</a></li>
+                    <li><a href="#">FAQ</a></li>
+                </ul>
+            </nav>
+        </aside>
 
-        <h2>Features</h2>
-        <p>Explanation of each feature and how to use it...</p>
-    </main>
+        <!-- Main content -->
+        <!-- Main content -->
+        <main class="content">
+            <h1>Welcome to the Documentation</h1>
+            <p>
+                This is the central hub for everything you need to know about using
+                <strong>Project X</strong>. Whether you're a beginner just getting started
+                or an advanced user looking for specific details, you'll find resources
+                here to guide you.
+            </p>
+
+            <!-- Quick navigation cards -->
+            <section class="quick-links">
+                <div class="card">
+                    <h2><i class="fas fa-rocket"></i> Getting Started</h2>
+                    <p>New here? Start with the basics of installation, setup, and first usage.</p>
+                    <a href="#">Read Guide →</a>
+                </div>
+
+                <div class="card">
+                    <h2><i class="fas fa-book"></i> Code Reference</h2>
+                    <p>Detailed explanations of all classes, methods, and configuration options.</p>
+                    <a href="#">Explore Code →</a>
+                </div>
+
+                <div class="card">
+                    <h2><i class="fas fa-tools"></i> Examples</h2>
+                    <p>Learn by example with ready-to-use snippets and sample projects.</p>
+                    <a href="#">See Examples →</a>
+                </div>
+
+                <div class="card">
+                    <h2><i class="fas fa-question-circle"></i> FAQ</h2>
+                    <p>Find answers to common questions and troubleshooting tips.</p>
+                    <a href="#">View FAQ →</a>
+                </div>
+            </section>
+
+            <!-- Getting Started Section -->
+            <section class="getting-started">
+                <h2>First Steps</h2>
+                <ol>
+                    <li>Install Project X using our <a href="#">installation guide</a>.</li>
+                    <li>Set up your first project in under 5 minutes.</li>
+                    <li>Follow along with the <a href="#">examples</a> to build confidence.</li>
+                </ol>
+            </section>
+
+            <!-- Helpful Links -->
+            <section class="resources">
+                <h2>Resources</h2>
+                <ul>
+                    <li><a href="#">Changelog</a> – See what's new in the latest release.</li>
+                    <li><a href="#">Contributing</a> – Learn how to contribute.</li>
+                    <li><a href="#">Support</a> – Get help from the community.</li>
+                </ul>
+            </section>
+        </main>
+
+    </div>
 </body>
+
 </html>

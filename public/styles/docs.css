@@ -1,0 +1,249 @@
+/* Main container */
+.docs-container {
+  display: flex;
+  flex: 1;
+  margin-top: 80px; /* offset for fixed navbar */
+}
+
+/* Sidebar */
+.sidebar {
+  width: 260px;
+  background: rgba(15, 20, 30, 0.8);
+  backdrop-filter: blur(12px) saturate(160%);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 30px 20px;
+  box-shadow: 2px 0 20px rgba(0, 0, 0, 0.4);
+  position: sticky;
+  top: 80px; /* so it stays under navbar */
+  height: calc(100vh - 80px);
+  overflow-y: auto;
+}
+
+.sidebar h2 {
+  font-size: 1.3rem;
+  margin-bottom: 25px;
+  color: #00c6ff;
+  font-weight: 600;
+  font-family: "Sansation", sans-serif;
+}
+
+.sidebar nav ul {
+  list-style: none;
+}
+
+.sidebar nav ul li {
+  margin-bottom: 18px;
+}
+
+.sidebar nav ul li a {
+  text-decoration: none;
+  color: #ccc;
+  font-size: 1rem;
+  padding: 8px 12px;
+  display: block;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  font-family: "Sansation", sans-serif;
+}
+
+.sidebar nav ul li a:hover {
+  background: rgba(0, 198, 255, 0.1);
+  color: #00c6ff;
+  padding-left: 18px;
+}
+
+/* Main content */
+.content {
+  flex: 1;
+  padding: 40px 60px;
+}
+
+.content h1 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  color: #00c6ff;
+  font-family: "Sansation", sans-serif;
+}
+
+.content p {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: #ddd;
+  max-width: 800px;
+  font-family: "Sansation", sans-serif;
+}
+
+/* --- Quick Links Cards --- */
+.quick-links {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 25px;
+  margin: 40px 0;
+}
+
+.card {
+  background: rgba(20, 25, 40, 0.75);
+  backdrop-filter: blur(12px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 20px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35);
+}
+
+.card h2 {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+  color: #00c6ff;
+  font-family: "Sansation", sans-serif;
+}
+
+.card p {
+  font-size: 0.95rem;
+  color: #bbb;
+  margin-bottom: 15px;
+}
+
+.card a {
+  color: #00c6ff;
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: color 0.3s ease;
+}
+
+.card h2 i {
+  color: #00c6ff;
+  margin-right: 8px;
+}
+
+.card a:hover {
+  color: #00ff88;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 25px rgba(0, 200, 255, 0.35);
+}
+
+/* --- Getting Started --- */
+.getting-started {
+  margin: 50px 0;
+}
+
+.getting-started h2 {
+  font-size: 1.6rem;
+  margin-bottom: 15px;
+  color: #00c6ff;
+  font-family: "Sansation", sans-serif;
+}
+
+.getting-started ol {
+  margin-left: 20px;
+  color: #ddd;
+  line-height: 1.8;
+  font-size: 1rem;
+}
+
+.getting-started a {
+  color: #00c6ff;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.getting-started a:hover {
+  color: #00ff88;
+}
+
+/* --- Resources --- */
+.resources {
+  margin-top: 40px;
+}
+
+.resources h2 {
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+  color: #00c6ff;
+  font-family: "Sansation", sans-serif;
+}
+
+.resources ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.resources ul li {
+  margin-bottom: 12px;
+}
+
+.resources ul li a {
+  color: #bbb;
+  text-decoration: none;
+  font-size: 1rem;
+  transition: color 0.3s ease, padding-left 0.3s ease;
+}
+
+.resources ul li a:hover {
+  color: #00ff88;
+  padding-left: 6px;
+}
+
+/* --- Responsive adjustments --- */
+@media (max-width: 768px) {
+  .quick-links {
+    grid-template-columns: 1fr;
+  }
+
+  .getting-started,
+  .resources {
+    margin: 30px 0;
+  }
+}
+
+/* Scrollbar styling (for sidebar if overflow) */
+.sidebar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: rgba(0, 198, 255, 0.3);
+  border-radius: 4px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .docs-container {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+    top: 0;
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: none;
+    display: flex;
+    justify-content: center;
+  }
+
+  .sidebar nav ul {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .sidebar nav ul li {
+    margin-bottom: 10px;
+  }
+
+  .content {
+    padding: 30px 20px;
+  }
+}
