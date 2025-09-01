@@ -25,7 +25,7 @@ class NodeEditorWindow(QMainWindow):
         super().__init__()
         self.automation_name = automation_name
         self.setWindowTitle(f"Automation: {automation_name}")
-        self.setMinimumSize(1600, 900)
+        self.setMinimumSize(1200, 800)
         self.setStyleSheet("background-color: #2a2a2a; color: white;")
 
         # Load existing automation data

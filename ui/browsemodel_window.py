@@ -14,7 +14,7 @@ class BrowseModelsWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Browse Models")
-        self.setMinimumSize(1200, 800)
+        self.resize(1200, 800)
         self.setStyleSheet("background-color: #121212;")
 
         self._downloads = []

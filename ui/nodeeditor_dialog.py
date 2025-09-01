@@ -54,7 +54,7 @@ class NodeEditorDialog(QDialog):
         self.node = node
         self.setWindowTitle(f"Edit Node — {node.title}")
         self.setModal(True)
-        self.resize(1200, 800)
+        self.setMinimumSize(1200, 800)
 
         # Inputs: list of variable names (strings)
         self.inputs = inputs or []  # list[str]
