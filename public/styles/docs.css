@@ -221,26 +221,15 @@
   }
 
   .sidebar {
-    width: 100%;
+    width: 0;
     height: auto;
     position: relative;
     top: 0;
     border-right: none;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     box-shadow: none;
-    display: flex;
+    display: none;
     justify-content: center;
-  }
-
-  .sidebar nav ul {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
-  .sidebar nav ul li {
-    margin-bottom: 10px;
   }
 
   .content {
