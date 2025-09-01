@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import QApplication #type: ignore
-from PyQt6.QtGui import QFontDatabase #type: ignore
+from PyQt6.QtGui import QFontDatabase, QIcon #type: ignore
 
 from utils.font_loader import load_custom_fonts, set_default_font
 from ui.main_window import MainWindow
@@ -33,6 +33,7 @@ def main():
     ollama_process = start_ollama()
 
     app = QApplication(sys.argv)
+    app.setWindowIcon(QIcon(resource_path("assets/icons/favicon.png")))
 
     # Load local Poppins font
     QFontDatabase.addApplicationFont("assets/fonts/Poppins-Regular.ttf")
