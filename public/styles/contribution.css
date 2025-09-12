@@ -1,0 +1,208 @@
+/* ===== Main Content (Contribute Page) ===== */
+.content {
+  max-width: 950px;
+  margin: 120px auto 70px auto; /* spacing under navbar */
+  padding: 2.5rem;
+  background: rgba(20, 25, 40, 0.6); /* glass panel */
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #e8e8e8;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+/* Subtle entrance animation */
+.content {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeUp 0.8s ease forwards;
+}
+
+@keyframes fadeUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Main Title */
+.content h1 {
+  font-family: "Sansation", sans-serif;
+  font-size: 2.4rem;
+  font-weight: 700;
+  margin-bottom: 1.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  background: linear-gradient(90deg, #00d8ff, #00ff88);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.5px;
+  position: relative;
+}
+
+.content h1 i {
+  color: #00ff88;
+  animation: pulseIcon 1.6s infinite alternate ease-in-out;
+}
+
+@keyframes pulseIcon {
+  from { transform: scale(1); opacity: 0.8; }
+  to { transform: scale(1.2); opacity: 1; }
+}
+
+/* Section Titles */
+.content h2 {
+  font-family: "Sansation", sans-serif;
+  font-size: 1.65rem;
+  margin: 2.2rem 0 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: #00d8ff;
+  border-left: 4px solid #00d8ff;
+  padding-left: 0.75rem;
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+.content h2 i {
+  color: #00ff88;
+  transition: transform 0.3s ease;
+}
+
+.content h2:hover i {
+  transform: rotate(8deg) scale(1.15);
+}
+
+/* Paragraphs */
+.content p {
+  font-family: "IBM Plex Serif", serif;
+  line-height: 1.8;
+  margin-bottom: 1.2rem;
+  color: #f0f0f0;
+  transition: color 0.3s ease;
+}
+
+/* Links */
+.content a {
+  color: #00d8ff;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.25s ease, text-shadow 0.25s ease;
+}
+
+.content a:hover {
+  color: #00ff88;
+  text-shadow: 0 0 8px rgba(0, 255, 136, 0.5);
+}
+
+/* Unordered List */
+.content ul {
+  list-style: none;
+  margin: 1.2rem 0;
+  padding-left: 0.3rem;
+}
+
+.content ul li {
+  margin-bottom: 0.9rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  font-size: 1rem;
+  position: relative;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.content ul li:hover {
+  transform: translateX(6px);
+  color: #00ff88;
+}
+
+.content ul li i {
+  color: #00ff88;
+  font-size: 1.1rem;
+  margin-top: 0.2rem;
+  flex-shrink: 0;
+}
+
+/* Ordered List (Steps) */
+.content ol {
+  margin: 1.2rem 0 1.2rem 1.2rem;
+  padding-left: 0.6rem;
+  line-height: 1.8;
+  counter-reset: step-counter;
+}
+
+.content ol li {
+  margin-bottom: 1rem;
+  position: relative;
+  padding-left: 0.5rem;
+  transition: transform 0.3s ease;
+}
+
+.content ol li:hover {
+  transform: translateX(6px);
+  color: #00ff88;
+}
+
+/* Inline Code */
+.content code {
+  background: rgba(0, 0, 0, 0.6);
+  color: #00ff88;
+  padding: 0.25rem 0.45rem;
+  border-radius: 6px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.9rem;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.content code:hover {
+  background: rgba(0, 255, 136, 0.1);
+  color: #00d8ff;
+}
+
+/* Code Blocks */
+.content pre {
+  background: rgba(10, 15, 25, 0.88);
+  padding: 1.1rem 1.2rem;
+  border-radius: 12px;
+  overflow-x: auto;
+  margin: 1rem 0;
+  box-shadow: inset 0 0 10px rgba(0, 200, 255, 0.2);
+  transition: box-shadow 0.3s ease;
+}
+
+.content pre:hover {
+  box-shadow: inset 0 0 18px rgba(0, 255, 136, 0.25);
+}
+
+.content pre code {
+  background: transparent;
+  padding: 0;
+  color: #00ff88;
+  font-size: 0.95rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .content {
+    padding: 1.5rem;
+    margin: 100px 1rem 50px;
+  }
+
+  .content h1 {
+    font-size: 1.9rem;
+  }
+
+  .content h2 {
+    font-size: 1.35rem;
+  }
+
+  .content pre {
+    font-size: 0.85rem;
+    padding: 0.9rem;
+  }
+}
