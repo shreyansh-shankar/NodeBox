@@ -15,7 +15,32 @@
     <link rel="icon" type="favicon" href="favicon.ico">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="styles/navbar.css">
+    <link rel="stylesheet" href="styles/contribution.css">
     <link rel="stylesheet" href="styles/docs.css">
+    <style>
+        .api-block {
+            display: block;
+            margin-bottom: 32px;
+            padding: 18px 18px 18px 18px;
+            background: #131820;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        }
+        .api-line {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 1rem;
+            color: #fff;
+        }
+        .api-code {
+            background: #222b3a;
+            border-radius: 6px;
+            padding: 2px 8px;
+            font-size: 1rem;
+            color: #00ff99;
+            display: inline-block;
+        }
+    </style>
 </head>
 
 <body>
@@ -57,8 +82,124 @@
         <!-- Main content -->
         <main class="content">
 
-            <!-- add your code here -->
+            <h1 style="margin-top:0;"><i class="fa-solid fa-book"></i> Code Reference</h1>
+            <p style="margin-top:18px;">Welcome to the NodeBox technical reference. Here you'll find a high-level overview, module documentation, and API details to help you extend or debug the project.</p>
 
+            <section>
+                <h2><i class="fa-solid fa-diagram-project"></i> Architecture Overview</h2>
+                <div class="api-block">
+                    <div class="api-title">Main Application</div>
+                    <div class="api-line"><span class="api-label">File:</span> <span class="api-code">main.py</span></div>
+                    <div class="api-line"><span class="api-label">Purpose:</span> Launches UI, loads fonts, applies styles, starts Ollama</div>
+                </div>
+                <div class="api-block">
+                    <div class="api-title">Automation Engine</div>
+                    <div class="api-line"><span class="api-label">Purpose:</span> Handles workflow execution, node management, Ollama integration</div>
+                </div>
+                <div class="api-block">
+                    <div class="api-title">Node System</div>
+                    <div class="api-line"><span class="api-label">Files:</span> <span class="api-code">canvasmanager</span>, <span class="api-code">ui/node.py</span></div>
+                    <div class="api-line"><span class="api-label">Purpose:</span> Python node objects with inputs/outputs, visually connected on canvas</div>
+                </div>
+                <div class="api-block">
+                    <div class="api-title">UI Components</div>
+                    <div class="api-line"><span class="api-label">Files:</span> <span class="api-code">ui/main_window.py</span>, <span class="api-code">node_editor_window.py</span></div>
+                    <div class="api-line"><span class="api-label">Purpose:</span> PyQt6-based main window, node editor, model browser, automation manager</div>
+                </div>
+                <div class="api-block">
+                    <div class="api-title">Ollama Integration</div>
+                    <div class="api-line"><span class="api-label">Files:</span> <span class="api-code">main.py</span>, <span class="api-code">models_data.py</span></div>
+                    <div class="api-line"><span class="api-label">Purpose:</span> Manage local AI models, download, metadata</div>
+                </div>
+            </section>
+
+            <section>
+                <h2><i class="fa-solid fa-cubes"></i> Key Modules</h2>
+                <div class="api-block">
+                    <div class="api-title">canvasmanager</div>
+                    <div class="api-line"><span class="api-label">Files:</span> <span class="api-code">canvas_nodemethods.py</span>, <span class="api-code">canvas_widget.py</span>, <span class="api-code">ports_handler.py</span>, <span class="api-code">saveload_methods.py</span></div>
+                    <div class="api-line"><span class="api-label">Purpose:</span> Node logic, canvas UI, port handling, workflow save/load</div>
+                </div>
+                <div class="api-block">
+                    <div class="api-title">ui</div>
+                    <div class="api-line"><span class="api-label">Files:</span> <span class="api-code">main_window.py</span>, <span class="api-code">node_editor_window.py</span>, <span class="api-code">model_card.py</span>, <span class="api-code">downloaded_models_window.py</span></div>
+                    <div class="api-line"><span class="api-label">Purpose:</span> Main window, node editor, model display, downloaded models</div>
+                </div>
+                <div class="api-block">
+                    <div class="api-title">utils</div>
+                    <div class="api-line"><span class="api-label">Files:</span> <span class="api-code">font_loader.py</span>, <span class="api-code">node_runner.py</span>, <span class="api-code">paths.py</span></div>
+                    <div class="api-line"><span class="api-label">Purpose:</span> Font management, node execution, path utilities</div>
+                </div>
+                <div class="api-block">
+                    <div class="api-title">models_data.py</div>
+                    <div class="api-line"><span class="api-label">Purpose:</span> Model metadata, supported models, icons, configuration</div>
+                </div>
+            </section>
+
+            <section>
+                <h2><i class="fa-solid fa-file-code"></i> Class & Function Reference</h2>
+                <div class="api-block">
+                    <div class="api-title">main.py</div>
+                    <div class="api-line"><span class="api-label">Function:</span> <span class="api-code">main()</span></div>
+                    <div class="api-line"><span class="api-label">Purpose:</span> Launches the app, sets up UI, starts Ollama</div>
+                    <div class="api-line"><span class="api-label">Returns:</span> None</div>
+                    <div class="api-line"><span class="api-label">Example:</span> <span class="api-code">python main.py</span></div>
+                </div>
+                <div class="api-block">
+                    <div class="api-title">canvasmanager.canvas_nodemethods</div>
+                    <div class="api-line"><span class="api-label">Function:</span> <span class="api-code">add_node(type, position)</span></div>
+                    <div class="api-line"><span class="api-label">Purpose:</span> Add node to canvas</div>
+                    <div class="api-line"><span class="api-label">Parameters:</span> <span class="api-code">type</span> (str), <span class="api-code">position</span> (tuple)</div>
+                    <div class="api-line"><span class="api-label">Returns:</span> Node object</div>
+                    <div class="api-line"><span class="api-label">Example:</span> <span class="api-code">add_node('Input', (100, 200))</span></div>
+                </div>
+                <div class="api-block">
+                    <div class="api-title">canvasmanager.canvas_nodemethods</div>
+                    <div class="api-line"><span class="api-label">Function:</span> <span class="api-code">remove_node(node_id)</span></div>
+                    <div class="api-line"><span class="api-label">Purpose:</span> Remove node by ID</div>
+                    <div class="api-line"><span class="api-label">Parameters:</span> <span class="api-code">node_id</span> (str)</div>
+                    <div class="api-line"><span class="api-label">Returns:</span> None</div>
+                </div>
+                <div class="api-block">
+                    <div class="api-title">ui.main_window</div>
+                    <div class="api-line"><span class="api-label">Class:</span> <span class="api-code">MainWindow</span></div>
+                    <div class="api-line"><span class="api-label">Purpose:</span> Main application window</div>
+                    <div class="api-line"><span class="api-label">Methods:</span> <span class="api-code">show()</span>, <span class="api-code">close()</span>, <span class="api-code">load_automations()</span>, <span class="api-code">browse models</span></div>
+                </div>
+                <div class="api-block">
+                    <div class="api-title">utils.node_runner</div>
+                    <div class="api-line"><span class="api-label">Function:</span> <span class="api-code">run_node(node)</span></div>
+                    <div class="api-line"><span class="api-label">Purpose:</span> Executes node logic</div>
+                    <div class="api-line"><span class="api-label">Parameters:</span> <span class="api-code">node</span> (Node object)</div>
+                    <div class="api-line"><span class="api-label">Returns:</span> Output data</div>
+                </div>
+                <div class="api-block">
+                    <div class="api-title">models_data.py</div>
+                    <div class="api-line"><span class="api-label">Function:</span> <span class="api-code">get_model_info(model_name)</span></div>
+                    <div class="api-line"><span class="api-label">Purpose:</span> Get model metadata</div>
+                    <div class="api-line"><span class="api-label">Parameters:</span> <span class="api-code">model_name</span> (str)</div>
+                    <div class="api-line"><span class="api-label">Returns:</span> dict</div>
+                </div>
+            </section>
+
+            <section>
+                <h2><i class="fa-solid fa-link"></i> Cross-links</h2>
+                <div class="api-block">
+                    <div class="api-title">Documentation Links</div>
+                    <div class="api-line"><a href="gettingstarted.html">Getting Started</a></div>
+                    <div class="api-line"><a href="faq.html">FAQ</a></div>
+                    <div class="api-line"><a href="contribute.html">How to Contribute</a></div>
+                    <div class="api-line"><a href="docs.html">Docs Home</a></div>
+                </div>
+            </section>
+
+            <section>
+                <h2><i class="fa-solid fa-users"></i> Contributing & Docstrings</h2>
+                <div class="api-block">
+                    <div class="api-title">Improve Documentation</div>
+                    <div class="api-line">Add or update docstrings in the codebase. Use <a href="https://www.pdoc.dev/">pdoc</a> or <a href="https://www.sphinx-doc.org/">Sphinx</a> for auto-generation. See <a href="contribute.html">How to Contribute</a> for details.</div>
+                </div>
+            </section>
         </main>
 
     </div>
