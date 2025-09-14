@@ -15,6 +15,7 @@
     <link rel="icon" type="favicon" href="favicon.ico">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="styles/navbar.css">
+    <link rel="stylesheet" href="styles/contribution.css">
     <link rel="stylesheet" href="styles/docs.css">
 </head>
 
@@ -57,7 +58,111 @@
         <!-- Main content -->
         <main class="content">
 
-            <!-- add your code here -->
+            <h1><i class="fa-solid fa-rocket"></i> Getting Started with NodeBox</h1>
+            <p>Welcome to <strong>NodeBox</strong>! This guide will help you set up NodeBox and run your first automation in minutes.</p>
+
+            <section>
+                <h2><i class="fa-solid fa-info-circle"></i> What is NodeBox?</h2>
+                <p><strong>NodeBox</strong> is an open-source visual automation platform powered by Python and local AI (Ollama). With NodeBox, you can design, run, and manage automations on your own machine—no cloud required, no API costs. NodeBox is ideal for:
+                    <ul>
+                        <li>Automating repetitive tasks</li>
+                        <li>Integrating local AI models</li>
+                        <li>Building custom Python workflows</li>
+                        <li>Experimenting with node-based logic</li>
+                    </ul>
+                </p>
+            </section>
+
+            <section>
+                <h2><i class="fa-solid fa-list-check"></i> Key Features</h2>
+                <ul>
+                    <li>Python-native nodes for maximum flexibility</li>
+                    <li>Drag-and-drop visual editor</li>
+                    <li>Local AI integration via Ollama</li>
+                    <li>Cross-platform: Windows, macOS, Linux</li>
+                    <li>Open-source and community-driven</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2><i class="fa-solid fa-download"></i> Installation</h2>
+                <ol>
+                    <li>Clone the repository:
+                        <pre><code>git clone https://github.com/shreyansh-shankar/Nodebox.git</code></pre>
+                    </li>
+                    <li>Navigate to the project folder:
+                        <pre><code>cd Nodebox</code></pre>
+                    </li>
+                    <li>Install dependencies:
+                        <pre><code>pip install -r requirements.txt</code></pre>
+                    </li>
+                    <li>Start Ollama (if using AI nodes):
+                        <pre><code>ollama serve</code></pre>
+                    </li>
+                </ol>
+            </section>
+
+            <section>
+                <h2><i class="fa-solid fa-play"></i> Running NodeBox</h2>
+                <ol>
+                    <li>Run the main application:
+                        <pre><code>python main.py</code></pre>
+                    </li>
+                    <li>NodeBox will launch its interface. You can now create and run automations!</li>
+                </ol>
+            </section>
+
+            <section>
+                <h2><i class="fa-solid fa-cubes"></i> Your First Automation Node</h2>
+                <p>Try creating a simple Python node in the NodeBox interface. For example, a node that prints "Hello, NodeBox!"</p>
+                <pre><code># Example: Print Node
+class PrintNode:
+    def run(self):
+        print("Hello, NodeBox!")
+</code></pre>
+                <p>Connect this node in the editor and run your workflow to see the output.</p>
+            </section>
+
+            <section>
+                <h2><i class="fa-solid fa-circle-question"></i> Need Help?</h2>
+                <p>Check the <a href="docs.html">Docs</a>, <a href="faq.html">FAQ</a> for support.</p>
+            </section>
+
+                <section>
+                    <h2><i class="fa-solid fa-diagram-project"></i> Project Workflow</h2>
+                    <ol>
+                        <li>Open NodeBox and explore the visual editor.</li>
+                        <li>Drag nodes from the palette onto the canvas.</li>
+                        <li>Connect nodes to define your workflow.</li>
+                        <li>Configure node properties and parameters.</li>
+                        <li>Click <strong>Run</strong> to execute your automation.</li>
+                    </ol>
+                </section>
+
+                <section>
+                    <h2><i class="fa-solid fa-bug"></i> Troubleshooting & Tips</h2>
+                    <ul>
+                        <li>Make sure Python and Ollama are installed and added to your PATH.</li>
+                        <li>If you encounter issues, check the <a href="faq.html">FAQ</a> or <a href="docs.html">Docs</a>.</li>
+                        <li>For dependency errors, try updating <code>pip</code> and reinstalling requirements.</li>
+                        <li>Use the <a href="https://github.com/shreyansh-shankar/Nodebox/issues" target="_blank">GitHub Issues</a> page for bug reports.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2><i class="fa-solid fa-hackerrank"></i> Hacktoberfest & Contributing</h2>
+                    <p>NodeBox welcomes contributions! If you're participating in Hacktoberfest, check out the <a href="contribute.html">How to Contribute</a> page for guidelines and workflow. All contributors are encouraged to:</p>
+                    <ul>
+                        <li>Read the <a href="CONTRIBUTING.md" target="_blank">CONTRIBUTING.md</a> file</li>
+                        <li>Pick issues labeled <code>good first issue</code></li>
+                        <li>Open pull requests for improvements</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2><i class="fa-solid fa-circle-question"></i> Need Help?</h2>
+                    <p>Check the <a href="docs.html">Docs</a>, <a href="faq.html">FAQ</a>, or join our <a href="https://github.com/shreyansh-shankar/Nodebox/" target="_blank">GitHub</a> for support.</p>
+                </section>
 
         </main>
 
