@@ -4,6 +4,7 @@ from PyQt6.QtWidgets import (
     QApplication, QDialog, QVBoxLayout, QLabel, QComboBox, QPushButton, QProgressBar, QTextEdit
 )
 from PyQt6.QtCore import QThread, pyqtSignal
+from utils.screen_manager import ScreenManager
 
 # Worker thread for downloading
 class DownloadWorker(QThread):
@@ -58,7 +59,18 @@ class DownloadManager(QDialog):
 
         self.setWindowTitle("Download Manager")
         self.setModal(True)
-        self.resize(400, 300)
+        
+        # Use dynamic window sizing for dialog
+        width, height = ScreenManager.get_dialog_window_size(
+            width_percentage=0.3,
+            height_percentage=0.3,
+            min_width=350,
+            min_height=250
+        )
+        
+        # Center the window
+        x, y = ScreenManager.calculate_window_position(width, height, center=True)
+        self.setGeometry(x, y, width, height)
 
         layout = QVBoxLayout()
 

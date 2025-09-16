@@ -6,6 +6,7 @@ import os, json, sys
 
 from canvasmanager.canvas_widget import CanvasWidget
 from ui.node_pallete import NodePaletteItem
+from utils.screen_manager import ScreenManager
 
 def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and PyInstaller """
@@ -25,7 +26,20 @@ class NodeEditorWindow(QMainWindow):
         super().__init__()
         self.automation_name = automation_name
         self.setWindowTitle(f"Automation: {automation_name}")
-        self.setMinimumSize(1200, 800)
+        
+        # Use dynamic window sizing based on screen resolution
+        x, y, width, height = ScreenManager.get_editor_window_geometry()
+        self.setGeometry(x, y, width, height)
+        
+        # Set minimum size to be at least the minimum calculated size
+        min_width, min_height = ScreenManager.calculate_window_size(
+            width_percentage=0.6,  # Smaller percentage for minimum
+            height_percentage=0.6,
+            min_width=1000,
+            min_height=700
+        )
+        self.setMinimumSize(min_width, min_height)
+        
         self.setStyleSheet("background-color: #2a2a2a; color: white;")
 
         # Load existing automation data

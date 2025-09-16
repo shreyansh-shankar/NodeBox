@@ -10,6 +10,7 @@ from PyQt6.QtCore import Qt, QPoint #type: ignore
 from ui.browsemodel_window import BrowseModelsWindow
 from ui.newautomation_window import NewAutomationWindow
 from utils.paths import AUTOMATIONS_DIR
+from utils.screen_manager import ScreenManager
 
 import os
 import json
@@ -18,7 +19,10 @@ class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("NodeBox - Automation Studio")
-        self.setGeometry(100, 100, 900, 600)
+        
+        # Use dynamic window sizing based on screen resolution
+        x, y, width, height = ScreenManager.get_main_window_geometry()
+        self.setGeometry(x, y, width, height)
 
         self.main_layout = QVBoxLayout()
         self.setLayout(self.main_layout)
