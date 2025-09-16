@@ -1,11 +1,23 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTabWidget, QCheckBox, QHBoxLayout, QPushButton, QScrollArea, QFrame
 from PyQt6.QtCore import Qt
+from utils.screen_manager import ScreenManager
 
 class FilterWindow(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Filter Options")
-        self.setFixedSize(306, 300)
+        
+        # Use dynamic window sizing for dialog
+        width, height = ScreenManager.get_dialog_window_size(
+            width_percentage=0.2,
+            height_percentage=0.25,
+            min_width=280,
+            min_height=250
+        )
+        
+        # Center the window
+        x, y = ScreenManager.calculate_window_position(width, height, center=True)
+        self.setGeometry(x, y, width, height)
         self.setStyleSheet("background-color: #1e1e1e; color: white;")
 
         main_layout = QVBoxLayout(self)

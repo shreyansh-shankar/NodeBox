@@ -5,3 +5,4 @@ ui/__pycache__
 build
 
 .firebase/
+venv/

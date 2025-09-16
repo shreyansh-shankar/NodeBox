@@ -9,12 +9,16 @@ from ui.model_card import ModelCard
 from models_data import models
 from ui.filter_window import FilterWindow
 from ui.downlaod_manager import DownloadManager
+from utils.screen_manager import ScreenManager
 
 class BrowseModelsWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Browse Models")
-        self.resize(1200, 800)
+        
+        # Use dynamic window sizing based on screen resolution
+        x, y, width, height = ScreenManager.get_browse_window_geometry()
+        self.setGeometry(x, y, width, height)
         self.setStyleSheet("background-color: #121212;")
 
         self._downloads = []

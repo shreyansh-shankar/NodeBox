@@ -7,12 +7,24 @@ from PyQt6.QtGui import QFont, QIcon
 from PyQt6.QtCore import Qt
 import subprocess
 import json
+from utils.screen_manager import ScreenManager
 
 class DownloadedModelsWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Downloaded Models")
-        self.setGeometry(150, 150, 600, 400)
+        
+        # Use dynamic window sizing for dialog - smaller relative size
+        width, height = ScreenManager.get_dialog_window_size(
+            width_percentage=0.4,
+            height_percentage=0.4,
+            min_width=500,
+            min_height=350
+        )
+        
+        # Center the window
+        x, y = ScreenManager.calculate_window_position(width, height, center=True)
+        self.setGeometry(x, y, width, height)
 
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
