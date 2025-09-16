@@ -4,6 +4,7 @@ from PyQt6.QtCore import Qt
 
 from ui.node_editor_window import NodeEditorWindow
 from utils.paths import AUTOMATIONS_DIR
+from utils.screen_manager import ScreenManager
 import json, os
 
 class NewAutomationWindow(QWidget):
@@ -11,7 +12,18 @@ class NewAutomationWindow(QWidget):
         self.main_window = main_window
         super().__init__()
         self.setWindowTitle("Create New Automation")
-        self.setFixedSize(400, 200)
+        
+        # Use dynamic window sizing for small dialog
+        width, height = ScreenManager.get_dialog_window_size(
+            width_percentage=0.25,
+            height_percentage=0.15,
+            min_width=350,
+            min_height=150
+        )
+        
+        # Center the window
+        x, y = ScreenManager.calculate_window_position(width, height, center=True)
+        self.setGeometry(x, y, width, height)
         self.setStyleSheet("background-color: #1e1e1e; color: white;")
 
         layout = QVBoxLayout(self)
