@@ -5,10 +5,10 @@ from PyQt6.QtWidgets import ( #type: ignore
 from PyQt6.QtGui import QPixmap #type: ignore
 from PyQt6.QtCore import Qt #type: ignore
 
-from ui.model_card import ModelCard
+from browsemodels_manager.model_card import ModelCard
 from models_data import models
-from ui.filter_window import FilterWindow
-from ui.downlaod_manager import DownloadManager
+from browsemodels_manager.filter_window import FilterWindow
+from browsemodels_manager.downlaod_manager import DownloadManager
 from utils.screen_manager import ScreenManager
 
 class BrowseModelsWindow(QWidget):

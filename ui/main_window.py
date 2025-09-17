@@ -7,7 +7,7 @@ from PyQt6.QtSvg import QSvgRenderer #type: ignore
 from PyQt6.QtGui import QFont, QIcon, QPixmap, QPainter #type: ignore
 from PyQt6.QtCore import Qt, QPoint #type: ignore
 
-from ui.browsemodel_window import BrowseModelsWindow
+from browsemodels_manager.browsemodel_window import BrowseModelsWindow
 from ui.newautomation_window import NewAutomationWindow
 from utils.paths import AUTOMATIONS_DIR
 from utils.screen_manager import ScreenManager
@@ -172,7 +172,7 @@ class MainWindow(QWidget):
         return automations
     
     def edit_automation(self, name):
-        from ui.node_editor_window import NodeEditorWindow
+        from automation_manager.node_editor_window import NodeEditorWindow
 
         self.editor_window = NodeEditorWindow(name)
         self.editor_window.closed.connect(self.show)
@@ -284,7 +284,7 @@ class MainWindow(QWidget):
     
     def view_downloaded_models(self):
         # Replace with your actual window or logic
-        from ui.downloaded_models_window import DownloadedModelsWindow
+        from browsemodels_manager.downloaded_models_window import DownloadedModelsWindow
         self.downloaded_window = DownloadedModelsWindow()
         self.downloaded_window.show()
 

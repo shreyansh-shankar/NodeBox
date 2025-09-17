@@ -2,7 +2,7 @@ from PyQt6.QtWidgets import QWidget, QInputDialog, QDialog #type: ignore
 from PyQt6.QtGui import QPainter, QColor, QPen, QMouseEvent, QKeyEvent, QWheelEvent, QFont, QPainterPath #type: ignore
 from PyQt6.QtCore import Qt, QRect, QPoint, QPointF, QTimer #type: ignore
 
-from ui.node import NodeWidget
+from automation_manager.node import NodeWidget
 from utils.node_runner import execute_all_nodes
 
 class CanvasWidget(QWidget):

@@ -2,7 +2,7 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QMessageBox
 from PyQt6.QtCore import Qt
 
-from ui.node_editor_window import NodeEditorWindow
+from automation_manager.node_editor_window import NodeEditorWindow
 from utils.paths import AUTOMATIONS_DIR
 from utils.screen_manager import ScreenManager
 import json, os

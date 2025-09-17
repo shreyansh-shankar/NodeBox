@@ -4,7 +4,7 @@ from PyQt6.QtCore import Qt, QPoint, QPointF, QRectF, pyqtSignal #type: ignore
 
 import uuid
 
-from ui.ports import PortWidget
+from automation_manager.ports import PortWidget
 
 class NodeWidget(QWidget):
 

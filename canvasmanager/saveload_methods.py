@@ -2,7 +2,7 @@ from PyQt6.QtCore import QPointF #type: ignore
 
 import os, json
 
-from ui.node import NodeWidget
+from automation_manager.node import NodeWidget
 
 def save_canvas_state(self):
         os.makedirs(os.path.expanduser("~/.nodebox/automations"), exist_ok=True)
@@ -52,7 +52,7 @@ def save_canvas_state(self):
 
 
 def load_canvas_state(self):
-    from ui.connection import BezierConnection
+    from automation_manager.connection import BezierConnection
 
     # Load nodes
     for node_data in self.automation_data.get("nodes", []):

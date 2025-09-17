@@ -5,7 +5,7 @@ from PyQt6.QtGui import QIcon #type: ignore
 import os, json, sys
 
 from canvasmanager.canvas_widget import CanvasWidget
-from ui.node_pallete import NodePaletteItem
+from automation_manager.node_pallete import NodePaletteItem
 from utils.screen_manager import ScreenManager
 
 def resource_path(relative_path):

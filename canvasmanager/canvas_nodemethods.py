@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QDialog
 
 def open_node(self, node):
-    from ui.nodeeditor_dialog import NodeEditorDialog
+    from automation_manager.nodeeditor_dialog import NodeEditorDialog
 
     # Determine inputs for the node: gather variable names from incoming connections.
     # For the basic UI we can show placeholder inputs or actual upstream outputs.

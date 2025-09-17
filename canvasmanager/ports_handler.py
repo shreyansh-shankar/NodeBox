@@ -1,5 +1,5 @@
 def start_connection(self, port_widget):
-    from ui.connection import BezierConnection  # define below
+    from automation_manager.connection import BezierConnection  # define below
     self.connection_start_port = port_widget
     self.pending_connection = BezierConnection(start_port=port_widget, canvas=self)
     self.update()
