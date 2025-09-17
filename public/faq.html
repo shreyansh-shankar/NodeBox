@@ -15,6 +15,7 @@
     <link rel="icon" type="favicon" href="favicon.ico">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="styles/navbar.css">
+    <link rel="stylesheet" href="styles/contribution.css">
     <link rel="stylesheet" href="styles/docs.css">
 </head>
 
@@ -53,16 +54,50 @@
                 </ul>
             </nav>
         </aside>
-
         <!-- Main content -->
         <main class="content">
+            <h1><i class="fa-solid fa-circle-question"></i> Frequently Asked Questions (FAQ)</h1>
+            <p>Welcome to <strong>NodeBox</strong>! This FAQ will help you find answers to common questions about using and contributing to NodeBox.</p>
 
-            <!-- add your code here -->
+            <section>
+                <h2><i class="fa-solid fa-info-circle"></i> What is NodeBox?</h2>
+                <p><strong>NodeBox</strong> is an open-source visual automation platform powered by Python and local AI (Ollama). With NodeBox, you can design, run, and manage automations on your own machine—no cloud required, no API costs. NodeBox is ideal for:
+                    <ul>
+                        <li>Automating repetitive tasks</li>
+                        <li>Integrating local AI models</li>
+                        <li>Building custom Python workflows</li>
+                        <li>Experimenting with node-based logic</li>
+                    </ul>
+                </p>
+            </section>
 
+            <section>
+                <h2><i class="fa-solid fa-list-check"></i> Key Features</h2>
+                <ul>
+                    <li>Python-native nodes for maximum flexibility</li>
+                    <li>Drag-and-drop visual editor</li>
+                    <li>Local AI integration via Ollama</li>
+                    <li>Cross-platform: Windows, macOS, Linux</li>
+                    <li>Open-source and community-driven</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2><i class="fa-solid fa-circle-question"></i> FAQ</h2>
+                <ol>
+                    <li><b>How do I install and configure Ollama?</b><br>Ollama is an optional backend for running local AI models. See our <a href="docs.html#ollama">Ollama setup guide</a> for step-by-step instructions.</li>
+                    <li><b>What is a Node in NodeBox?</b><br>A Node is a building block in NodeBox. Each node represents a function, model, or operation. You connect nodes to create workflows.</li>
+                    <li><b>How do I connect multiple nodes?</b><br>Drag from a node’s output port to another node’s input port. This creates a connection, allowing data to flow between nodes.</li>
+                    <li><b>Do I need Python knowledge to use NodeBox?</b><br>No coding is required for basic use. However, Python knowledge can help if you want to create custom nodes or automations.</li>
+                    <li><b>Where can I find more documentation?</b><br>Visit our <a href="docs.html">documentation page</a> for detailed guides, examples, and API references.</li>
+                    <li><b>How can I contribute to NodeBox?</b><br>Check our <a href="contribute.html">contribution guide</a> for ways to help, including code, documentation, and feedback.</li>
+                    <li><b>Who maintains NodeBox?</b><br>NodeBox is maintained by an open-source community. See our <a href="CONTRIBUTING.md">CONTRIBUTING.md</a> for more info.</li>
+                    <li><b>Is NodeBox free to use?</b><br>Yes, NodeBox is open-source and free for everyone.</li>
+                    <li><b>Where do I report bugs or request features?</b><br>Open an issue on our <a href="https://github.com/jassu2244/NodeBox/issues">GitHub Issues page</a>.</li>
+                </ol>
+            </section>
         </main>
-
     </div>
     <script src="script.js"></script>
 </body>
-
 </html>

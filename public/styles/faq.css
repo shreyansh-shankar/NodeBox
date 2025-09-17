@@ -1,0 +1,99 @@
+body {
+  background: #101624;
+  color: #e2e8f0;
+}
+
+.faq-hero-bg {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #101624 60%, #1a223a 100%);
+  padding: 2rem 0;
+}
+
+.faq-card {
+  background: #181f33;
+  border-radius: 18px;
+  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.18);
+  max-width: 600px;
+  width: 100%;
+  padding: 2.5rem 2rem 2rem 2rem;
+  margin: 2rem 1rem;
+}
+
+.faq-title {
+  color: #4ee37b;
+  font-family: "Poppins", sans-serif;
+  font-size: 2rem;
+  text-align: center;
+  margin-bottom: 1.2rem;
+}
+
+.faq-welcome {
+  color: #b5c6e0;
+  text-align: center;
+  margin-bottom: 2.2rem;
+}
+
+.faq-section {
+  margin-bottom: 2.2rem;
+  padding-bottom: 1.2rem;
+  border-bottom: 1px solid #232b45;
+}
+.faq-section:last-child {
+  border-bottom: none;
+}
+
+.faq-section h2 {
+  color: #4ee37b;
+  font-size: 1.2rem;
+  margin-bottom: 0.7rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.faq-icon {
+  color: #4ee37b;
+  font-size: 1.2em;
+}
+
+.faq-list {
+  margin: 0.5rem 0 0 1.2rem;
+  color: #e2e8f0;
+  font-size: 1rem;
+  list-style: disc;
+}
+
+.faq-qna {
+  margin-top: 1.2rem;
+}
+.faq-q {
+  color: #4ee37b;
+  font-weight: 600;
+  margin-top: 1.1rem;
+  margin-bottom: 0.2rem;
+}
+.faq-a {
+  color: #b5c6e0;
+  margin-left: 0.5rem;
+  margin-bottom: 0.7rem;
+}
+
+a {
+  color: #4ee37b;
+  text-decoration: underline;
+}
+a:hover {
+  color: #7fffbf;
+}
+
+@media (max-width: 700px) {
+  .faq-card {
+    padding: 1.2rem 0.5rem;
+  }
+  .faq-title {
+    font-size: 1.3rem;
+  }
+}
