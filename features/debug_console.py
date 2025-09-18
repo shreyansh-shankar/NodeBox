@@ -1,18 +1,18 @@
 """
-Enhanced Debug Console - Better debugging and logging for NodeBox
+Optimized Debug Console - Efficient logging and monitoring
 """
 from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, 
-                             QTextEdit, QComboBox, QCheckBox, QSplitter, QTabWidget,
-                             QTableWidget, QTableWidgetItem, QHeaderView)
+                             QTextEdit, QComboBox, QSplitter, QTableWidget, QTableWidgetItem, 
+                             QHeaderView)
 from PyQt6.QtCore import Qt, QTimer, pyqtSignal
 from PyQt6.QtGui import QFont, QTextCharFormat, QColor, QTextCursor
 import json
 import datetime
-import traceback
-import sys
-from io import StringIO
+from collections import deque
 
 class LogEntry:
+    __slots__ = ['timestamp', 'level', 'message', 'node_id', 'node_name']
+    
     def __init__(self, timestamp, level, message, node_id=None, node_name=None):
         self.timestamp = timestamp
         self.level = level
@@ -25,48 +25,48 @@ class DebugConsole(QWidget):
     
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.logs = []
-        self.max_logs = 1000
+        self.logs = deque(maxlen=500)  # Use deque for efficient append/pop
+        self.max_logs = 500
+        self._node_names = set()
+        self._update_timer = QTimer()
+        self._update_timer.timeout.connect(self.update_metrics)
+        self._update_timer.start(5000)  # Update metrics every 5 seconds
         self.init_ui()
-        self.setup_logging()
     
     def init_ui(self):
         layout = QVBoxLayout()
         
-        # Title
+        # Minimalist title
         title = QLabel("Debug Console")
-        title.setFont(QFont("Poppins", 16, QFont.Weight.Bold))
+        title.setFont(QFont("Poppins", 14, QFont.Weight.Bold))
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(title)
         
-        # Controls
+        # Compact controls
         controls_layout = QHBoxLayout()
         
-        # Log level filter
         self.level_combo = QComboBox()
-        self.level_combo.addItems(["All", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"])
+        self.level_combo.addItems(["All", "ERROR", "WARNING", "INFO", "DEBUG"])
         self.level_combo.currentTextChanged.connect(self.filter_logs)
         controls_layout.addWidget(QLabel("Level:"))
         controls_layout.addWidget(self.level_combo)
         
-        # Node filter
         self.node_combo = QComboBox()
-        self.node_combo.addItem("All Nodes")
+        self.node_combo.addItem("All")
         self.node_combo.currentTextChanged.connect(self.filter_logs)
         controls_layout.addWidget(QLabel("Node:"))
         controls_layout.addWidget(self.node_combo)
         
-        # Clear button
-        clear_button = QPushButton("Clear Logs")
+        clear_button = QPushButton("Clear")
         clear_button.clicked.connect(self.clear_logs)
+        clear_button.setStyleSheet("QPushButton { padding: 4px 8px; }")
         controls_layout.addWidget(clear_button)
         
-        # Export button
-        export_button = QPushButton("Export Logs")
+        export_button = QPushButton("Export")
         export_button.clicked.connect(self.export_logs)
+        export_button.setStyleSheet("QPushButton { padding: 4px 8px; }")
         controls_layout.addWidget(export_button)
         
-        controls_layout.addStretch()
         layout.addLayout(controls_layout)
         
         # Main content area
@@ -116,100 +116,80 @@ class DebugConsole(QWidget):
         pass
     
     def add_log(self, level, message, node_id=None, node_name=None):
-        """Add a log entry"""
-        timestamp = datetime.datetime.now()
-        log_entry = LogEntry(timestamp, level, message, node_id, node_name)
+        """Optimized log entry addition"""
+        log_entry = LogEntry(datetime.datetime.now(), level, message, node_id, node_name)
         
-        self.logs.append(log_entry)
-        
-        # Keep only the last max_logs entries
-        if len(self.logs) > self.max_logs:
-            self.logs = self.logs[-self.max_logs:]
+        self.logs.append(log_entry)  # deque automatically handles maxlen
         
         # Update node combo if new node
-        if node_name and node_name not in [self.node_combo.itemText(i) for i in range(self.node_combo.count())]:
+        if node_name and node_name not in self._node_names:
+            self._node_names.add(node_name)
             self.node_combo.addItem(node_name)
         
         self.log_added.emit(log_entry)
         self.update_log_display()
     
     def update_log_display(self):
-        """Update the log display with filtered logs"""
+        """Optimized log display update"""
         self.log_display.clear()
         
         level_filter = self.level_combo.currentText()
         node_filter = self.node_combo.currentText()
         
-        filtered_logs = []
-        for log in self.logs:
-            if level_filter != "All" and log.level != level_filter:
-                continue
-            if node_filter != "All Nodes" and log.node_name != node_filter:
-                continue
-            filtered_logs.append(log)
+        # Filter logs efficiently
+        filtered_logs = [
+            log for log in self.logs
+            if (level_filter == "All" or log.level == level_filter) and
+               (node_filter == "All" or log.node_name == node_filter)
+        ]
         
-        for log in filtered_logs:
-            self.append_log_to_display(log)
+        # Build display text efficiently
+        log_text = "\n".join(self._format_log_entry(log) for log in filtered_logs)
+        self.log_display.setPlainText(log_text)
+        self.log_display.moveCursor(QTextCursor.MoveOperation.End)
     
-    def append_log_to_display(self, log):
-        """Append a single log entry to the display"""
-        cursor = self.log_display.textCursor()
-        cursor.movePosition(QTextCursor.MoveOperation.End)
-        
-        # Format based on log level
-        format = QTextCharFormat()
-        if log.level == "ERROR" or log.level == "CRITICAL":
-            format.setForeground(QColor(255, 100, 100))
-        elif log.level == "WARNING":
-            format.setForeground(QColor(255, 200, 100))
-        elif log.level == "INFO":
-            format.setForeground(QColor(100, 200, 255))
-        else:
-            format.setForeground(QColor(200, 200, 200))
-        
-        cursor.setCharFormat(format)
-        
-        # Format the log entry
-        timestamp_str = log.timestamp.strftime("%H:%M:%S.%f")[:-3]
+    def _format_log_entry(self, log):
+        """Format a single log entry for display"""
+        timestamp_str = log.timestamp.strftime("%H:%M:%S")
         node_info = f" [{log.node_name}]" if log.node_name else ""
-        log_text = f"[{timestamp_str}] {log.level}{node_info}: {log.message}\n"
-        
-        cursor.insertText(log_text)
-        self.log_display.setTextCursor(cursor)
-        self.log_display.ensureCursorVisible()
+        return f"[{timestamp_str}] {log.level}{node_info}: {log.message}"
     
     def filter_logs(self):
         """Filter logs based on current filters"""
         self.update_log_display()
     
     def clear_logs(self):
-        """Clear all logs"""
+        """Clear all logs efficiently"""
         self.logs.clear()
         self.log_display.clear()
+        self._node_names.clear()
+        self.node_combo.clear()
+        self.node_combo.addItem("All")
         self.update_metrics()
     
     def export_logs(self):
-        """Export logs to file"""
+        """Optimized log export"""
         try:
             timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
             filename = f"nodebox_logs_{timestamp}.json"
             
-            logs_data = []
-            for log in self.logs:
-                logs_data.append({
+            logs_data = [
+                {
                     "timestamp": log.timestamp.isoformat(),
                     "level": log.level,
                     "message": log.message,
                     "node_id": log.node_id,
                     "node_name": log.node_name
-                })
+                }
+                for log in self.logs
+            ]
             
             with open(filename, "w") as f:
-                json.dump(logs_data, f, indent=2)
+                json.dump(logs_data, f, separators=(',', ':'))  # Compact JSON
             
             self.add_log("INFO", f"Logs exported to {filename}")
         except Exception as e:
-            self.add_log("ERROR", f"Failed to export logs: {str(e)}")
+            self.add_log("ERROR", f"Export failed: {str(e)}")
     
     def update_metrics(self):
         """Update performance metrics"""
