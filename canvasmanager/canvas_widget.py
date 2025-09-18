@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QWidget, QInputDialog, QDialog #type: ignore
-from PyQt6.QtGui import QPainter, QColor, QPen, QMouseEvent, QKeyEvent, QWheelEvent, QFont, QPainterPath #type: ignore
-from PyQt6.QtCore import Qt, QRect, QPoint, QPointF, QTimer #type: ignore
+from PyQt6.QtGui import QPainter, QColor, QPen, QMouseEvent, QKeyEvent, QWheelEvent, QFont, QPainterPath, QTouchEvent #type: ignore
+from PyQt6.QtCore import Qt, QRect, QPoint, QPointF, QTimer, QEvent #type: ignore
 
 from automation_manager.node import NodeWidget
 from utils.node_runner import execute_all_nodes
@@ -32,6 +32,9 @@ class CanvasWidget(QWidget):
 
         self.setMouseTracking(True)
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.setAttribute(Qt.WA_AcceptTouchEvents, True)
+        self.grabGesture(Qt.GestureType.PanGesture)
+        self.grabGesture(Qt.GestureType.PinchGesture)
 
         # port and connection related logic
         self.pending_connection = None  
@@ -180,6 +183,98 @@ class CanvasWidget(QWidget):
 
         for node in self.nodes.values():
             node.update_position()
+
+    def event(self, event):
+        if event.type() == QEvent.Gesture:
+            return self.gestureEvent(event)
+        if event.type() in (QEvent.Type.TouchBegin, QEvent.Type.TouchUpdate, QEvent.Type.TouchEnd):
+            return self.touchEvent(event)
+        return super().event(event)
+
+    def touchEvent(self, event: QTouchEvent):
+        touch_points = event.touchPoints()
+        if len(touch_points) == 1:
+            # Single finger touch for panning when space is held
+            touch_point = touch_points[0]
+            if event.type() == QEvent.Type.TouchBegin and self.space_held:
+                self.drag_start = touch_point.pos()
+            elif event.type() == QEvent.Type.TouchUpdate and self.space_held and self.drag_start:
+                delta = touch_point.pos() - touch_point.lastPos()
+                self.offset += delta
+                for node in self.nodes.values():
+                    node.update_position()
+                self.update()
+            elif event.type() == QEvent.Type.TouchEnd:
+                self.drag_start = None
+            event.accept()
+            return True
+        elif len(touch_points) == 2:
+            # Two finger touch for panning or zooming
+            p1 = touch_points[0]
+            p2 = touch_points[1]
+
+            # Calculate current and last positions midpoint
+            current_pos = (p1.pos() + p2.pos()) / 2
+            last_pos = (p1.lastPos() + p2.lastPos()) / 2
+            delta = current_pos - last_pos
+
+            # Check if CTRL is pressed for zooming
+            modifiers = event.modifiers()
+            if modifiers & Qt.KeyboardModifier.ControlModifier:
+                # Zoom based on distance change between two points
+                current_dist = (p1.pos() - p2.pos()).manhattanLength()
+                last_dist = (p1.lastPos() - p2.lastPos()).manhattanLength()
+                if last_dist != 0:
+                    scale_factor = current_dist / last_dist
+                    old_scale = self.scale
+                    self.scale *= scale_factor
+                    self.scale = max(0.1, min(self.scale, 10.0))
+
+                    # Adjust offset to keep zoom centered at midpoint
+                    before_scale = (current_pos - self.offset) / old_scale
+                    after_scale = (current_pos - self.offset) / self.scale
+                    self.offset += (after_scale - before_scale) * self.scale
+
+                    for node in self.nodes.values():
+                        node.update_position()
+                    self.update()
+            else:
+                # Pan the canvas by delta
+                self.offset += delta
+                for node in self.nodes.values():
+                    node.update_position()
+                self.update()
+
+            event.accept()
+            return True
+        return super().event(event)
+
+    def gestureEvent(self, event):
+        pan = event.gesture(Qt.GestureType.PanGesture)
+        if pan and pan.state() == Qt.GestureState.GestureUpdated:
+            delta = pan.delta()
+            self.offset += delta
+            for node in self.nodes.values():
+                node.update_position()
+            self.update()
+
+        pinch = event.gesture(Qt.GestureType.PinchGesture)
+        if pinch and pinch.state() == Qt.GestureState.GestureUpdated:
+            scale_factor = pinch.scaleFactor()
+            old_scale = self.scale
+            self.scale *= scale_factor
+            self.scale = max(0.1, min(self.scale, 10.0))
+
+            center = pinch.centerPoint()
+            before_scale = (center - self.offset) / old_scale
+            after_scale = (center - self.offset) / self.scale
+            self.offset += (after_scale - before_scale) * self.scale
+
+            for node in self.nodes.values():
+                node.update_position()
+            self.update()
+
+        return True
 
     def center_initial_view(self):
         if not self.initial_centering_done:
