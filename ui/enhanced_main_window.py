@@ -3,7 +3,7 @@ Optimized Enhanced Main Window - Minimalist and efficient
 """
 from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
                              QTabWidget, QListWidget, QMenuBar, QMenu, QStatusBar, 
-                             QMessageBox)
+                             QMessageBox, QListWidgetItem)
 from PyQt6.QtGui import QFont, QAction
 from PyQt6.QtCore import Qt, pyqtSignal
 
@@ -25,7 +25,7 @@ from pathlib import Path
 class EnhancedMainWindow(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("NodeBox Enhanced")
+        self.setWindowTitle("NodeBox")
         
         # Use dynamic window sizing based on screen resolution
         x, y, width, height = ScreenManager.get_main_window_geometry()

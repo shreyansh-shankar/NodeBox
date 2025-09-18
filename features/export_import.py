@@ -3,7 +3,7 @@ Optimized Export/Import System - Efficient workflow sharing
 """
 from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, 
                              QFileDialog, QMessageBox, QListWidget, QLineEdit, 
-                             QDialog, QFormLayout, QGroupBox, QProgressBar)
+                             QDialog, QFormLayout, QGroupBox, QProgressBar, QCheckBox, QListWidgetItem, QTextEdit)
 from PyQt6.QtCore import Qt, QThread, pyqtSignal
 from PyQt6.QtGui import QFont
 import json

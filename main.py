@@ -36,9 +36,9 @@ def main():
     app.setWindowIcon(QIcon(resource_path("assets/icons/favicon.png")))
 
     # Load local Poppins font
-    QFontDatabase.addApplicationFont("assets/fonts/Poppins-Regular.ttf")
-    QFontDatabase.addApplicationFont("assets/fonts/Poppins-Medium.ttf")
-    QFontDatabase.addApplicationFont("assets/fonts/Poppins-SemiBold.ttf")
+    QFontDatabase.addApplicationFont(resource_path("assets/fonts/Poppins-Regular.ttf"))
+    QFontDatabase.addApplicationFont(resource_path("assets/fonts/Poppins-Medium.ttf"))
+    QFontDatabase.addApplicationFont(resource_path("assets/fonts/Poppins-SemiBold.ttf"))
 
     # 2. Apply dark stylesheet
     qss_file = resource_path("qss/dark.qss")
@@ -51,8 +51,7 @@ def main():
 
     window = EnhancedMainWindow()
     window.show()
-    sys.exit(app.exec())
-
+    exit_code = app.exec()
 
     # Cleanup after Qt loop finishes
     if ollama_process:
