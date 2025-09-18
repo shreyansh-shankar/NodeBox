@@ -1,18 +1,22 @@
 """
-Performance Monitor - Real-time performance metrics for NodeBox
+Optimized Performance Monitor - Minimal resource usage
 """
 from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, 
                              QProgressBar, QTableWidget, QTableWidgetItem, QGroupBox,
-                             QGridLayout, QCheckBox)
+                             QGridLayout)
 from PyQt6.QtCore import Qt, QTimer, pyqtSignal
 from PyQt6.QtGui import QFont, QColor
 import psutil
-import time
 import json
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
+from collections import deque
 
 class PerformanceMetrics:
+    __slots__ = ['cpu_usage', 'memory_usage', 'disk_usage', 'network_sent', 
+                 'network_recv', 'timestamp', 'active_nodes', 'total_nodes', 
+                 'workflows_running', 'execution_time', 'error_count']
+    
     def __init__(self):
         self.cpu_usage = 0.0
         self.memory_usage = 0.0
@@ -34,9 +38,9 @@ class PerformanceMonitor(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.metrics = PerformanceMetrics()
-        self.history = []
-        self.max_history = 100
+        self.history = deque(maxlen=50)  # Reduced history size
         self.monitoring = True
+        self._update_interval = 2000  # 2 seconds for better performance
         
         # Network baseline
         self.network_baseline = psutil.net_io_counters()
@@ -47,28 +51,30 @@ class PerformanceMonitor(QWidget):
     def init_ui(self):
         layout = QVBoxLayout()
         
-        # Title
-        title = QLabel("Performance Monitor")
-        title.setFont(QFont("Poppins", 16, QFont.Weight.Bold))
+        # Minimalist title
+        title = QLabel("Performance")
+        title.setFont(QFont("Poppins", 14, QFont.Weight.Bold))
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(title)
         
-        # Control buttons
+        # Compact controls
         controls_layout = QHBoxLayout()
         
-        self.start_button = QPushButton("Start Monitoring")
+        self.start_button = QPushButton("Start")
         self.start_button.clicked.connect(self.start_monitoring)
+        self.start_button.setStyleSheet("QPushButton { padding: 4px 8px; }")
         controls_layout.addWidget(self.start_button)
         
-        self.stop_button = QPushButton("Stop Monitoring")
+        self.stop_button = QPushButton("Stop")
         self.stop_button.clicked.connect(self.stop_monitoring)
+        self.stop_button.setStyleSheet("QPushButton { padding: 4px 8px; }")
         controls_layout.addWidget(self.stop_button)
         
-        self.reset_button = QPushButton("Reset Metrics")
+        self.reset_button = QPushButton("Reset")
         self.reset_button.clicked.connect(self.reset_metrics)
+        self.reset_button.setStyleSheet("QPushButton { padding: 4px 8px; }")
         controls_layout.addWidget(self.reset_button)
         
-        controls_layout.addStretch()
         layout.addLayout(controls_layout)
         
         # System metrics
@@ -138,11 +144,11 @@ class PerformanceMonitor(QWidget):
         self.setLayout(layout)
     
     def start_monitoring(self):
-        """Start performance monitoring"""
+        """Start optimized performance monitoring"""
         self.monitoring = True
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_metrics)
-        self.timer.start(1000)  # Update every second
+        self.timer.start(self._update_interval)  # Configurable interval
         self.start_button.setEnabled(False)
         self.stop_button.setEnabled(True)
     
@@ -155,33 +161,41 @@ class PerformanceMonitor(QWidget):
         self.stop_button.setEnabled(False)
     
     def update_metrics(self):
-        """Update performance metrics"""
+        """Optimized metrics update"""
         if not self.monitoring:
             return
         
-        # System metrics
-        self.metrics.cpu_usage = psutil.cpu_percent(interval=0.1)
-        memory = psutil.virtual_memory()
-        self.metrics.memory_usage = memory.percent
-        disk = psutil.disk_usage('/')
-        self.metrics.disk_usage = (disk.used / disk.total) * 100
-        
-        # Network metrics
-        current_network = psutil.net_io_counters()
-        self.metrics.network_sent = current_network.bytes_sent - self.network_baseline.bytes_sent
-        self.metrics.network_recv = current_network.bytes_recv - self.network_baseline.bytes_recv
-        self.network_baseline = current_network
-        
-        self.metrics.timestamp = datetime.now()
-        
-        # Update UI
-        self.update_ui()
-        
-        # Add to history
-        self.add_to_history()
-        
-        # Emit signal
-        self.metrics_updated.emit(self.metrics)
+        try:
+            # System metrics - optimized
+            self.metrics.cpu_usage = psutil.cpu_percent(interval=None)  # Non-blocking
+            memory = psutil.virtual_memory()
+            self.metrics.memory_usage = memory.percent
+            
+            # Only update disk usage occasionally to reduce I/O
+            if not hasattr(self, '_disk_update_counter') or self._disk_update_counter % 5 == 0:
+                disk = psutil.disk_usage('/')
+                self.metrics.disk_usage = (disk.used / disk.total) * 100
+                self._disk_update_counter = 0
+            self._disk_update_counter = getattr(self, '_disk_update_counter', 0) + 1
+            
+            # Network metrics
+            current_network = psutil.net_io_counters()
+            self.metrics.network_sent = current_network.bytes_sent - self.network_baseline.bytes_sent
+            self.metrics.network_recv = current_network.bytes_recv - self.network_baseline.bytes_recv
+            self.network_baseline = current_network
+            
+            self.metrics.timestamp = datetime.now()
+            
+            # Update UI
+            self.update_ui()
+            
+            # Add to history
+            self.add_to_history()
+            
+            # Emit signal
+            self.metrics_updated.emit(self.metrics)
+        except Exception:
+            pass  # Silently handle psutil errors
     
     def update_ui(self):
         """Update the UI with current metrics"""
@@ -232,7 +246,7 @@ class PerformanceMonitor(QWidget):
             self.disk_progress.setStyleSheet("QProgressBar::chunk { background-color: #44ff44; }")
     
     def add_to_history(self):
-        """Add current metrics to history"""
+        """Optimized history management"""
         self.history.append({
             'timestamp': self.metrics.timestamp,
             'cpu': self.metrics.cpu_usage,
@@ -242,12 +256,11 @@ class PerformanceMonitor(QWidget):
             'errors': self.metrics.error_count
         })
         
-        # Keep only recent history
-        if len(self.history) > self.max_history:
-            self.history = self.history[-self.max_history:]
-        
-        # Update history table
-        self.update_history_table()
+        # Update history table only every 5 updates to reduce UI overhead
+        if not hasattr(self, '_history_update_counter') or self._history_update_counter % 5 == 0:
+            self.update_history_table()
+            self._history_update_counter = 0
+        self._history_update_counter = getattr(self, '_history_update_counter', 0) + 1
     
     def update_history_table(self):
         """Update the history table"""
@@ -270,12 +283,15 @@ class PerformanceMonitor(QWidget):
         self.metrics.error_count = error_count
     
     def reset_metrics(self):
-        """Reset all metrics"""
+        """Optimized metrics reset"""
         self.history.clear()
         self.metrics = PerformanceMetrics()
         self.network_baseline = psutil.net_io_counters()
         self.update_ui()
         self.history_table.setRowCount(0)
+        # Reset internal counters
+        self._disk_update_counter = 0
+        self._history_update_counter = 0
     
     def export_metrics(self, filename=None):
         """Export metrics to JSON file"""
