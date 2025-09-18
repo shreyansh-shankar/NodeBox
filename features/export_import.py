@@ -1,16 +1,14 @@
 """
-Export/Import System - Share workflows easily
+Optimized Export/Import System - Efficient workflow sharing
 """
 from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, 
-                             QFileDialog, QMessageBox, QListWidget, QListWidgetItem,
-                             QCheckBox, QLineEdit, QTextEdit, QDialog, QFormLayout,
-                             QGroupBox, QProgressBar)
+                             QFileDialog, QMessageBox, QListWidget, QLineEdit, 
+                             QDialog, QFormLayout, QGroupBox, QProgressBar)
 from PyQt6.QtCore import Qt, QThread, pyqtSignal
 from PyQt6.QtGui import QFont
 import json
 import zipfile
 import os
-import shutil
 from datetime import datetime
 from pathlib import Path
 
@@ -25,6 +23,9 @@ class ExportWorker(QThread):
         self.export_path = export_path
         self.include_models = include_models
         self.include_data = include_data
+        self._workflows_dir = Path("workflows")
+        self._models_dir = Path("models")
+        self._data_dir = Path("data")
     
     def run(self):
         try:
@@ -34,49 +35,47 @@ class ExportWorker(QThread):
             self.error.emit(str(e))
     
     def export_workflows(self):
-        """Export workflows to a zip file"""
-        with zipfile.ZipFile(self.export_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+        """Optimized workflow export"""
+        with zipfile.ZipFile(self.export_path, 'w', zipfile.ZIP_DEFLATED, compresslevel=6) as zipf:
+            total_items = len(self.workflows) + (2 if self.include_models else 0) + (2 if self.include_data else 0) + 1
+            current_item = 0
+            
             # Export workflow files
-            for i, workflow in enumerate(self.workflows):
-                self.progress.emit(int((i / len(self.workflows)) * 80))
-                
-                workflow_file = f"workflows/{workflow}.json"
-                if os.path.exists(workflow_file):
+            for workflow in self.workflows:
+                workflow_file = self._workflows_dir / f"{workflow}.json"
+                if workflow_file.exists():
                     zipf.write(workflow_file, f"workflows/{workflow}.json")
+                current_item += 1
+                self.progress.emit(int((current_item / total_items) * 80))
             
             # Export models if requested
-            if self.include_models:
-                self.progress.emit(85)
-                models_dir = "models"
-                if os.path.exists(models_dir):
-                    for root, dirs, files in os.walk(models_dir):
-                        for file in files:
-                            file_path = os.path.join(root, file)
-                            arc_path = os.path.relpath(file_path, ".")
-                            zipf.write(file_path, arc_path)
+            if self.include_models and self._models_dir.exists():
+                for file_path in self._models_dir.rglob("*"):
+                    if file_path.is_file():
+                        arc_path = file_path.relative_to(Path("."))
+                        zipf.write(file_path, str(arc_path))
+                current_item += 1
+                self.progress.emit(int((current_item / total_items) * 80))
             
             # Export data if requested
-            if self.include_data:
-                self.progress.emit(90)
-                data_dir = "data"
-                if os.path.exists(data_dir):
-                    for root, dirs, files in os.walk(data_dir):
-                        for file in files:
-                            file_path = os.path.join(root, file)
-                            arc_path = os.path.relpath(file_path, ".")
-                            zipf.write(file_path, arc_path)
+            if self.include_data and self._data_dir.exists():
+                for file_path in self._data_dir.rglob("*"):
+                    if file_path.is_file():
+                        arc_path = file_path.relative_to(Path("."))
+                        zipf.write(file_path, str(arc_path))
+                current_item += 1
+                self.progress.emit(int((current_item / total_items) * 80))
             
-            # Create manifest
-            self.progress.emit(95)
+            # Create compact manifest
             manifest = {
-                "export_version": "1.0",
-                "export_date": datetime.now().isoformat(),
+                "version": "2.0",
+                "date": datetime.now().isoformat(),
                 "workflows": self.workflows,
-                "include_models": self.include_models,
-                "include_data": self.include_data
+                "models": self.include_models,
+                "data": self.include_data
             }
             
-            zipf.writestr("manifest.json", json.dumps(manifest, indent=2))
+            zipf.writestr("manifest.json", json.dumps(manifest, separators=(',', ':')))
             self.progress.emit(100)
 
 class ImportWorker(QThread):
@@ -96,7 +95,7 @@ class ImportWorker(QThread):
             self.error.emit(str(e))
     
     def import_workflows(self):
-        """Import workflows from a zip file"""
+        """Optimized workflow import"""
         imported_workflows = []
         
         with zipfile.ZipFile(self.import_path, 'r') as zipf:
@@ -104,30 +103,35 @@ class ImportWorker(QThread):
             manifest_data = zipf.read("manifest.json")
             manifest = json.loads(manifest_data)
             
+            workflows = manifest.get("workflows", [])
+            total_items = len(workflows) + (1 if manifest.get("models") else 0) + (1 if manifest.get("data") else 0)
+            current_item = 0
+            
             # Extract workflows
-            for i, workflow in enumerate(manifest.get("workflows", [])):
-                self.progress.emit(int((i / len(manifest["workflows"])) * 80))
-                
+            os.makedirs("workflows", exist_ok=True)
+            for workflow in workflows:
                 workflow_file = f"workflows/{workflow}.json"
                 if workflow_file in zipf.namelist():
-                    # Extract to workflows directory
-                    os.makedirs("workflows", exist_ok=True)
                     zipf.extract(workflow_file, ".")
                     imported_workflows.append(workflow)
+                current_item += 1
+                self.progress.emit(int((current_item / total_items) * 80))
             
             # Extract models if included
-            if manifest.get("include_models", False):
-                self.progress.emit(85)
+            if manifest.get("models"):
                 for file_info in zipf.infolist():
                     if file_info.filename.startswith("models/"):
                         zipf.extract(file_info.filename, ".")
+                current_item += 1
+                self.progress.emit(int((current_item / total_items) * 80))
             
             # Extract data if included
-            if manifest.get("include_data", False):
-                self.progress.emit(90)
+            if manifest.get("data"):
                 for file_info in zipf.infolist():
                     if file_info.filename.startswith("data/"):
                         zipf.extract(file_info.filename, ".")
+                current_item += 1
+                self.progress.emit(int((current_item / total_items) * 80))
             
             self.progress.emit(100)
         
@@ -141,55 +145,58 @@ class ExportImportManager(QWidget):
     def init_ui(self):
         layout = QVBoxLayout()
         
-        # Title
-        title = QLabel("Export/Import Manager")
-        title.setFont(QFont("Poppins", 16, QFont.Weight.Bold))
+        # Minimalist title
+        title = QLabel("Export/Import")
+        title.setFont(QFont("Poppins", 14, QFont.Weight.Bold))
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(title)
         
         # Export section
-        export_group = QGroupBox("Export Workflows")
+        export_group = QGroupBox("Export")
         export_layout = QVBoxLayout()
         
         # Workflow selection
         self.workflow_list = QListWidget()
         self.workflow_list.setSelectionMode(QListWidget.SelectionMode.MultiSelection)
+        self.workflow_list.setMaximumHeight(120)
         self.load_workflows()
-        export_layout.addWidget(QLabel("Select Workflows to Export:"))
+        export_layout.addWidget(QLabel("Workflows:"))
         export_layout.addWidget(self.workflow_list)
         
-        # Export options
+        # Compact options
         options_layout = QHBoxLayout()
         
-        self.include_models_check = QCheckBox("Include Models")
+        self.include_models_check = QCheckBox("Models")
         options_layout.addWidget(self.include_models_check)
         
-        self.include_data_check = QCheckBox("Include Data")
+        self.include_data_check = QCheckBox("Data")
         options_layout.addWidget(self.include_data_check)
         
         export_layout.addLayout(options_layout)
         
         # Export button
-        export_button = QPushButton("Export Selected")
+        export_button = QPushButton("Export")
         export_button.clicked.connect(self.export_workflows)
+        export_button.setStyleSheet("QPushButton { padding: 6px 12px; }")
         export_layout.addWidget(export_button)
         
         export_group.setLayout(export_layout)
         layout.addWidget(export_group)
         
         # Import section
-        import_group = QGroupBox("Import Workflows")
+        import_group = QGroupBox("Import")
         import_layout = QVBoxLayout()
         
         # Import file selection
         file_layout = QHBoxLayout()
         
         self.import_file_edit = QLineEdit()
-        self.import_file_edit.setPlaceholderText("Select .nodebox file to import")
+        self.import_file_edit.setPlaceholderText("Select .nodebox file")
         file_layout.addWidget(self.import_file_edit)
         
         browse_button = QPushButton("Browse")
         browse_button.clicked.connect(self.browse_import_file)
+        browse_button.setStyleSheet("QPushButton { padding: 4px 8px; }")
         file_layout.addWidget(browse_button)
         
         import_layout.addLayout(file_layout)
@@ -197,6 +204,7 @@ class ExportImportManager(QWidget):
         # Import button
         import_button = QPushButton("Import")
         import_button.clicked.connect(self.import_workflows)
+        import_button.setStyleSheet("QPushButton { padding: 6px 12px; }")
         import_layout.addWidget(import_button)
         
         import_group.setLayout(import_layout)
