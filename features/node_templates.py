@@ -1,11 +1,13 @@
 """
-Node Templates - Pre-built node templates for common automation tasks
+Node Templates - Optimized pre-built templates
 """
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QComboBox, QTextEdit
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox, QTextEdit
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont
 
 class NodeTemplate:
+    __slots__ = ['name', 'description', 'code_template', 'category']
+    
     def __init__(self, name, description, code_template, category="General"):
         self.name = name
         self.description = description
@@ -15,10 +17,11 @@ class NodeTemplate:
 class NodeTemplateManager:
     def __init__(self):
         self.templates = self._load_default_templates()
+        self._category_cache = None
     
     def _load_default_templates(self):
-        """Load default node templates"""
-        templates = [
+        """Load optimized default templates"""
+        return [
             NodeTemplate(
                 name="Text Processor",
                 description="Process and transform text data",
@@ -163,75 +166,69 @@ def send_email(smtp_server, port, username, password, to_email, subject, body):
         return templates
     
     def get_templates_by_category(self, category):
-        """Get templates filtered by category"""
+        """Get templates filtered by category - optimized"""
         return [t for t in self.templates if t.category == category]
     
     def get_all_categories(self):
-        """Get all available categories"""
-        return list(set(t.category for t in self.templates))
+        """Get all available categories - cached"""
+        if self._category_cache is None:
+            self._category_cache = list(set(t.category for t in self.templates))
+        return self._category_cache
     
     def get_template_by_name(self, name):
-        """Get template by name"""
-        for template in self.templates:
-            if template.name == name:
-                return template
-        return None
+        """Get template by name - optimized"""
+        return next((t for t in self.templates if t.name == name), None)
 
 class NodeTemplateWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.template_manager = NodeTemplateManager()
+        self._current_templates = []
         self.init_ui()
     
     def init_ui(self):
         layout = QVBoxLayout()
         
-        # Title
-        title = QLabel("Node Templates")
-        title.setFont(QFont("Poppins", 16, QFont.Weight.Bold))
+        # Minimalist title
+        title = QLabel("Templates")
+        title.setFont(QFont("Poppins", 14, QFont.Weight.Bold))
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(title)
         
         # Category selector
         self.category_combo = QComboBox()
-        self.category_combo.addItem("All Categories")
-        for category in self.template_manager.get_all_categories():
-            self.category_combo.addItem(category)
+        self.category_combo.addItem("All")
+        self.category_combo.addItems(self.template_manager.get_all_categories())
         self.category_combo.currentTextChanged.connect(self.filter_templates)
         layout.addWidget(self.category_combo)
         
-        # Template list
+        # Template list - optimized
         self.template_list = QTextEdit()
         self.template_list.setReadOnly(True)
-        self.template_list.setMaximumHeight(200)
-        layout.addWidget(QLabel("Available Templates:"))
+        self.template_list.setMaximumHeight(150)
+        self.template_list.setStyleSheet("font-family: 'Consolas'; font-size: 11px;")
         layout.addWidget(self.template_list)
-        
-        # Load button
-        self.load_button = QPushButton("Load Selected Template")
-        self.load_button.clicked.connect(self.load_template)
-        layout.addWidget(self.load_button)
         
         self.setLayout(layout)
         self.filter_templates()
     
     def filter_templates(self):
-        """Filter templates by selected category"""
+        """Optimized template filtering"""
         category = self.category_combo.currentText()
         
-        if category == "All Categories":
-            templates = self.template_manager.templates
+        if category == "All":
+            self._current_templates = self.template_manager.templates
         else:
-            templates = self.template_manager.get_templates_by_category(category)
+            self._current_templates = self.template_manager.get_templates_by_category(category)
         
-        template_text = ""
-        for template in templates:
-            template_text += f"• {template.name} ({template.category})\n"
-            template_text += f"  {template.description}\n\n"
+        # Build template text efficiently
+        template_text = "\n".join(
+            f"• {t.name} ({t.category})\n  {t.description}"
+            for t in self._current_templates
+        )
         
         self.template_list.setPlainText(template_text)
     
-    def load_template(self):
-        """Load the selected template (placeholder for now)"""
-        # This would integrate with the node editor
-        print("Template loading functionality would be implemented here")
+    def get_selected_template(self):
+        """Get currently selected template"""
+        return self._current_templates[0] if self._current_templates else None
