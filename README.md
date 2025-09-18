@@ -8,49 +8,49 @@
   <img src="https://img.shields.io/github/license/shreyansh-shankar/NodeBox?style=for-the-badge" />
 </p>
 
-## 🎨 How NodeBox Works
+## How NodeBox Works
 
 At its core, **NodeBox** lets you design workflows on a **canvas-like interface**, where you can:
 
-- 🎯 **Drag, drop, and connect nodes**
-- 🧩 Each **node is just Python code**:  
+- **Drag, drop, and connect nodes**
+- Each **node is just Python code**:  
    it can receive inputs, process them, and return outputs
-- 🔗 Combine nodes to build **simple scripts → advanced multi-step automations**
+- Combine nodes to build **simple scripts → advanced multi-step automations**
 
-> 💡 **Unlike traditional automation tools that lock you into pre-defined actions, NodeBox gives you the full flexibility of Python — limited only by your creativity.**
-
----
-
-## ⚡ Key Idea  
-
-👉 *If you can write Python, you can automate it with NodeBox.*
+> **Unlike traditional automation tools that lock you into pre-defined actions, NodeBox gives you the full flexibility of Python — limited only by your creativity.**
 
 ---
 
-## 🤖 AI Integration with Ollama  
+## Key Idea  
+
+*If you can write Python, you can automate it with NodeBox.*
+
+---
+
+## AI Integration with Ollama  
 
 One of the **standout features** of NodeBox is its **deep integration with [Ollama](https://ollama.com/)**.  
 Since much of modern automation relies on AI, NodeBox allows you to:
 
-- 🔍 **Browse** Ollama models  
-- ⬇️ **Download & manage** models locally  
-- 🔗 **Integrate LLMs** directly into your workflows  
+- **Browse** Ollama models  
+- **Download & manage** models locally  
+- **Integrate LLMs** directly into your workflows  
 
-✨ This means you can build **AI-powered automations** without pricey API keys.  
+This means you can build **AI-powered automations** without pricey API keys.  
 Everything runs **locally, offline, and under your control**.
 
 ---
 
-## 🚀 What You Can Do with NodeBox  
+## What You Can Do with NodeBox  
 
-- ⚙️ Automate repetitive tasks  
-- 🧠 Build **custom AI-driven workflows**  
-- 🌐 Connect & process data from multiple sources  
-- 🔒 Stay private with **local execution**
+- Automate repetitive tasks  
+- Build **custom AI-driven workflows**  
+- Connect & process data from multiple sources  
+- Stay private with **local execution**
 
 ---
 
-🚀 Installation Guide
+## Installation Guide
 
 Follow these steps to set up the application from source:
 
@@ -97,7 +97,7 @@ python main.py
 
 ---
 
-## 🚀 How to Create Your First Automation
+## How to Create Your First Automation
 
 Follow these steps to build your very first automation inside the app:
 ```plaintext
@@ -113,22 +113,22 @@ Follow these steps to build your very first automation inside the app:
 - This will open the Node Editor, where you can write custom Python code.
 - Run and test the node to ensure it works as expected.
 - Build More Nodes – Add additional nodes (e.g., input, processing, output).
-- Connect Nodes – Drag from one node’s output port to another’s input port to link them.
+- Connect Nodes – Drag from one node's output port to another's input port to link them.
 - Run the Automation – Once connected, click Run to test the complete workflow.
 - Debug & Iterate – If something breaks, check node logs and update code accordingly.
-- Save Your Work – Don’t forget to save your automation for later use.
+- Save Your Work – Don't forget to save your automation for later use.
 ```
-💡 Tip: Start small (like a text-to-text pipeline) before experimenting with complex multi-node automations.
+Tip: Start small (like a text-to-text pipeline) before experimenting with complex multi-node automations.
 
-## 🔧 Example Use Cases
-- 🤖 Run a local LLM to summarize documents
-- 📂 Watch a folder and auto-organize files
-- 🌍 Scrape data from websites and process it
-- 🔔 Send notifications when system events occur
-- ⚙️ Chain together AI models + traditional scripts
+## Example Use Cases
+- Run a local LLM to summarize documents
+- Watch a folder and auto-organize files
+- Scrape data from websites and process it
+- Send notifications when system events occur
+- Chain together AI models + traditional scripts
 
 <section id="contributing">
-  <h2>🤝 Contributing</h2>
+  <h2>Contributing</h2>
   <p>
     We welcome contributions from the community! Whether it's bug fixes, new features, documentation improvements, or
     testing, your help is appreciated.
@@ -154,10 +154,10 @@ Follow these steps to build your very first automation inside the app:
 
   <p>
     For more details, visit our website:  
-    <a href="https://nodeboxlab.web.app" target="_blank">🌐 nodeboxlab.web.app</a>
+    <a href="https://nodeboxlab.web.app" target="_blank">nodeboxlab.web.app</a>
   </p>
 </section>
 
-## 📜 License
+## License
 
 MIT License – free to use, modify, and distribute.
