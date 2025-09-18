@@ -1,39 +1,39 @@
 """
-Enhanced Main Window - Integrated NodeBox with new features
+Optimized Enhanced Main Window - Minimalist and efficient
 """
 from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
-                             QTabWidget, QSplitter, QListWidget, QListWidgetItem,
-                             QGraphicsDropShadowEffect, QSizePolicy, QMenuBar, QMenu,
-                             QStatusBar, QMessageBox)
-from PyQt6.QtSvgWidgets import QSvgWidget
-from PyQt6.QtSvg import QSvgRenderer
-from PyQt6.QtGui import QFont, QIcon, QPixmap, QPainter, QAction
-from PyQt6.QtCore import Qt, QPoint, pyqtSignal
+                             QTabWidget, QListWidget, QMenuBar, QMenu, QStatusBar, 
+                             QMessageBox)
+from PyQt6.QtGui import QFont, QAction
+from PyQt6.QtCore import Qt, pyqtSignal
 
 from browsemodels_manager.browsemodel_window import BrowseModelsWindow
 from ui.newautomation_window import NewAutomationWindow
 from utils.paths import AUTOMATIONS_DIR
 from utils.screen_manager import ScreenManager
 
-# Import new features
+# Import optimized features
 from features.node_templates import NodeTemplateWidget
 from features.workflow_scheduler import WorkflowScheduler
 from features.debug_console import DebugConsole
 from features.performance_monitor import PerformanceMonitor
 from features.export_import import ExportImportManager
 
-import os
 import json
+from pathlib import Path
 
 class EnhancedMainWindow(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("NodeBox - Enhanced Automation Studio")
+        self.setWindowTitle("NodeBox Enhanced")
         
         # Use dynamic window sizing based on screen resolution
         x, y, width, height = ScreenManager.get_main_window_geometry()
         self.setGeometry(x, y, width, height)
 
+        # Initialize feature widgets lazily
+        self._feature_widgets = {}
+        
         self.init_ui()
         self.setup_connections()
 
@@ -211,30 +211,35 @@ class EnhancedMainWindow(QWidget):
         self.tab_widget.addTab(home_widget, "Home")
 
     def create_templates_tab(self):
-        """Create node templates tab"""
-        self.templates_widget = NodeTemplateWidget()
-        self.tab_widget.addTab(self.templates_widget, "Node Templates")
+        """Create node templates tab - lazy loaded"""
+        if 'templates' not in self._feature_widgets:
+            self._feature_widgets['templates'] = NodeTemplateWidget()
+        self.tab_widget.addTab(self._feature_widgets['templates'], "Templates")
 
     def create_scheduler_tab(self):
-        """Create workflow scheduler tab"""
-        self.scheduler_widget = WorkflowScheduler()
-        self.scheduler_widget.schedule_triggered.connect(self.run_scheduled_automation)
-        self.tab_widget.addTab(self.scheduler_widget, "Scheduler")
+        """Create workflow scheduler tab - lazy loaded"""
+        if 'scheduler' not in self._feature_widgets:
+            self._feature_widgets['scheduler'] = WorkflowScheduler()
+            self._feature_widgets['scheduler'].schedule_triggered.connect(self.run_scheduled_automation)
+        self.tab_widget.addTab(self._feature_widgets['scheduler'], "Scheduler")
 
     def create_debug_tab(self):
-        """Create debug console tab"""
-        self.debug_widget = DebugConsole()
-        self.tab_widget.addTab(self.debug_widget, "Debug Console")
+        """Create debug console tab - lazy loaded"""
+        if 'debug' not in self._feature_widgets:
+            self._feature_widgets['debug'] = DebugConsole()
+        self.tab_widget.addTab(self._feature_widgets['debug'], "Debug")
 
     def create_performance_tab(self):
-        """Create performance monitor tab"""
-        self.performance_widget = PerformanceMonitor()
-        self.tab_widget.addTab(self.performance_widget, "Performance")
+        """Create performance monitor tab - lazy loaded"""
+        if 'performance' not in self._feature_widgets:
+            self._feature_widgets['performance'] = PerformanceMonitor()
+        self.tab_widget.addTab(self._feature_widgets['performance'], "Performance")
 
     def create_export_import_tab(self):
-        """Create export/import tab"""
-        self.export_import_widget = ExportImportManager()
-        self.tab_widget.addTab(self.export_import_widget, "Export/Import")
+        """Create export/import tab - lazy loaded"""
+        if 'export_import' not in self._feature_widgets:
+            self._feature_widgets['export_import'] = ExportImportManager()
+        self.tab_widget.addTab(self._feature_widgets['export_import'], "Export/Import")
 
     def setup_connections(self):
         """Setup signal connections"""
@@ -257,21 +262,18 @@ class EnhancedMainWindow(QWidget):
             self.automation_list.addItem(item)
 
     def fetch_automations(self):
-        """Fetch automation names from files"""
-        automations = []
-        
+        """Optimized automation fetching"""
         if not AUTOMATIONS_DIR.exists():
-            return automations
+            return []
         
-        for file in AUTOMATIONS_DIR.glob("*.json"):
+        automations = []
+        for file_path in AUTOMATIONS_DIR.glob("*.json"):
             try:
-                with open(file, "r") as f:
+                with open(file_path, "r") as f:
                     data = json.load(f)
-                    name = data.get("name", file.stem)
-                    automations.append(name)
-            except Exception as e:
-                print(f"Error loading {file.name}: {e}")
-                continue
+                    automations.append(data.get("name", file_path.stem))
+            except (json.JSONDecodeError, IOError):
+                continue  # Skip invalid files silently
         
         return automations
 
@@ -325,9 +327,14 @@ class EnhancedMainWindow(QWidget):
                          "Built with Python and PyQt6")
 
     def closeEvent(self, event):
-        """Handle window close event"""
+        """Optimized window close event"""
         # Stop any running monitors
-        if hasattr(self, 'performance_widget'):
-            self.performance_widget.stop_monitoring()
+        if 'performance' in self._feature_widgets:
+            self._feature_widgets['performance'].stop_monitoring()
+        
+        # Clean up feature widgets
+        for widget in self._feature_widgets.values():
+            if hasattr(widget, 'cleanup'):
+                widget.cleanup()
         
         event.accept()
