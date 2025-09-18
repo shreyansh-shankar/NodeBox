@@ -1,16 +1,19 @@
 """
-Workflow Scheduler - Built-in scheduling for automations
+Workflow Scheduler - Optimized scheduling system
 """
 from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, 
-                             QTableWidget, QTableWidgetItem, QDateTimeEdit, QComboBox,
-                             QLineEdit, QCheckBox, QMessageBox, QDialog, QFormLayout)
-from PyQt6.QtCore import Qt, QTimer, QDateTime, pyqtSignal
+                             QTableWidget, QTableWidgetItem, QComboBox, QLineEdit, 
+                             QCheckBox, QMessageBox, QDialog, QFormLayout)
+from PyQt6.QtCore import Qt, QTimer, pyqtSignal
 from PyQt6.QtGui import QFont
 import json
 import os
 from datetime import datetime, timedelta
 
 class ScheduleItem:
+    __slots__ = ['name', 'automation_name', 'schedule_type', 'schedule_value', 
+                 'enabled', 'last_run', 'next_run', 'run_count']
+    
     def __init__(self, name, automation_name, schedule_type, schedule_value, enabled=True):
         self.name = name
         self.automation_name = automation_name
@@ -22,55 +25,62 @@ class ScheduleItem:
         self.run_count = 0
 
 class WorkflowScheduler(QWidget):
-    schedule_triggered = pyqtSignal(str)  # Emits automation name when scheduled
+    schedule_triggered = pyqtSignal(str)
     
     def __init__(self, parent=None):
         super().__init__(parent)
         self.schedules = []
         self.timer = QTimer()
         self.timer.timeout.connect(self.check_schedules)
-        self.timer.start(60000)  # Check every minute
+        self.timer.start(30000)  # Check every 30 seconds for better responsiveness
+        self._schedules_file = "data/schedules.json"
         self.init_ui()
         self.load_schedules()
     
     def init_ui(self):
         layout = QVBoxLayout()
         
-        # Title
-        title = QLabel("Workflow Scheduler")
-        title.setFont(QFont("Poppins", 16, QFont.Weight.Bold))
+        # Minimalist title
+        title = QLabel("Scheduler")
+        title.setFont(QFont("Poppins", 14, QFont.Weight.Bold))
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(title)
         
-        # Add schedule button
-        add_button = QPushButton("Add Schedule")
+        # Compact controls
+        controls_layout = QHBoxLayout()
+        
+        add_button = QPushButton("Add")
         add_button.clicked.connect(self.add_schedule_dialog)
-        layout.addWidget(add_button)
+        add_button.setStyleSheet("QPushButton { padding: 6px 12px; }")
+        controls_layout.addWidget(add_button)
         
-        # Schedules table
-        self.schedules_table = QTableWidget()
-        self.schedules_table.setColumnCount(6)
-        self.schedules_table.setHorizontalHeaderLabels([
-            "Name", "Automation", "Type", "Schedule", "Status", "Next Run"
-        ])
-        layout.addWidget(self.schedules_table)
-        
-        # Control buttons
-        button_layout = QHBoxLayout()
-        
-        self.toggle_button = QPushButton("Toggle Selected")
+        self.toggle_button = QPushButton("Toggle")
         self.toggle_button.clicked.connect(self.toggle_selected)
-        button_layout.addWidget(self.toggle_button)
+        self.toggle_button.setStyleSheet("QPushButton { padding: 6px 12px; }")
+        controls_layout.addWidget(self.toggle_button)
         
-        self.delete_button = QPushButton("Delete Selected")
+        self.delete_button = QPushButton("Delete")
         self.delete_button.clicked.connect(self.delete_selected)
-        button_layout.addWidget(self.delete_button)
+        self.delete_button.setStyleSheet("QPushButton { padding: 6px 12px; }")
+        controls_layout.addWidget(self.delete_button)
         
         self.run_now_button = QPushButton("Run Now")
         self.run_now_button.clicked.connect(self.run_selected_now)
-        button_layout.addWidget(self.run_now_button)
+        self.run_now_button.setStyleSheet("QPushButton { padding: 6px 12px; }")
+        controls_layout.addWidget(self.run_now_button)
         
-        layout.addLayout(button_layout)
+        layout.addLayout(controls_layout)
+        
+        # Optimized table
+        self.schedules_table = QTableWidget()
+        self.schedules_table.setColumnCount(5)  # Reduced columns
+        self.schedules_table.setHorizontalHeaderLabels([
+            "Name", "Automation", "Type", "Status", "Next Run"
+        ])
+        self.schedules_table.setAlternatingRowColors(True)
+        self.schedules_table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+        layout.addWidget(self.schedules_table)
+        
         self.setLayout(layout)
     
     def add_schedule_dialog(self):
@@ -85,16 +95,16 @@ class WorkflowScheduler(QWidget):
         self.save_schedules()
     
     def update_table(self):
+        """Optimized table update"""
         self.schedules_table.setRowCount(len(self.schedules))
         
         for i, schedule in enumerate(self.schedules):
             self.schedules_table.setItem(i, 0, QTableWidgetItem(schedule.name))
             self.schedules_table.setItem(i, 1, QTableWidgetItem(schedule.automation_name))
             self.schedules_table.setItem(i, 2, QTableWidgetItem(schedule.schedule_type))
-            self.schedules_table.setItem(i, 3, QTableWidgetItem(str(schedule.schedule_value)))
-            self.schedules_table.setItem(i, 4, QTableWidgetItem("Enabled" if schedule.enabled else "Disabled"))
-            self.schedules_table.setItem(i, 5, QTableWidgetItem(
-                schedule.next_run.strftime("%Y-%m-%d %H:%M") if schedule.next_run else "Not scheduled"
+            self.schedules_table.setItem(i, 3, QTableWidgetItem("Enabled" if schedule.enabled else "Disabled"))
+            self.schedules_table.setItem(i, 4, QTableWidgetItem(
+                schedule.next_run.strftime("%m-%d %H:%M") if schedule.next_run else "Not scheduled"
             ))
     
     def check_schedules(self):
@@ -151,47 +161,53 @@ class WorkflowScheduler(QWidget):
             self.schedule_triggered.emit(automation_name)
     
     def save_schedules(self):
-        """Save schedules to file"""
-        schedules_data = []
-        for schedule in self.schedules:
-            schedules_data.append({
-                "name": schedule.name,
-                "automation_name": schedule.automation_name,
-                "schedule_type": schedule.schedule_type,
-                "schedule_value": schedule.schedule_value,
-                "enabled": schedule.enabled,
-                "last_run": schedule.last_run.isoformat() if schedule.last_run else None,
-                "next_run": schedule.next_run.isoformat() if schedule.next_run else None,
-                "run_count": schedule.run_count
-            })
-        
+        """Optimized save to file"""
         os.makedirs("data", exist_ok=True)
-        with open("data/schedules.json", "w") as f:
-            json.dump(schedules_data, f, indent=2)
+        
+        schedules_data = [
+            {
+                "name": s.name,
+                "automation_name": s.automation_name,
+                "schedule_type": s.schedule_type,
+                "schedule_value": s.schedule_value,
+                "enabled": s.enabled,
+                "last_run": s.last_run.isoformat() if s.last_run else None,
+                "next_run": s.next_run.isoformat() if s.next_run else None,
+                "run_count": s.run_count
+            }
+            for s in self.schedules
+        ]
+        
+        with open(self._schedules_file, "w") as f:
+            json.dump(schedules_data, f, separators=(',', ':'))  # Compact JSON
     
     def load_schedules(self):
-        """Load schedules from file"""
+        """Optimized load from file"""
         try:
-            with open("data/schedules.json", "r") as f:
+            with open(self._schedules_file, "r") as f:
                 schedules_data = json.load(f)
             
-            self.schedules = []
-            for data in schedules_data:
-                schedule = ScheduleItem(
-                    data["name"],
-                    data["automation_name"],
-                    data["schedule_type"],
-                    data["schedule_value"],
-                    data["enabled"]
-                )
-                schedule.last_run = datetime.fromisoformat(data["last_run"]) if data["last_run"] else None
-                schedule.next_run = datetime.fromisoformat(data["next_run"]) if data["next_run"] else None
-                schedule.run_count = data.get("run_count", 0)
-                self.schedules.append(schedule)
+            self.schedules = [
+                self._create_schedule_from_data(data) for data in schedules_data
+            ]
             
             self.update_table()
-        except FileNotFoundError:
-            pass  # No schedules file yet
+        except (FileNotFoundError, json.JSONDecodeError):
+            pass  # No schedules file or invalid JSON
+    
+    def _create_schedule_from_data(self, data):
+        """Create schedule item from data dict"""
+        schedule = ScheduleItem(
+            data["name"],
+            data["automation_name"],
+            data["schedule_type"],
+            data["schedule_value"],
+            data["enabled"]
+        )
+        schedule.last_run = datetime.fromisoformat(data["last_run"]) if data["last_run"] else None
+        schedule.next_run = datetime.fromisoformat(data["next_run"]) if data["next_run"] else None
+        schedule.run_count = data.get("run_count", 0)
+        return schedule
 
 class ScheduleDialog(QDialog):
     def __init__(self, parent=None):
