@@ -2,7 +2,7 @@ from PyQt6.QtWidgets import QApplication #type: ignore
 from PyQt6.QtGui import QFontDatabase, QIcon #type: ignore
 
 from utils.font_loader import load_custom_fonts, set_default_font
-from ui.main_window import MainWindow
+from ui.enhanced_main_window import EnhancedMainWindow
 import utils.paths
 
 import os, sys, subprocess
@@ -49,7 +49,7 @@ def main():
     load_custom_fonts()
     set_default_font(10)  # Default size
 
-    window = MainWindow()
+    window = EnhancedMainWindow()
     window.show()
     sys.exit(app.exec())
 

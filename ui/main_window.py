@@ -27,14 +27,14 @@ class MainWindow(QWidget):
         self.main_layout = QVBoxLayout()
         self.setLayout(self.main_layout)
 
-        # 🧠 Title
+        # Title
         title = QLabel("NodeBox")
         title.setFont(QFont("Poppins", 24))
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.main_layout.addWidget(title)
 
-        # ➕ Create New Automation Button
-        create_button = QPushButton("➕ Create New Automation")
+        # Create New Automation Button
+        create_button = QPushButton("Create New Automation")
         create_button.setStyleSheet("""
         QPushButton {
             font-family: 'Poppins';
@@ -47,7 +47,7 @@ class MainWindow(QWidget):
         create_button.clicked.connect(self.create_new_automation)
         self.main_layout.addWidget(create_button)
 
-        # 🔁 Automation List
+        # Automation List
         self.main_layout.addWidget(QLabel("Your Automations:"))
         self.automation_list = QListWidget()
         self.automation_list.setStyleSheet("""
@@ -60,11 +60,11 @@ class MainWindow(QWidget):
         """)
         self.main_layout.addWidget(self.automation_list)
 
-        # 👉 Load sample automations
+        # Load sample automations
         self.load_automations()
 
-        # 🧺 Floating Browse Models Button
-        self.browse_button = QPushButton("🧺 Browse Models", self)
+        # Floating Browse Models Button
+        self.browse_button = QPushButton("Browse Models", self)
         self.browse_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.browse_button.setStyleSheet("""
             QPushButton {
@@ -89,8 +89,8 @@ class MainWindow(QWidget):
 
         self.browse_button.clicked.connect(self.open_browse_models_window)
 
-        # 🗂️ Floating View Downloaded Models Button
-        self.downloaded_button = QPushButton("📂 View Local Models", self)
+        # Floating View Downloaded Models Button
+        self.downloaded_button = QPushButton("View Local Models", self)
         self.downloaded_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.downloaded_button.setStyleSheet("""
             QPushButton {
@@ -229,7 +229,7 @@ class MainWindow(QWidget):
         """)
 
         # Subtext
-        subtext = QLabel("Click the ➕ button above to create your first automation.")
+        subtext = QLabel("Click the Create New Automation button above to create your first automation.")
         subtext.setAlignment(Qt.AlignmentFlag.AlignCenter)
         subtext.setWordWrap(True)
         subtext.setStyleSheet("""

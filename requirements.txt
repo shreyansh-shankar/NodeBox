@@ -1,2 +1,5 @@
 PyQt6
 pyinstaller
+psutil
+watchdog
+requests
