@@ -117,6 +117,7 @@ class DebugConsole(QWidget):
     
     def add_log(self, level, message, node_id=None, node_name=None):
         """Optimized log entry addition"""
+        level = level.upper()  # Normalize log level to uppercase
         log_entry = LogEntry(datetime.datetime.now(), level, message, node_id, node_name)
         
         self.logs.append(log_entry)  # deque automatically handles maxlen
