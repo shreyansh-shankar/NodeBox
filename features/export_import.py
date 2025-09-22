@@ -248,12 +248,15 @@ class ExportImportManager(QWidget):
         """Load available workflows"""
         self.workflow_list.clear()
 
-        workflows_dir = Path("workflows")
-        if workflows_dir.exists():
-            for workflow_file in workflows_dir.glob("*.json"):
-                workflow_name = workflow_file.stem
-                item = QListWidgetItem(workflow_name)
-                self.workflow_list.addItem(item)
+        import os
+
+        workflows_dir = "workflows"
+        if os.path.exists(workflows_dir):
+            for filename in os.listdir(workflows_dir):
+                if filename.endswith(".json"):
+                    workflow_name = filename[:-5]  # Remove .json extension
+                    item = QListWidgetItem(workflow_name)
+                    self.workflow_list.addItem(item)
 
     def export_workflows(self):
         """Export selected workflows"""
