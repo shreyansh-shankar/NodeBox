@@ -29,4 +29,4 @@ jobs:
 
     - name: Build with PyInstaller
       run: |
-        pyinstaller NodeBox.spec
+        pyinstaller --onefile --windowed --name NodeBox --add-data "assets:assets" --add-data "qss:qss" main.py
