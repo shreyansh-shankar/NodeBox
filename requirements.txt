@@ -3,3 +3,8 @@ pyinstaller
 psutil
 watchdog
 requests
+flake8
+black
+isort
+bandit
+pre-commit

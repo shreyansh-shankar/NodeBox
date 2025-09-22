@@ -1,21 +1,26 @@
-from PyQt6.QtWidgets import ( #type: ignore
-    QWidget, QVBoxLayout, QHBoxLayout, QLineEdit,
-    QScrollArea, QGridLayout, QPushButton
+from PyQt6.QtCore import Qt  # type: ignore
+from PyQt6.QtWidgets import (  # type: ignore
+    QGridLayout,
+    QHBoxLayout,
+    QLineEdit,
+    QPushButton,
+    QScrollArea,
+    QVBoxLayout,
+    QWidget,
 )
-from PyQt6.QtGui import QPixmap #type: ignore
-from PyQt6.QtCore import Qt #type: ignore
 
+from browsemodels_manager.downlaod_manager import DownloadManager
+from browsemodels_manager.filter_window import FilterWindow
 from browsemodels_manager.model_card import ModelCard
 from models_data import models
-from browsemodels_manager.filter_window import FilterWindow
-from browsemodels_manager.downlaod_manager import DownloadManager
 from utils.screen_manager import ScreenManager
+
 
 class BrowseModelsWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Browse Models")
-        
+
         # Use dynamic window sizing based on screen resolution
         x, y, width, height = ScreenManager.get_browse_window_geometry()
         self.setGeometry(x, y, width, height)
@@ -31,7 +36,8 @@ class BrowseModelsWindow(QWidget):
         # Search bar
         self.search_input = QLineEdit()
         self.search_input.setPlaceholderText("Search models...")
-        self.search_input.setStyleSheet("""
+        self.search_input.setStyleSheet(
+            """
             QLineEdit {
                 padding: 10px;
                 border-radius: 8px;
@@ -39,13 +45,15 @@ class BrowseModelsWindow(QWidget):
                 color: white;
                 font-size: 14px;
             }
-        """)
+        """
+        )
         self.search_input.textChanged.connect(self.update_grid)
         search_filter_layout.addWidget(self.search_input, stretch=1)  # take most space
 
         # Filter button
         self.filter_button = QPushButton("Filter")
-        self.filter_button.setStyleSheet("""
+        self.filter_button.setStyleSheet(
+            """
             QPushButton {
                 padding: 10px 20px;
                 background-color: #2e2e2e;
@@ -56,7 +64,8 @@ class BrowseModelsWindow(QWidget):
             QPushButton:hover {
                 background-color: #3e3e3e;
             }
-        """)
+        """
+        )
         self.filter_button.clicked.connect(self.open_filter_window)
         search_filter_layout.addWidget(self.filter_button)
         main_layout.addLayout(search_filter_layout)
@@ -76,7 +85,8 @@ class BrowseModelsWindow(QWidget):
         self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
         # Optional: If you want smoother scrolling via mouse
-        self.scroll.setStyleSheet("""
+        self.scroll.setStyleSheet(
+            """
             QScrollArea {
                 border: none;
             }
@@ -85,7 +95,8 @@ class BrowseModelsWindow(QWidget):
                 height: 0px;
                 background: transparent;
             }
-        """)
+        """
+        )
 
         main_layout.addWidget(self.scroll)
 
@@ -107,8 +118,12 @@ class BrowseModelsWindow(QWidget):
         self.filter_window = FilterWindow(self)
         self.filter_window = FilterWindow(self)  # Pass parent to keep it tied
         # Calculate the global position of the filter button
-        button_pos = self.filter_button.mapToGlobal(self.filter_button.rect().bottomLeft())
-        self.filter_window.move(button_pos.x() - 250 , button_pos.y())  # Position it just below the button
+        button_pos = self.filter_button.mapToGlobal(
+            self.filter_button.rect().bottomLeft()
+        )
+        self.filter_window.move(
+            button_pos.x() - 250, button_pos.y()
+        )  # Position it just below the button
         self.filter_window.show()
 
     def open_download_manager(self, model):

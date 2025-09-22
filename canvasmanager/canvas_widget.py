@@ -1,9 +1,18 @@
-from PyQt6.QtWidgets import QWidget, QInputDialog, QDialog #type: ignore
-from PyQt6.QtGui import QPainter, QColor, QPen, QMouseEvent, QKeyEvent, QWheelEvent, QFont, QPainterPath #type: ignore
-from PyQt6.QtCore import Qt, QRect, QPoint, QPointF, QTimer #type: ignore
+from PyQt6.QtCore import QPointF, Qt, QTimer  # type: ignore
+from PyQt6.QtGui import (  # type: ignore
+    QColor,
+    QFont,
+    QKeyEvent,
+    QMouseEvent,
+    QPainter,
+    QPen,
+    QWheelEvent,
+)
+from PyQt6.QtWidgets import QInputDialog, QWidget  # type: ignore
 
 from automation_manager.node import NodeWidget
 from utils.node_runner import execute_all_nodes
+
 
 class CanvasWidget(QWidget):
     def __init__(self, automation_name=None, automation_data=None, parent=None):
@@ -17,7 +26,7 @@ class CanvasWidget(QWidget):
 
         self.nodes = {}
 
-        self.offset = QPointF(0, 0)     # Total pan offset
+        self.offset = QPointF(0, 0)  # Total pan offset
         self.drag_start = None
         self.space_held = False
         self.last_mouse_pos = QPointF()
@@ -34,13 +43,12 @@ class CanvasWidget(QWidget):
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
 
         # port and connection related logic
-        self.pending_connection = None  
+        self.pending_connection = None
         self.connection_start_port = None
 
         self.connections = []
 
         self.load_canvas_state()
-
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -69,7 +77,7 @@ class CanvasWidget(QWidget):
         for y in range(y_start, int(bottom), self.grid_size):
             painter.drawLine(int(left), int(y), int(right), int(y))
 
-        #Draw coordinates
+        # Draw coordinates
         painter.resetTransform()
         self.draw_coordinates(painter)
 
@@ -92,14 +100,17 @@ class CanvasWidget(QWidget):
 
         logical_pos = QPointF(
             (canvas_pos.x() - self.offset.x()) / self.scale,
-            -(canvas_pos.y() - self.offset.y()) / self.scale  # Flip Y axis
+            -(canvas_pos.y() - self.offset.y()) / self.scale,  # Flip Y axis
         )
         text = f"X: {int(logical_pos.x())}  Y: {int(logical_pos.y())}"
         painter.drawText(10, self.height() - 10, text)
-        
+
     def mousePressEvent(self, event: QMouseEvent):
         if event.button() == Qt.MouseButton.LeftButton:
-            clicked_on_node = any(node.geometry().contains(node.mapFromParent(event.pos())) for node in self.nodes.values())
+            clicked_on_node = any(
+                node.geometry().contains(node.mapFromParent(event.pos()))
+                for node in self.nodes.values()
+            )
             if not clicked_on_node and self.selected_node:
                 self.selected_node.selected = False
                 self.selected_node.update()
@@ -116,7 +127,7 @@ class CanvasWidget(QWidget):
                 self.nodes[node.id] = node
                 node.show()
                 self.save_canvas_state()
-        
+
         clicked_port = self.get_port_at(event.pos())
         if clicked_port:
             self.handle_port_click(clicked_port)
@@ -133,7 +144,11 @@ class CanvasWidget(QWidget):
             self.update()
         super().mouseMoveEvent(event)
 
-        if event.buttons() & Qt.MouseButton.LeftButton and self.space_held and self.drag_start:
+        if (
+            event.buttons() & Qt.MouseButton.LeftButton
+            and self.space_held
+            and self.drag_start
+        ):
             delta = QPointF(event.pos() - self.drag_start)
             self.offset += delta  # Invert to drag canvas
             self.drag_start = event.pos()
@@ -197,7 +212,7 @@ class CanvasWidget(QWidget):
         self.selected_node = node
         node.selected = True
         node.update()
-    
+
     def dragEnterEvent(self, event):
         if event.mimeData().hasText():
             event.acceptProposedAction()

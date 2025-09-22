@@ -1,27 +1,32 @@
 # downloaded_models_window.py
-from PyQt6.QtWidgets import (
-    QWidget, QVBoxLayout, QLabel, QListWidget, QListWidgetItem,
-    QHBoxLayout, QPushButton, QMessageBox
-)
-from PyQt6.QtGui import QFont, QIcon
-from PyQt6.QtCore import Qt
 import subprocess
-import json
+
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QFont
+from PyQt6.QtWidgets import (
+    QHBoxLayout,
+    QLabel,
+    QListWidget,
+    QListWidgetItem,
+    QMessageBox,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
+)
+
 from utils.screen_manager import ScreenManager
+
 
 class DownloadedModelsWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Downloaded Models")
-        
+
         # Use dynamic window sizing for dialog - smaller relative size
         width, height = ScreenManager.get_dialog_window_size(
-            width_percentage=0.4,
-            height_percentage=0.4,
-            min_width=500,
-            min_height=350
+            width_percentage=0.4, height_percentage=0.4, min_width=500, min_height=350
         )
-        
+
         # Center the window
         x, y = ScreenManager.calculate_window_position(width, height, center=True)
         self.setGeometry(x, y, width, height)
@@ -37,14 +42,16 @@ class DownloadedModelsWindow(QWidget):
 
         # List widget
         self.model_list = QListWidget()
-        self.model_list.setStyleSheet("""
+        self.model_list.setStyleSheet(
+            """
             QListWidget {
                 border: none;
                 padding: 5px;
                 margin: 0px;
                 background-color: transparent;
             }
-        """)
+        """
+        )
         self.layout.addWidget(self.model_list)
 
         # Load models
@@ -93,8 +100,7 @@ class DownloadedModelsWindow(QWidget):
         """Fetch models using `ollama list` (plain text)."""
         try:
             result = subprocess.run(
-                ["ollama", "list"],
-                capture_output=True, text=True, check=True
+                ["ollama", "list"], capture_output=True, text=True, check=True
             )
             lines = result.stdout.strip().split("\n")
             models = []
@@ -105,16 +111,17 @@ class DownloadedModelsWindow(QWidget):
                     continue
                 parts = line.split()  # Assuming name version columns
                 if len(parts) >= 1:
-                    models.append({
-                        "name": parts[0],
-                        "version": parts[1] if len(parts) > 1 else ""
-                    })
+                    models.append(
+                        {
+                            "name": parts[0],
+                            "version": parts[1] if len(parts) > 1 else "",
+                        }
+                    )
             return models
 
         except subprocess.CalledProcessError as e:
             print("⚠️ Ollama command failed:", e)
             return []
-
 
     def delete_model(self, model):
         """Delete a model using `ollama rm`."""
@@ -126,16 +133,22 @@ class DownloadedModelsWindow(QWidget):
             self,
             "Confirm Delete",
             f"Are you sure you want to delete model '{model_name}'?",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
         )
 
         if confirm == QMessageBox.StandardButton.Yes:
             try:
                 subprocess.run(
                     ["ollama", "rm", model_name],
-                    capture_output=True, text=True, check=True
+                    capture_output=True,
+                    text=True,
+                    check=True,
                 )
-                QMessageBox.information(self, "Deleted", f"Model '{model_name}' deleted successfully.")
+                QMessageBox.information(
+                    self, "Deleted", f"Model '{model_name}' deleted successfully."
+                )
                 self.load_models()  # Refresh list
             except subprocess.CalledProcessError as e:
-                QMessageBox.critical(self, "Error", f"Failed to delete model '{model_name}':\n{e}")
+                QMessageBox.critical(
+                    self, "Error", f"Failed to delete model '{model_name}':\n{e}"
+                )

@@ -1,6 +1,6 @@
 # Contributing to NodeBox
 
-Hi there! Thanks for considering contributing to **NodeBox**.  
+Hi there! Thanks for considering contributing to **NodeBox**.
 We welcome all contributions, big or small – from fixing typos to adding new features.
 
 ---
@@ -27,10 +27,52 @@ We welcome all contributions, big or small – from fixing typos to adding new f
     pip install -r requirements.txt
     ```
 
+5. **Set up Pre-commit Hooks**
+    We use pre-commit hooks to ensure code quality and consistency. After installing the requirements, set up the hooks:
+    ```bash
+    pre-commit install
+    ```
+    This will automatically run several code quality checks before each commit.
+
 ## Development Workflow
 - Keep your code clean, modular, and well-documented.
 - Test before submitting a PR.
 - Use clear commit messages (e.g., fix: corrected typo in docs or feat: added workflow export option).
+- All code changes will automatically be checked by our pre-commit hooks for formatting and code quality.
+
+## Pre-commit Hooks
+
+We use pre-commit hooks to ensure code quality and consistency across the project. These hooks automatically run before each commit to check and format your code according to our standards.
+
+### What the hooks do:
+- Remove trailing whitespace
+- Fix end of file markers
+- Check YAML files for syntax errors
+- Check for large files that shouldn't be committed
+- Check Python AST (Abstract Syntax Tree)
+- Remove debug statements
+- Format code with Black
+- Sort imports with isort
+- Remove unused imports and variables with autoflake
+- Lint code with Ruff
+- Format code with Ruff
+- Check code style with flake8
+- Security linting with Bandit
+
+### Running pre-commit hooks manually
+You can run the hooks on all files manually with:
+```bash
+pre-commit run --all-files
+```
+
+If any hooks fail, they will either automatically fix the issue (like formatting) or show you what needs to be fixed. After fixing, you'll need to stage the changes and commit again.
+
+### Skipping pre-commit hooks
+In rare cases, you might need to skip the hooks (e.g., for WIP commits):
+```bash
+git commit --no-verify -m "Your message"
+```
+However, this should be avoided when possible, especially for final commits.
 
 ## Guidelines for Contributions
 - Issues: Pick an issue labeled hacktoberfest or good first issue if you are new.

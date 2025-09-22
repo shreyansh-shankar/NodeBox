@@ -1,4 +1,7 @@
+import contextlib
+
 from PyQt6.QtWidgets import QDialog
+
 
 def open_node(self, node):
     from automation_manager.nodeeditor_dialog import NodeEditorDialog
@@ -6,7 +9,7 @@ def open_node(self, node):
     # Determine inputs for the node: gather variable names from incoming connections.
     # For the basic UI we can show placeholder inputs or actual upstream outputs.
     inputs_dict = {}
-    
+
     for conn in self.connections:
         if conn.end_port and conn.end_port.node == node:
             upstream_node = conn.start_port.node
@@ -26,16 +29,19 @@ def open_node(self, node):
     # Provide existing code if node has it
     initial_code = getattr(node, "code", "")
 
-    dlg = NodeEditorDialog(node=node, inputs=inputs_dict, initial_code=initial_code, parent=self)
+    dlg = NodeEditorDialog(
+        node=node, inputs=inputs_dict, initial_code=initial_code, parent=self
+    )
     if dlg.exec() == QDialog.accepted:
         data = dlg.result_data
         # Apply changes to node:
         node.title = data["title"]
         node.code = data["code"]
         node.output_vars = data["outputs"]
-        node.update()           # repaint
+        node.update()  # repaint
         node.update_position()  # reposition ports if needed
         self.save_canvas_state()
+
 
 def delete_node(self, node):
     """
@@ -82,8 +88,6 @@ def delete_node(self, node):
     node.deleteLater()
 
     # 7) Persist and redraw
-    try:
+    with contextlib.suppress(Exception):
         self.save_canvas_state()
-    except Exception:
-        pass
     self.update()

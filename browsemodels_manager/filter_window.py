@@ -1,20 +1,28 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTabWidget, QCheckBox, QHBoxLayout, QPushButton, QScrollArea, QFrame
 from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import (
+    QCheckBox,
+    QFrame,
+    QHBoxLayout,
+    QPushButton,
+    QScrollArea,
+    QTabWidget,
+    QVBoxLayout,
+    QWidget,
+)
+
 from utils.screen_manager import ScreenManager
+
 
 class FilterWindow(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Filter Options")
-        
+
         # Use dynamic window sizing for dialog
         width, height = ScreenManager.get_dialog_window_size(
-            width_percentage=0.2,
-            height_percentage=0.25,
-            min_width=280,
-            min_height=250
+            width_percentage=0.2, height_percentage=0.25, min_width=280, min_height=250
         )
-        
+
         # Center the window
         x, y = ScreenManager.calculate_window_position(width, height, center=True)
         self.setGeometry(x, y, width, height)
@@ -23,7 +31,8 @@ class FilterWindow(QWidget):
         main_layout = QVBoxLayout(self)
 
         self.tabs = QTabWidget()
-        self.tabs.setStyleSheet("""
+        self.tabs.setStyleSheet(
+            """
             QTabWidget::pane {
                 border: none;
             }
@@ -38,12 +47,15 @@ class FilterWindow(QWidget):
             QTabBar::tab:selected {
                 background: #3e3e3e;
             }
-        """)
+        """
+        )
 
         def create_scrollable_tab(items):
             scroll_area = QScrollArea()
             scroll_area.setWidgetResizable(True)
-            scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+            scroll_area.setVerticalScrollBarPolicy(
+                Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+            )
 
             content_widget = QFrame()
             content_layout = QVBoxLayout(content_widget)
@@ -57,8 +69,13 @@ class FilterWindow(QWidget):
             return scroll_area
 
         # Tabs
-        self.tabs.addTab(create_scrollable_tab(["Chat", "Instruct", "Code", "Fun"]), "Tags")
-        self.tabs.addTab(create_scrollable_tab(["DeepSeek", "Mistral", "Hermes", "Llama", "Phi"]), "Company")
+        self.tabs.addTab(
+            create_scrollable_tab(["Chat", "Instruct", "Code", "Fun"]), "Tags"
+        )
+        self.tabs.addTab(
+            create_scrollable_tab(["DeepSeek", "Mistral", "Hermes", "Llama", "Phi"]),
+            "Company",
+        )
         self.tabs.addTab(create_scrollable_tab(["Small", "Medium", "Large"]), "Size")
 
         main_layout.addWidget(self.tabs)
@@ -66,7 +83,8 @@ class FilterWindow(QWidget):
         # Buttons at the bottom
         button_layout = QHBoxLayout()
         apply_btn = QPushButton("Apply")
-        apply_btn.setStyleSheet("""
+        apply_btn.setStyleSheet(
+            """
             QPushButton {
                 background-color: #2e7d32;
                 color: white;
@@ -76,11 +94,13 @@ class FilterWindow(QWidget):
             QPushButton:hover {
                 background-color: #388e3c;
             }
-        """)
+        """
+        )
         apply_btn.clicked.connect(self.apply_filters)
 
         close_btn = QPushButton("Close")
-        close_btn.setStyleSheet("""
+        close_btn.setStyleSheet(
+            """
             QPushButton {
                 background-color: #c62828;
                 color: white;
@@ -90,7 +110,8 @@ class FilterWindow(QWidget):
             QPushButton:hover {
                 background-color: #e53935;
             }
-        """)
+        """
+        )
         close_btn.clicked.connect(self.close)
 
         button_layout.addWidget(apply_btn, alignment=Qt.AlignmentFlag.AlignLeft)
