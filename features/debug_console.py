@@ -1,9 +1,20 @@
 """
 Optimized Debug Console - Efficient logging and monitoring
 """
-from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
-                             QTextEdit, QComboBox, QSplitter, QTableWidget, QTableWidgetItem,
-                             QHeaderView)
+
+from PyQt6.QtWidgets import (
+    QWidget,
+    QVBoxLayout,
+    QHBoxLayout,
+    QLabel,
+    QPushButton,
+    QTextEdit,
+    QComboBox,
+    QSplitter,
+    QTableWidget,
+    QTableWidgetItem,
+    QHeaderView,
+)
 from PyQt6.QtCore import Qt, QTimer, QThread, QObject, pyqtSignal, pyqtSlot
 from PyQt6.QtGui import QFont, QTextCharFormat, QColor, QTextCursor
 import json
@@ -23,15 +34,14 @@ class LogExport(QObject):
     def run(self):
         try:
             with open(self.fname, "w") as f:
-                json.dump(self.log_dict, f, separators=(
-                    ',', ':'))  # Compact JSON
+                json.dump(self.log_dict, f, separators=(",", ":"))  # Compact JSON
         except Exception as e:
             print(e)
         self.finished.emit()
 
 
 class LogEntry:
-    __slots__ = ['timestamp', 'level', 'message', 'node_id', 'node_name']
+    __slots__ = ["timestamp", "level", "message", "node_id", "node_name"]
 
     def __init__(self, timestamp, level, message, node_id=None, node_name=None):
         self.timestamp = timestamp
@@ -123,7 +133,8 @@ class DebugConsole(QWidget):
         self.metrics_table.setColumnCount(2)
         self.metrics_table.setHorizontalHeaderLabels(["Metric", "Value"])
         self.metrics_table.horizontalHeader().setSectionResizeMode(
-            QHeaderView.ResizeMode.Stretch)
+            QHeaderView.ResizeMode.Stretch
+        )
         layout.addWidget(self.metrics_table)
 
         # Update metrics
@@ -140,8 +151,9 @@ class DebugConsole(QWidget):
     def add_log(self, level, message, node_id=None, node_name=None):
         """Optimized log entry addition"""
         level = level.upper()  # Normalize log level to uppercase
-        log_entry = LogEntry(datetime.datetime.now(),
-                             level, message, node_id, node_name)
+        log_entry = LogEntry(
+            datetime.datetime.now(), level, message, node_id, node_name
+        )
 
         self.logs.append(log_entry)  # deque automatically handles maxlen
 
@@ -162,14 +174,14 @@ class DebugConsole(QWidget):
 
         # Filter logs efficiently
         filtered_logs = [
-            log for log in self.logs
-            if (level_filter == "All" or log.level == level_filter) and
-               (node_filter == "All" or log.node_name == node_filter)
+            log
+            for log in self.logs
+            if (level_filter == "All" or log.level == level_filter)
+            and (node_filter == "All" or log.node_name == node_filter)
         ]
 
         # Build display text efficiently
-        log_text = "\n".join(self._format_log_entry(log)
-                             for log in filtered_logs)
+        log_text = "\n".join(self._format_log_entry(log) for log in filtered_logs)
         self.log_display.setPlainText(log_text)
         self.log_display.moveCursor(QTextCursor.MoveOperation.End)
 
@@ -204,13 +216,14 @@ class DebugConsole(QWidget):
                     "level": log.level,
                     "message": log.message,
                     "node_id": log.node_id,
-                    "node_name": log.node_name
+                    "node_name": log.node_name,
                 }
                 for log in self.logs
             ]
 
             def on_thread_complete():
                 self.export_button.setEnabled(True)
+                self.clear_button.setEnabled(True)
                 self.export_button.setText("Export")
                 self.add_log("INFO", f"Logs exported to {filename}")
 
@@ -224,6 +237,7 @@ class DebugConsole(QWidget):
             self.thread.finished.connect(self.thread.deleteLater)
             self.thread.start()
             self.export_button.setEnabled(False)
+            self.clear_button.setEnabled(False)
             self.export_button.setText("Exporting...")
 
         except Exception as e:
@@ -236,16 +250,22 @@ class DebugConsole(QWidget):
         # Calculate metrics
         total_logs = len(self.logs)
         error_count = len([log for log in self.logs if log.level == "ERROR"])
-        warning_count = len(
-            [log for log in self.logs if log.level == "WARNING"])
+        warning_count = len([log for log in self.logs if log.level == "WARNING"])
 
         # Add metrics to table
         metrics = [
             ("Total Logs", str(total_logs)),
             ("Errors", str(error_count)),
             ("Warnings", str(warning_count)),
-            ("Error Rate", f"{(error_count/total_logs*100)             :.1f}%" if total_logs > 0 else "0%"),
-            ("Last Update", datetime.datetime.now().strftime("%H:%M:%S"))
+            (
+                "Error Rate",
+                (
+                    f"{(error_count/total_logs*100)             :.1f}%"
+                    if total_logs > 0
+                    else "0%"
+                ),
+            ),
+            ("Last Update", datetime.datetime.now().strftime("%H:%M:%S")),
         ]
 
         self.metrics_table.setRowCount(len(metrics))
@@ -256,11 +276,19 @@ class DebugConsole(QWidget):
     def log_node_execution(self, node_name, success, execution_time, error=None):
         """Log node execution details"""
         if success:
-            self.add_log("INFO", f"Node '{node_name}' executed successfully in {
-                         execution_time:.3f}s", node_name=node_name)
+            self.add_log(
+                "INFO",
+                f"Node '{node_name}' executed successfully in {
+                         execution_time:.3f}s",
+                node_name=node_name,
+            )
         else:
-            self.add_log("ERROR", f"Node '{node_name}' failed: {
-                         error}", node_name=node_name)
+            self.add_log(
+                "ERROR",
+                f"Node '{node_name}' failed: {
+                         error}",
+                node_name=node_name,
+            )
 
     def log_workflow_start(self, workflow_name):
         """Log workflow start"""
@@ -269,8 +297,14 @@ class DebugConsole(QWidget):
     def log_workflow_end(self, workflow_name, success, total_time):
         """Log workflow completion"""
         if success:
-            self.add_log("INFO", f"Workflow '{
-                         workflow_name}' completed successfully in {total_time:.3f}s")
+            self.add_log(
+                "INFO",
+                f"Workflow '{
+                         workflow_name}' completed successfully in {total_time:.3f}s",
+            )
         else:
-            self.add_log("ERROR", f"Workflow '{
-                         workflow_name}' failed after {total_time:.3f}s")
+            self.add_log(
+                "ERROR",
+                f"Workflow '{
+                         workflow_name}' failed after {total_time:.3f}s",
+            )
