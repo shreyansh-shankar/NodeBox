@@ -226,12 +226,13 @@ class DebugConsole(QWidget):
                 self.clear_button.setEnabled(True)
                 self.export_button.setText("Export")
                 self.add_log("INFO", f"Logs exported to {filename}")
+                del self.thread
 
             self.thread = QThread()
             self.worker = LogExport(logs_data, filename)
             self.worker.moveToThread(self.thread)
             self.thread.started.connect(self.worker.run)
-            self.worker.finished.connect(on_thread_complete)
+            self.thread.finished.connect(on_thread_complete)
             self.worker.finished.connect(self.thread.quit)
             self.worker.finished.connect(self.worker.deleteLater)
             self.thread.finished.connect(self.thread.deleteLater)
