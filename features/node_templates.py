@@ -165,7 +165,6 @@ def send_email(smtp_server, port, username, password, to_email, subject, body):
         return {"status": "error", "message": str(e)}""",
             ),
         ]
-        return self.templates
 
     def get_templates_by_category(self, category):
         """Get templates filtered by category - optimized"""

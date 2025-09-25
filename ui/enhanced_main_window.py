@@ -20,14 +20,10 @@ from PyQt6.QtWidgets import (
 )
 
 from browsemodels_manager.browsemodel_window import BrowseModelsWindow
-from features.debug_console import DebugConsole
-from features.export_import import ExportImportManager
 
 # Import optimized features
-from features.node_templates import NodeTemplateWidget
-from features.performance_monitor import PerformanceMonitor
-from features.workflow_scheduler import WorkflowScheduler
 from ui.newautomation_window import NewAutomationWindow
+from ui.placeholder_widget import PlaceholderWidget
 from utils.paths import AUTOMATIONS_DIR
 from utils.screen_manager import ScreenManager
 
@@ -43,9 +39,11 @@ class EnhancedMainWindow(QWidget):
 
         # Initialize feature widgets lazily
         self._feature_widgets = {}
+        self._loaded_tabs = set()  # Track which tabs have been loaded
 
         self.init_ui()
         self.setup_connections()
+        self.setup_lazy_loading()
 
     def init_ui(self):
         # Main layout
@@ -228,40 +226,143 @@ class EnhancedMainWindow(QWidget):
 
     def create_templates_tab(self):
         """Create node templates tab - lazy loaded"""
-        if "templates" not in self._feature_widgets:
-            self._feature_widgets["templates"] = NodeTemplateWidget()
-        self.tab_widget.addTab(self._feature_widgets["templates"], "Templates")
+        placeholder = PlaceholderWidget("Node Templates")
+        self.tab_widget.addTab(placeholder, "Templates")
 
     def create_scheduler_tab(self):
         """Create workflow scheduler tab - lazy loaded"""
-        if "scheduler" not in self._feature_widgets:
-            self._feature_widgets["scheduler"] = WorkflowScheduler()
-            self._feature_widgets["scheduler"].schedule_triggered.connect(
-                self.run_scheduled_automation
-            )
-        self.tab_widget.addTab(self._feature_widgets["scheduler"], "Scheduler")
+        placeholder = PlaceholderWidget("Workflow Scheduler")
+        self.tab_widget.addTab(placeholder, "Scheduler")
 
     def create_debug_tab(self):
         """Create debug console tab - lazy loaded"""
-        if "debug" not in self._feature_widgets:
-            self._feature_widgets["debug"] = DebugConsole()
-        self.tab_widget.addTab(self._feature_widgets["debug"], "Debug")
+        placeholder = PlaceholderWidget("Debug Console")
+        self.tab_widget.addTab(placeholder, "Debug")
 
     def create_performance_tab(self):
         """Create performance monitor tab - lazy loaded"""
-        if "performance" not in self._feature_widgets:
-            self._feature_widgets["performance"] = PerformanceMonitor()
-        self.tab_widget.addTab(self._feature_widgets["performance"], "Performance")
+        placeholder = PlaceholderWidget("Performance Monitor")
+        self.tab_widget.addTab(placeholder, "Performance")
 
     def create_export_import_tab(self):
         """Create export/import tab - lazy loaded"""
-        if "export_import" not in self._feature_widgets:
-            self._feature_widgets["export_import"] = ExportImportManager()
-        self.tab_widget.addTab(self._feature_widgets["export_import"], "Export/Import")
+        placeholder = PlaceholderWidget("Export/Import Manager")
+        self.tab_widget.addTab(placeholder, "Export/Import")
 
     def setup_connections(self):
         """Setup signal connections"""
         self.automation_list.itemDoubleClicked.connect(self.edit_automation)
+
+    def setup_lazy_loading(self):
+        """Setup lazy loading for tabs"""
+        self.tab_widget.currentChanged.connect(self._on_tab_changed)
+
+    def _on_tab_changed(self, index):
+        """Handle tab change for lazy loading"""
+        if index < 0:
+            return
+
+        # Skip if this tab has already been loaded
+        if index in self._loaded_tabs:
+            return
+
+        # Get the tab text to determine which feature to load
+        tab_text = self.tab_widget.tabText(index)
+
+        if tab_text == "Templates" and index not in self._loaded_tabs:
+            self._load_templates_tab(index)
+        elif tab_text == "Scheduler" and index not in self._loaded_tabs:
+            self._load_scheduler_tab(index)
+        elif tab_text == "Debug" and index not in self._loaded_tabs:
+            self._load_debug_tab(index)
+        elif tab_text == "Performance" and index not in self._loaded_tabs:
+            self._load_performance_tab(index)
+        elif tab_text == "Export/Import" and index not in self._loaded_tabs:
+            self._load_export_import_tab(index)
+
+        # Mark this tab as loaded
+        self._loaded_tabs.add(index)
+
+    def _load_templates_tab(self, index):
+        """Load the actual templates widget"""
+        from features.node_templates import NodeTemplateWidget
+
+        # Temporarily disconnect signal to avoid infinite loop
+        self.tab_widget.currentChanged.disconnect()
+
+        widget = NodeTemplateWidget()
+        self._feature_widgets["templates"] = widget
+        self.tab_widget.removeTab(index)
+        self.tab_widget.insertTab(index, widget, "Templates")
+        self.tab_widget.setCurrentIndex(index)
+
+        # Reconnect signal
+        self.tab_widget.currentChanged.connect(self._on_tab_changed)
+
+    def _load_scheduler_tab(self, index):
+        """Load the actual scheduler widget"""
+        from features.workflow_scheduler import WorkflowScheduler
+
+        # Temporarily disconnect signal to avoid infinite loop
+        self.tab_widget.currentChanged.disconnect()
+
+        widget = WorkflowScheduler()
+        widget.schedule_triggered.connect(self.run_scheduled_automation)
+        self._feature_widgets["scheduler"] = widget
+        self.tab_widget.removeTab(index)
+        self.tab_widget.insertTab(index, widget, "Scheduler")
+        self.tab_widget.setCurrentIndex(index)
+
+        # Reconnect signal
+        self.tab_widget.currentChanged.connect(self._on_tab_changed)
+
+    def _load_debug_tab(self, index):
+        """Load the actual debug console widget"""
+        from features.debug_console import DebugConsole
+
+        # Temporarily disconnect signal to avoid infinite loop
+        self.tab_widget.currentChanged.disconnect()
+
+        widget = DebugConsole()
+        self._feature_widgets["debug"] = widget
+        self.tab_widget.removeTab(index)
+        self.tab_widget.insertTab(index, widget, "Debug")
+        self.tab_widget.setCurrentIndex(index)
+
+        # Reconnect signal
+        self.tab_widget.currentChanged.connect(self._on_tab_changed)
+
+    def _load_performance_tab(self, index):
+        """Load the actual performance monitor widget"""
+        from features.performance_monitor import PerformanceMonitor
+
+        # Temporarily disconnect signal to avoid infinite loop
+        self.tab_widget.currentChanged.disconnect()
+
+        widget = PerformanceMonitor()
+        self._feature_widgets["performance"] = widget
+        self.tab_widget.removeTab(index)
+        self.tab_widget.insertTab(index, widget, "Performance")
+        self.tab_widget.setCurrentIndex(index)
+
+        # Reconnect signal
+        self.tab_widget.currentChanged.connect(self._on_tab_changed)
+
+    def _load_export_import_tab(self, index):
+        """Load the actual export/import widget"""
+        from features.export_import import ExportImportManager
+
+        # Temporarily disconnect signal to avoid infinite loop
+        self.tab_widget.currentChanged.disconnect()
+
+        widget = ExportImportManager()
+        self._feature_widgets["export_import"] = widget
+        self.tab_widget.removeTab(index)
+        self.tab_widget.insertTab(index, widget, "Export/Import")
+        self.tab_widget.setCurrentIndex(index)
+
+        # Reconnect signal
+        self.tab_widget.currentChanged.connect(self._on_tab_changed)
 
     def load_automations(self):
         """Load available automations"""
