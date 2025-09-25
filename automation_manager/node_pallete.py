@@ -1,12 +1,14 @@
-from PyQt6.QtWidgets import QLabel #type: ignore
-from PyQt6.QtCore import Qt, QMimeData #type: ignore
-from PyQt6.QtGui import QDrag #type: ignore
+from PyQt6.QtCore import QMimeData, Qt  # type: ignore
+from PyQt6.QtGui import QDrag  # type: ignore
+from PyQt6.QtWidgets import QLabel  # type: ignore
+
 
 class NodePaletteItem(QLabel):
     def __init__(self, node_type, parent=None):
         super().__init__(node_type, parent)
         self.node_type = node_type
-        self.setStyleSheet("""
+        self.setStyleSheet(
+            """
             QLabel {
                 padding: 8px;
                 background-color: #444;
@@ -15,7 +17,8 @@ class NodePaletteItem(QLabel):
             QLabel:hover {
                 background-color: #666;
             }
-        """)
+        """
+        )
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
     def mousePressEvent(self, event):

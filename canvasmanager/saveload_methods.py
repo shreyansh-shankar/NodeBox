@@ -1,54 +1,54 @@
-from PyQt6.QtCore import QPointF #type: ignore
+import json
+import os
 
-import os, json
+from PyQt6.QtCore import QPointF  # type: ignore
 
 from automation_manager.node import NodeWidget
 
+
 def save_canvas_state(self):
-        os.makedirs(os.path.expanduser("~/.nodebox/automations"), exist_ok=True)
+    os.makedirs(os.path.expanduser("~/.nodebox/automations"), exist_ok=True)
 
-        nodes_data = []
-        for node in self.nodes.values():
+    nodes_data = []
+    for node in self.nodes.values():
+        outputs_data = getattr(node, "outputs", {})
 
-            outputs_data = getattr(node, "outputs", {})
+        # If it's still a list (old style), convert to dict with None
+        if isinstance(outputs_data, list):
+            outputs_data = dict.fromkeys(outputs_data)
 
-            # If it's still a list (old style), convert to dict with None
-            if isinstance(outputs_data, list):
-                outputs_data = {name: None for name in outputs_data}
-
-
-            nodes_data.append({
+        nodes_data.append(
+            {
                 "id": node.id,
                 "name": node.title,
                 "position": [int(node.logical_pos.x()), int(node.logical_pos.y())],
                 "code": getattr(node, "code", ""),
-                "outputs": outputs_data
-            })
-        
-        connections_data = []
-        for connection in self.connections:
-            from_port = connection.start_port
-            to_port = connection.end_port
+                "outputs": outputs_data,
+            }
+        )
 
-            if not from_port or not to_port:
-                continue
-            
-            connections_data.append({
+    connections_data = []
+    for connection in self.connections:
+        from_port = connection.start_port
+        to_port = connection.end_port
+
+        if not from_port or not to_port:
+            continue
+
+        connections_data.append(
+            {
                 "from_node_id": from_port.node.id,
                 "from_port_type": from_port.type,
                 "to_node_id": to_port.node.id,
-                "to_port_type": to_port.type
-            })
+                "to_port_type": to_port.type,
+            }
+        )
 
-    
-        automation_data = {
-            "nodes": nodes_data,
-            "connections": connections_data
-        }
+    automation_data = {"nodes": nodes_data, "connections": connections_data}
 
-        path = os.path.expanduser(f"~/.nodebox/automations/{self.automation_name}.json")
-        with open(path, 'w') as f:
-            json.dump(automation_data, f, indent=4)
+    path = os.path.expanduser(f"~/.nodebox/automations/{self.automation_name}.json")
+    with open(path, "w") as f:
+        json.dump(automation_data, f, indent=4)
 
 
 def load_canvas_state(self):
@@ -64,7 +64,7 @@ def load_canvas_state(self):
 
         # Backward compatibility: convert list to dict with None
         if isinstance(outputs, list):
-            outputs = {name: None for name in outputs}
+            outputs = dict.fromkeys(outputs)
 
         node = NodeWidget(title=title, canvas=self, pos=pos)
         node.id = node_id

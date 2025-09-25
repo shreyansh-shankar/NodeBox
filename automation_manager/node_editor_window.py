@@ -1,15 +1,27 @@
-from PyQt6.QtWidgets import QMainWindow, QWidget, QLabel, QVBoxLayout, QPushButton, QHBoxLayout, QFrame, QLineEdit #type: ignore
-from PyQt6.QtCore import Qt, pyqtSignal, QSize #type: ignore
-from PyQt6.QtGui import QIcon #type: ignore
+import json
+import os
+import sys
 
-import os, json, sys
+from PyQt6.QtCore import QSize, Qt, pyqtSignal  # type: ignore
+from PyQt6.QtGui import QIcon  # type: ignore
+from PyQt6.QtWidgets import (  # type: ignore
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QMainWindow,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
+)
 
-from canvasmanager.canvas_widget import CanvasWidget
 from automation_manager.node_pallete import NodePaletteItem
+from canvasmanager.canvas_widget import CanvasWidget
 from utils.screen_manager import ScreenManager
 
+
 def resource_path(relative_path):
-    """ Get absolute path to resource, works for dev and PyInstaller """
+    """Get absolute path to resource, works for dev and PyInstaller"""
     try:
         # PyInstaller creates a temp folder and stores path in _MEIPASS
         base_path = sys._MEIPASS
@@ -18,28 +30,28 @@ def resource_path(relative_path):
 
     return os.path.join(base_path, relative_path)
 
-class NodeEditorWindow(QMainWindow):
 
+class NodeEditorWindow(QMainWindow):
     closed = pyqtSignal()
 
     def __init__(self, automation_name=None):
         super().__init__()
         self.automation_name = automation_name
         self.setWindowTitle(f"Automation: {automation_name}")
-        
+
         # Use dynamic window sizing based on screen resolution
         x, y, width, height = ScreenManager.get_editor_window_geometry()
         self.setGeometry(x, y, width, height)
-        
+
         # Set minimum size to be at least the minimum calculated size
         min_width, min_height = ScreenManager.calculate_window_size(
             width_percentage=0.6,  # Smaller percentage for minimum
             height_percentage=0.6,
             min_width=1000,
-            min_height=700
+            min_height=700,
         )
         self.setMinimumSize(min_width, min_height)
-        
+
         self.setStyleSheet("background-color: #2a2a2a; color: white;")
 
         # Load existing automation data
@@ -64,7 +76,9 @@ class NodeEditorWindow(QMainWindow):
         # Search Bar
         search_bar = QLineEdit()
         search_bar.setPlaceholderText("Search nodes...")
-        search_bar.setStyleSheet("padding: 5px; font-size: 14px; background-color: #333333")
+        search_bar.setStyleSheet(
+            "padding: 5px; font-size: 14px; background-color: #333333"
+        )
         sidebar_layout.addWidget(search_bar)
 
         nodes = ["Custom Node"]
@@ -93,7 +107,8 @@ class NodeEditorWindow(QMainWindow):
         play_button.setIcon(QIcon(svg_path))
         play_button.setIconSize(QSize(28, 28))
         play_button.setFixedSize(40, 40)
-        play_button.setStyleSheet("""
+        play_button.setStyleSheet(
+            """
             QPushButton {
                 border: none;
                 border-radius: 8px;
@@ -105,7 +120,8 @@ class NodeEditorWindow(QMainWindow):
             QPushButton:pressed {
                 background-color: #444444;
             }
-        """)
+        """
+        )
 
         title_row.addWidget(play_button, alignment=Qt.AlignmentFlag.AlignRight)
 
@@ -113,8 +129,7 @@ class NodeEditorWindow(QMainWindow):
 
         # Canvas
         self.canvas_widget = CanvasWidget(
-            automation_name=self.automation_name, 
-            automation_data=self.automation_data
+            automation_name=self.automation_name, automation_data=self.automation_data
         )
         right_layout.addWidget(self.canvas_widget, stretch=1)
 
@@ -128,11 +143,11 @@ class NodeEditorWindow(QMainWindow):
         path = os.path.expanduser(f"~/.nodebox/automations/{self.automation_name}.json")
         if not os.path.exists(path):
             os.makedirs(os.path.dirname(path), exist_ok=True)
-            with open(path, 'w') as f:
+            with open(path, "w") as f:
                 json.dump({"nodes": [], "connections": []}, f, indent=2)
-        
+
         try:
-            with open(path, 'r+') as f:
+            with open(path, "r+") as f:
                 try:
                     data = json.load(f)
                     changed = False
@@ -157,7 +172,7 @@ class NodeEditorWindow(QMainWindow):
         except Exception as e:
             print("Failed to read or initialize automation JSON:", e)
             return {"nodes": [], "connections": []}
-    
+
     def closeEvent(self, event):
         self.closed.emit()
         event.accept()

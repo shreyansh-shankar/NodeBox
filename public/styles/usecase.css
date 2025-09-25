@@ -15,7 +15,7 @@
   left: -50%;
   width: 200%;
   height: 200%;
-  background: 
+  background:
     radial-gradient(circle at 20% 30%, rgba(0, 198, 255, 0.15), transparent 70%),
     radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.05), transparent 70%),
     radial-gradient(circle at 80% 70%, rgba(255, 0, 200, 0.1), transparent 70%);

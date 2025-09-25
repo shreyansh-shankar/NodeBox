@@ -1,13 +1,18 @@
 # ui/node_editor.py
-from PyQt6.QtWidgets import ( #type: ignore
-    QDialog, QLabel, QLineEdit, QTextEdit, QListWidget, QPushButton,
-    QVBoxLayout, QHBoxLayout, QFormLayout, QDialogButtonBox, QWidget, QMessageBox, QPlainTextEdit
-)
-from PyQt6.QtCore import Qt #type: ignore
-
-import traceback
-import sys
 import io
+import sys
+
+from PyQt6.QtWidgets import (  # type: ignore
+    QDialog,
+    QDialogButtonBox,
+    QHBoxLayout,
+    QLabel,
+    QListWidget,
+    QPlainTextEdit,
+    QTextEdit,
+    QVBoxLayout,
+    QWidget,
+)
 
 # Starter template shown when code editor is blank
 TEMPLATE_CODE = """# Node code template
@@ -40,6 +45,7 @@ outputs = {
 }
 """
 
+
 class NodeEditorDialog(QDialog):
     """
     Basic Node Editor UI:
@@ -49,6 +55,7 @@ class NodeEditorDialog(QDialog):
     - Outputs (comma-separated)
     - Save / Cancel buttons
     """
+
     def __init__(self, node, inputs=None, initial_code="", parent=None):
         super().__init__(parent)
         self.node = node
@@ -72,7 +79,6 @@ class NodeEditorDialog(QDialog):
             for v in self.inputs:
                 self.inputs_list.addItem(str(v))
 
-
         self.code_edit = QTextEdit()
         # Prefill code if node provides stored code (optional attr 'code')
         existing_code = initial_code if initial_code else getattr(node, "code", "")
@@ -82,11 +88,14 @@ class NodeEditorDialog(QDialog):
 
         # Buttons
         self.button_box = QDialogButtonBox(
-            QDialogButtonBox.StandardButton.Save | QDialogButtonBox.StandardButton.Cancel
+            QDialogButtonBox.StandardButton.Save
+            | QDialogButtonBox.StandardButton.Cancel
         )
 
         # Add Play button
-        self.play_button = self.button_box.addButton("▶ Run", QDialogButtonBox.ButtonRole.ActionRole)
+        self.play_button = self.button_box.addButton(
+            "▶ Run", QDialogButtonBox.ButtonRole.ActionRole
+        )
         self.play_button.clicked.connect(self.on_run_code)
 
         self.button_box.accepted.connect(self.on_save)
@@ -101,16 +110,18 @@ class NodeEditorDialog(QDialog):
         self.outputs_edit.setReadOnly(True)
         self.outputs_edit.setFixedWidth(300)
         self.outputs_edit.setFixedHeight(500)
-        self.outputs_edit.setStyleSheet("""
+        self.outputs_edit.setStyleSheet(
+            """
             QTextEdit {
                 background-color: #1e1e1e;
                 color: #ffffff;
                 border: 1px solid #444444;
             }
-        """)
+        """
+        )
         left_layout.addWidget(QLabel("Detected Outputs"))
         left_layout.addWidget(self.outputs_edit)
-        
+
         left_widget = QWidget()
         left_widget.setLayout(left_layout)
 
@@ -133,18 +144,21 @@ class NodeEditorDialog(QDialog):
         # Inputs list background
         self.inputs_list.setFixedWidth(300)
         self.inputs_list.setFixedHeight(500)
-        self.inputs_list.setStyleSheet("""
+        self.inputs_list.setStyleSheet(
+            """
             QListWidget {
                 background-color: #1e1e1e;
                 color: #ffffff;
                 border: 1px solid #444444;
             }
-        """)
+        """
+        )
 
         # Code editor background
         self.code_edit.setFixedWidth(900)
         self.code_edit.setFixedHeight(700)
-        self.code_edit.setStyleSheet("""
+        self.code_edit.setStyleSheet(
+            """
             QTextEdit {
                 background-color: #151515;
                 color: #d4d4d4;
@@ -152,11 +166,13 @@ class NodeEditorDialog(QDialog):
                 font-size: 13px;
                 border: 1px solid #444444;
             }
-        """)
+        """
+        )
 
         self.terminal_output.setReadOnly(True)
         self.terminal_output.setFixedHeight(200)
-        self.terminal_output.setStyleSheet("""
+        self.terminal_output.setStyleSheet(
+            """
             QPlainTextEdit {
                 background-color: #000000;
                 color: #00ff00;
@@ -164,7 +180,8 @@ class NodeEditorDialog(QDialog):
                 font-size: 12px;
                 border: 1px solid #444444;
             }
-        """)
+        """
+        )
 
         # If node already has saved outputs, show them
         existing_outputs = getattr(node, "outputs", None)
@@ -187,8 +204,7 @@ class NodeEditorDialog(QDialog):
             output_vars = list(self.node.outputs.keys())
         else:
             output_vars = [o.strip() for o in outputs_raw.split(",") if o.strip()]
-            self.node.outputs = {name: None for name in output_vars}
-
+            self.node.outputs = dict.fromkeys(output_vars)
 
         self.node.code = code
         self.node.canvas.save_canvas_state()
@@ -200,24 +216,21 @@ class NodeEditorDialog(QDialog):
         }
 
         self.accept()
-    
+
     def on_run_code(self):
         """Run the code and show output in terminal window."""
         code = self.code_edit.toPlainText()
-        
+
         actual_inputs = self.inputs if isinstance(self.inputs, dict) else {}
         if not actual_inputs:
             # fallback to dummy values
-            actual_inputs = {
-                "text": "example input",
-                "user_id": 123
-            }
+            actual_inputs = {"text": "example input", "user_id": 123}
 
         local_vars = {}
         global_vars = {
             "__builtins__": __builtins__,
             "inputs": actual_inputs,
-            **actual_inputs
+            **actual_inputs,
         }
 
         self.terminal_output.clear()
@@ -245,4 +258,3 @@ class NodeEditorDialog(QDialog):
         output_text = stdout_buffer.getvalue() + stderr_buffer.getvalue()
         if output_text.strip():
             self.terminal_output.appendPlainText(output_text)
-

@@ -1,9 +1,16 @@
-from PyQt6.QtWidgets import QWidget, QLabel, QVBoxLayout, QHBoxLayout, QFrame, QPushButton #type: ignore
-from PyQt6.QtSvgWidgets import QSvgWidget #type: ignore
-from PyQt6.QtGui import QPixmap, QFont, QCursor, QDesktopServices, QIcon #type: ignore
-from PyQt6.QtCore import Qt, QUrl, QSize, pyqtSignal #type: ignore
+import os
+import sys
 
-import sys, os
+from PyQt6.QtCore import QSize, Qt, QUrl, pyqtSignal  # type: ignore
+from PyQt6.QtGui import QCursor, QDesktopServices, QFont, QIcon, QPixmap  # type: ignore
+from PyQt6.QtWidgets import (  # type: ignore
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QPushButton,
+    QVBoxLayout,
+)
+
 
 # resource_path helper
 def resource_path(relative_path: str) -> str:
@@ -15,8 +22,8 @@ def resource_path(relative_path: str) -> str:
         base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
     return os.path.join(base_path, relative_path)
 
-class ModelCard(QFrame):
 
+class ModelCard(QFrame):
     downloadRequested = pyqtSignal(dict)
 
     def __init__(self, model_data, parent=None):
@@ -28,7 +35,8 @@ class ModelCard(QFrame):
         self.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         self.setMouseTracking(True)
 
-        self.setStyleSheet("""
+        self.setStyleSheet(
+            """
             QFrame {
                 border: 1px solid #3c3c3c;
                 border-radius: 18px;
@@ -44,8 +52,9 @@ class ModelCard(QFrame):
             #ModelCard:hover {
                 background-color: #232323;
             }
-        """)
-        
+        """
+        )
+
         self.init_ui(model_data)
 
     def init_ui(self, model_data):
@@ -62,9 +71,14 @@ class ModelCard(QFrame):
         icon_label.setFixedSize(72, 72)
         icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)  # Center image in the box
 
-        icon_path = resource_path(model_data['icon'])
+        icon_path = resource_path(model_data["icon"])
         pixmap = QPixmap(icon_path)
-        pixmap = pixmap.scaled(48, 48, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+        pixmap = pixmap.scaled(
+            48,
+            48,
+            Qt.AspectRatioMode.KeepAspectRatio,
+            Qt.TransformationMode.SmoothTransformation,
+        )
         icon_label.setPixmap(pixmap)
 
         # Name and Description
@@ -72,7 +86,9 @@ class ModelCard(QFrame):
         info_layout.setSpacing(6)
 
         name = QLabel(model_data["name"])
-        name.setStyleSheet("color: #ffffff; font-size: 18px; font-weight: 600; border: none;")
+        name.setStyleSheet(
+            "color: #ffffff; font-size: 18px; font-weight: 600; border: none;"
+        )
         name.setFont(QFont("Poppins", 10))
 
         description = QLabel(model_data.get("description", ""))
@@ -90,7 +106,8 @@ class ModelCard(QFrame):
         self.download_button.setIconSize(QSize(32, 32))
         self.download_button.setFixedSize(42, 42)
         self.download_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-        self.download_button.setStyleSheet("""
+        self.download_button.setStyleSheet(
+            """
             QPushButton {
                 border: 1px solid white;
                 border-radius: 16px;
@@ -103,11 +120,15 @@ class ModelCard(QFrame):
             QPushButton:pressed {
                 background-color: #059e00;
             }
-        """)
+        """
+        )
 
         # Place button on far right
         right_layout = QVBoxLayout()
-        right_layout.addWidget(self.download_button, alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignRight)
+        right_layout.addWidget(
+            self.download_button,
+            alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignRight,
+        )
         right_layout.addStretch()
 
         top_layout.addWidget(icon_label)
@@ -122,13 +143,15 @@ class ModelCard(QFrame):
         tags_layout = QHBoxLayout()
         for tag in model_data.get("tags", []):
             tag_label = QLabel(tag)
-            tag_label.setStyleSheet("""
+            tag_label.setStyleSheet(
+                """
                 background-color: #274049;
                 color: #eeeeee;
                 border-radius: 6px;
                 padding: 2px 8px;
                 font-size: 11px;
-            """)
+            """
+            )
             tags_layout.addWidget(tag_label)
         tags_layout.addStretch()
 
@@ -136,13 +159,15 @@ class ModelCard(QFrame):
         sizes_layout = QHBoxLayout()
         for size in model_data.get("sizes", []):
             size_label = QLabel(size)
-            size_label.setStyleSheet("""
+            size_label.setStyleSheet(
+                """
                 background-color: #2e4927;
                 color: #eeeeee;
                 border-radius: 6px;
                 padding: 2px 8px;
                 font-size: 11px;
-            """)
+            """
+            )
             sizes_layout.addWidget(size_label)
         sizes_layout.addStretch()
 
@@ -155,7 +180,9 @@ class ModelCard(QFrame):
         main_layout.addLayout(bottom_layout)
 
         # Connect download button
-        self.download_button.clicked.connect(lambda: self.downloadRequested.emit(self.model))
+        self.download_button.clicked.connect(
+            lambda: self.downloadRequested.emit(self.model)
+        )
 
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:

@@ -1,21 +1,26 @@
 from collections import defaultdict, deque
 
+
 def execute_all_nodes(nodes, connections):
     print("List of all nodes:")
     print("\n")
     for node in nodes:
         print(f"Node {node.title}")
-        print('-------------------------------------------------------------------')
+        print("-------------------------------------------------------------------")
         print(f"{node.code}")
-        print('-------------------------------------------------------------------')
-    
+        print("-------------------------------------------------------------------")
+
     print("\n")
     print("List of all connections:")
     print("\n")
     for conn in connections:
         print(f"Connection: {conn}")
-        print(f"Start Port: {conn.start_port}, PortNode: {conn.start_port.node.title}, PortType: {conn.start_port.type}")
-        print(f"End Port: {conn.end_port}, PortNode: {conn.end_port.node.title}, PortType: {conn.end_port.type} \n")
+        print(
+            f"Start Port: {conn.start_port}, PortNode: {conn.start_port.node.title}, PortType: {conn.start_port.type}"
+        )
+        print(
+            f"End Port: {conn.end_port}, PortNode: {conn.end_port.node.title}, PortType: {conn.end_port.type} \n"
+        )
 
     # ------------------------------
     # Execution Logic
@@ -67,4 +72,3 @@ def execute_all_nodes(nodes, connections):
                 ready_queue.append(dependent)
 
     return node_outputs
-

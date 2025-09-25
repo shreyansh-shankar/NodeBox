@@ -1,11 +1,13 @@
-from PyQt6.QtWidgets import QApplication #type: ignore
-from PyQt6.QtGui import QFontDatabase, QIcon #type: ignore
+import os
+import subprocess
+import sys
 
-from utils.font_loader import load_custom_fonts, set_default_font
+from PyQt6.QtGui import QFontDatabase, QIcon  # type: ignore
+from PyQt6.QtWidgets import QApplication  # type: ignore
+
 from ui.enhanced_main_window import EnhancedMainWindow
-import utils.paths
+from utils.font_loader import load_custom_fonts, set_default_font
 
-import os, sys, subprocess
 
 def resource_path(relative_path: str) -> str:
     """Get absolute path to resource, works in dev and PyInstaller bundle"""
@@ -15,20 +17,21 @@ def resource_path(relative_path: str) -> str:
         base_path = os.path.dirname(os.path.abspath(__file__))
     return os.path.join(base_path, relative_path)
 
+
 def start_ollama():
     """Start ollama serve in the background."""
     try:
         return subprocess.Popen(
             ["ollama", "serve"],
             stdout=subprocess.DEVNULL,  # Hide logs, or use sys.stdout to show them
-            stderr=subprocess.DEVNULL
+            stderr=subprocess.DEVNULL,
         )
     except FileNotFoundError:
         print("Error: Ollama is not installed or not in PATH.")
         return None
 
-def main():
 
+def main():
     # Start Ollama first
     ollama_process = start_ollama()
 
@@ -62,6 +65,7 @@ def main():
             ollama_process.kill()
 
     sys.exit(exit_code)
+
 
 if __name__ == "__main__":
     main()
