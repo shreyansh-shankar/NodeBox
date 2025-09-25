@@ -20,6 +20,8 @@ from PyQt6.QtWidgets import (
 )
 
 from browsemodels_manager.browsemodel_window import BrowseModelsWindow
+
+# Import optimized features
 from ui.newautomation_window import NewAutomationWindow
 from ui.placeholder_widget import PlaceholderWidget
 from utils.paths import AUTOMATIONS_DIR

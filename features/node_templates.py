@@ -7,6 +7,8 @@ from PyQt6.QtWidgets import QComboBox, QLabel, QTextEdit, QVBoxLayout, QWidget
 
 
 class NodeTemplate:
+    __slots__ = ["name", "description", "code_template", "category"]
+
     def __init__(self, name, description, code_template, category="General"):
         self.name = name
         self.description = description
@@ -25,14 +27,142 @@ class NodeTemplateManager:
             NodeTemplate(
                 name="Text Processor",
                 description="Process and transform text data",
-                code_template="def process(input_data):\n    return input_data.upper()",
                 category="Data Processing",
+                code_template="""def process(input_data):
+    # Process text input
+    result = input_data.upper()
+    return result""",
             ),
             NodeTemplate(
-                name="Simple Calculator",
-                description="Basic arithmetic operations",
-                code_template="def calculate(a, b, operation):\n    if operation == 'add':\n        return a + b\n    elif operation == 'subtract':\n        return a - b\n    return 0",
-                category="Math",
+                name="File Watcher",
+                description="Monitor file system changes",
+                category="File Operations",
+                code_template="""import os
+import time
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
+
+def watch_directory(path):
+    class Handler(FileSystemEventHandler):
+        def on_modified(self, event):
+            if not event.is_directory:
+                print(f"File modified: {event.src_path}")
+
+    observer = Observer()
+    observer.schedule(Handler(), path, recursive=True)
+    observer.start()
+    return observer""",
+            ),
+            NodeTemplate(
+                name="HTTP Request",
+                description="Make HTTP requests to APIs",
+                category="Web",
+                code_template=r"""import requests
+import json
+
+def make_request(url, method="GET", data=None, headers=None):
+    try:
+        if method.upper() == "GET":
+            response = requests.get(url, headers=headers)
+        elif method.upper() == "POST":
+            response = requests.post(url, json=data, headers=headers)
+
+        return {
+            "status_code": response.status_code,
+            "data": response.json() if response.headers.get('content-type', '').startswith('application/json') else response.text
+        }
+    except Exception as e:
+        return {"error": str(e)}""",
+            ),
+            NodeTemplate(
+                name="Data Validator",
+                description="Validate and clean data",
+                category="Data Processing",
+                code_template=r"""import re
+import json
+
+def validate_data(data, validation_rules):
+    errors = []
+
+    for field, rules in validation_rules.items():
+        if field not in data:
+            errors.append(f"Missing field: {field}")
+            continue
+
+        value = data[field]
+
+        if "required" in rules and not value:
+            errors.append(f"{field} is required")
+
+        if "type" in rules:
+            if rules["type"] == "email" and not re.match(r"[^@]+@[^@]+\.[^@]+", str(value)):
+                errors.append(f"{field} must be a valid email")
+            elif rules["type"] == "number" and not str(value).replace('.', '').isdigit():
+                errors.append(f"{field} must be a number")
+
+    return {
+        "valid": len(errors) == 0,
+        "errors": errors,
+        "cleaned_data": data
+    }""",
+            ),
+            NodeTemplate(
+                name="Database Connector",
+                description="Connect to databases",
+                category="Database",
+                code_template="""import sqlite3
+import json
+
+def connect_database(db_path):
+    try:
+        conn = sqlite3.connect(db_path)
+        return conn
+    except Exception as e:
+        return {"error": str(e)}
+
+def execute_query(conn, query, params=None):
+    try:
+        cursor = conn.cursor()
+        if params:
+            cursor.execute(query, params)
+        else:
+            cursor.execute(query)
+
+        if query.strip().upper().startswith('SELECT'):
+            return cursor.fetchall()
+        else:
+            conn.commit()
+            return {"rows_affected": cursor.rowcount}
+    except Exception as e:
+        return {"error": str(e)}""",
+            ),
+            NodeTemplate(
+                name="Email Sender",
+                description="Send emails programmatically",
+                category="Communication",
+                code_template="""import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
+def send_email(smtp_server, port, username, password, to_email, subject, body):
+    try:
+        msg = MIMEMultipart()
+        msg['From'] = username
+        msg['To'] = to_email
+        msg['Subject'] = subject
+
+        msg.attach(MIMEText(body, 'plain'))
+
+        server = smtplib.SMTP(smtp_server, port)
+        server.starttls()
+        server.login(username, password)
+        text = msg.as_string()
+        server.sendmail(username, to_email, text)
+        server.quit()
+
+        return {"status": "success", "message": "Email sent successfully"}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}""",
             ),
         ]
 
