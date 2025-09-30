@@ -15,14 +15,14 @@ from PyQt6.QtWidgets import (
     QTableWidgetItem,
     QHeaderView,
 )
-from PyQt6.QtCore import Qt, QTimer, QThread, QObject, pyqtSignal, pyqtSlot
+from PyQt6.QtCore import Qt, QTimer, QThread, pyqtSignal, pyqtSlot
 from PyQt6.QtGui import QFont, QTextCharFormat, QColor, QTextCursor
 import json
 import datetime
 from collections import deque
 
 
-class LogExport(QObject):
+class LogExport(QThread):
     finished = pyqtSignal()
 
     def __init__(self, logs, fname) -> None:
@@ -226,20 +226,15 @@ class DebugConsole(QWidget):
                 self.clear_button.setEnabled(True)
                 self.export_button.setText("Export")
                 self.add_log("INFO", f"Logs exported to {filename}")
-                del self.thread
+                del self.worker
 
-            self.thread = QThread()
             self.worker = LogExport(logs_data, filename)
-            self.worker.moveToThread(self.thread)
-            self.thread.started.connect(self.worker.run)
-            self.thread.finished.connect(on_thread_complete)
-            self.worker.finished.connect(self.thread.quit)
+            self.worker.finished.connect(on_thread_complete)
             self.worker.finished.connect(self.worker.deleteLater)
-            self.thread.finished.connect(self.thread.deleteLater)
-            self.thread.start()
             self.export_button.setEnabled(False)
             self.clear_button.setEnabled(False)
             self.export_button.setText("Exporting...")
+            self.worker.start()
 
         except Exception as e:
             self.add_log("ERROR", f"Export failed: {str(e)}")
