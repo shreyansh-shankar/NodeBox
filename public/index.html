@@ -24,14 +24,11 @@
 
 <body>
     <header>
-        <!-- Navbar -->
         <nav class="navbar">
             <a href="/" class="logo">NodeBox</a>
 
             <!-- Hamburger Icon -->
-            <button class="menu-toggle" aria-label="Toggle menu">
-                ☰
-            </button>
+            <button class="menu-toggle" aria-label="Toggle menu">☰</button>
 
             <ul class="nav-links">
                 <li><a href="downloads.html" class="active">Downloads</a></li>
@@ -309,6 +306,22 @@
 
     <script src="script.js"></script>
 </body>
+
+<script>
+    const menuToggle = document.querySelector(".menu-toggle");
+    const navLinks = document.querySelector(".nav-links");
+
+    menuToggle.addEventListener("click", () => {
+        navLinks.classList.toggle("active");
+
+        // Switch icons between ☰ and ✖
+        if (menuToggle.textContent.trim() === "☰") {
+            menuToggle.textContent = "✖";
+        } else {
+            menuToggle.textContent = "☰";
+        }
+    });
+</script>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
