@@ -1,26 +1,41 @@
 """
 Optimized Debug Console - Efficient logging and monitoring
 """
+from PyQt6.QtWidgets import (
+    QWidget,
+    QVBoxLayout,
+    QHBoxLayout,
+    QLabel,
+    QPushButton,
+    QTextEdit,
+    QComboBox,
+    QSplitter,
+    QTableWidget,
+    QTableWidgetItem,
+    QHeaderView,
+)
+from PyQt6.QtCore import Qt, QTimer, QThread, pyqtSignal, pyqtSlot
+from PyQt6.QtGui import QFont, QTextCharFormat, QColor, QTextCursor
 import datetime
 import json
 from collections import deque
 
-from PyQt6.QtCore import Qt, QTimer, pyqtSignal
-from PyQt6.QtGui import QFont, QTextCursor
-from PyQt6.QtWidgets import (
-    QComboBox,
-    QHBoxLayout,
-    QHeaderView,
-    QLabel,
-    QPushButton,
-    QSplitter,
-    QTableWidget,
-    QTableWidgetItem,
-    QTextEdit,
-    QVBoxLayout,
-    QWidget,
-)
+class LogExport(QThread):
+    finished = pyqtSignal()
 
+    def __init__(self, logs, fname) -> None:
+        super().__init__()
+        self.log_dict = logs
+        self.fname = fname
+
+    @pyqtSlot()
+    def run(self):
+        try:
+            with open(self.fname, "w") as f:
+                json.dump(self.log_dict, f, separators=(",", ":"))  # Compact JSON
+        except Exception as e:
+            print(e)
+        self.finished.emit()
 
 class LogEntry:
     __slots__ = ["timestamp", "level", "message", "node_id", "node_name"]
@@ -47,58 +62,58 @@ class DebugConsole(QWidget):
         self.init_ui()
 
     def init_ui(self):
-        layout = QVBoxLayout()
+        self.layout = QVBoxLayout()
 
         # Minimalist title
-        title = QLabel("Debug Console")
-        title.setFont(QFont("Poppins", 14, QFont.Weight.Bold))
-        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(title)
+        self.title = QLabel("Debug Console")
+        self.title.setFont(QFont("Poppins", 14, QFont.Weight.Bold))
+        self.title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.layout.addWidget(self.title)
 
         # Compact controls
-        controls_layout = QHBoxLayout()
+        self.controls_layout = QHBoxLayout()
 
         self.level_combo = QComboBox()
         self.level_combo.addItems(["All", "ERROR", "WARNING", "INFO", "DEBUG"])
         self.level_combo.currentTextChanged.connect(self.filter_logs)
-        controls_layout.addWidget(QLabel("Level:"))
-        controls_layout.addWidget(self.level_combo)
+        self.controls_layout.addWidget(QLabel("Level:"))
+        self.controls_layout.addWidget(self.level_combo)
 
         self.node_combo = QComboBox()
         self.node_combo.addItem("All")
         self.node_combo.currentTextChanged.connect(self.filter_logs)
-        controls_layout.addWidget(QLabel("Node:"))
-        controls_layout.addWidget(self.node_combo)
+        self.controls_layout.addWidget(QLabel("Node:"))
+        self.controls_layout.addWidget(self.node_combo)
 
-        clear_button = QPushButton("Clear")
-        clear_button.clicked.connect(self.clear_logs)
-        clear_button.setStyleSheet("QPushButton { padding: 4px 8px; }")
-        controls_layout.addWidget(clear_button)
+        self.clear_button = QPushButton("Clear")
+        self.clear_button.clicked.connect(self.clear_logs)
+        self.clear_button.setStyleSheet("QPushButton { padding: 4px 8px; }")
+        self.controls_layout.addWidget(self.clear_button)
 
-        export_button = QPushButton("Export")
-        export_button.clicked.connect(self.export_logs)
-        export_button.setStyleSheet("QPushButton { padding: 4px 8px; }")
-        controls_layout.addWidget(export_button)
+        self.export_button = QPushButton("Export")
+        self.export_button.clicked.connect(self.export_logs)
+        self.export_button.setStyleSheet("QPushButton { padding: 4px 8px; }")
+        self.controls_layout.addWidget(self.export_button)
 
-        layout.addLayout(controls_layout)
+        self.layout.addLayout(self.controls_layout)
 
         # Main content area
-        splitter = QSplitter(Qt.Orientation.Horizontal)
+        self.splitter = QSplitter(Qt.Orientation.Horizontal)
 
         # Log display
         self.log_display = QTextEdit()
         self.log_display.setReadOnly(True)
         self.log_display.setFont(QFont("Consolas", 10))
-        splitter.addWidget(self.log_display)
+        self.splitter.addWidget(self.log_display)
 
         # Performance metrics
         self.metrics_widget = self.create_metrics_widget()
-        splitter.addWidget(self.metrics_widget)
+        self.splitter.addWidget(self.metrics_widget)
 
-        splitter.setSizes([800, 400])
-        layout.addWidget(splitter)
+        self.splitter.setSizes([800, 400])
+        self.layout.addWidget(self.splitter)
 
-        self.setLayout(layout)
+        self.setLayout(self.layout)
 
     def create_metrics_widget(self):
         """Create performance metrics widget"""
@@ -201,11 +216,20 @@ class DebugConsole(QWidget):
                 }
                 for log in self.logs
             ]
+            def on_thread_complete():
+                self.export_button.setEnabled(True)
+                self.clear_button.setEnabled(True)
+                self.export_button.setText("Export")
+                self.add_log("INFO", f"Logs exported to {filename}")
+                del self.worker
 
-            with open(filename, "w") as f:
-                json.dump(logs_data, f, separators=(",", ":"))  # Compact JSON
-
-            self.add_log("INFO", f"Logs exported to {filename}")
+            self.worker = LogExport(logs_data, filename)
+            self.worker.finished.connect(on_thread_complete)
+            self.worker.finished.connect(self.worker.deleteLater)
+            self.export_button.setEnabled(False)
+            self.clear_button.setEnabled(False)
+            self.export_button.setText("Exporting...")
+            self.worker.start()
         except Exception as e:
             self.add_log("ERROR", f"Export failed: {str(e)}")
 
