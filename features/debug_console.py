@@ -41,6 +41,7 @@ class DebugConsole(QWidget):
         self.logs = deque(maxlen=500)  # Use deque for efficient append/pop
         self.max_logs = 500
         self._node_names = set()
+        self._cached_metrics = {}  # Cache for previous metric values
         self._update_timer = QTimer()
         self._update_timer.timeout.connect(self.update_metrics)
         self._update_timer.start(5000)  # Update metrics every 5 seconds
@@ -181,6 +182,7 @@ class DebugConsole(QWidget):
         self.logs.clear()
         self.log_display.clear()
         self._node_names.clear()
+        self._cached_metrics.clear()  # Clear cached metrics
         self.node_combo.clear()
         self.node_combo.addItem("All")
         self.update_metrics()
@@ -210,30 +212,36 @@ class DebugConsole(QWidget):
             self.add_log("ERROR", f"Export failed: {str(e)}")
 
     def update_metrics(self):
-        """Update performance metrics"""
-        self.metrics_table.setRowCount(0)
-
-        # Calculate metrics
+        """Update performance metrics - optimized to only update changed values"""
+        # Calculate current metrics
         total_logs = len(self.logs)
         error_count = len([log for log in self.logs if log.level == "ERROR"])
         warning_count = len([log for log in self.logs if log.level == "WARNING"])
-
-        # Add metrics to table
-        metrics = [
-            ("Total Logs", str(total_logs)),
-            ("Errors", str(error_count)),
-            ("Warnings", str(warning_count)),
-            (
-                "Error Rate",
-                f"{(error_count/total_logs*100):.1f}%" if total_logs > 0 else "0%",
-            ),
-            ("Last Update", datetime.datetime.now().strftime("%H:%M:%S")),
-        ]
-
-        self.metrics_table.setRowCount(len(metrics))
-        for i, (metric, value) in enumerate(metrics):
-            self.metrics_table.setItem(i, 0, QTableWidgetItem(metric))
-            self.metrics_table.setItem(i, 1, QTableWidgetItem(value))
+        
+        current_metrics = {
+            "Total Logs": str(total_logs),
+            "Errors": str(error_count),
+            "Warnings": str(warning_count),
+            "Error Rate": f"{(error_count/total_logs*100):.1f}%" if total_logs > 0 else "0%",
+            "Last Update": datetime.datetime.now().strftime("%H:%M:%S"),
+        }
+        
+        # Initialize table if empty
+        if self.metrics_table.rowCount() == 0:
+            self.metrics_table.setRowCount(len(current_metrics))
+            for i, metric_name in enumerate(current_metrics.keys()):
+                self.metrics_table.setItem(i, 0, QTableWidgetItem(metric_name))
+                self.metrics_table.setItem(i, 1, QTableWidgetItem(current_metrics[metric_name]))
+            self._cached_metrics = current_metrics.copy()
+            return
+        
+        # Update only changed cells
+        for i, (metric_name, new_value) in enumerate(current_metrics.items()):
+            cached_value = self._cached_metrics.get(metric_name)
+            if cached_value != new_value:
+                # Only update the value cell if it has changed
+                self.metrics_table.setItem(i, 1, QTableWidgetItem(new_value))
+                self._cached_metrics[metric_name] = new_value
 
     def log_node_execution(self, node_name, success, execution_time, error=None):
         """Log node execution details"""
