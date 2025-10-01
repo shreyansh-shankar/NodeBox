@@ -1,7 +1,8 @@
 from collections import defaultdict, deque
+from time import perf_counter
 
 
-def execute_all_nodes(nodes, connections):
+def execute_all_nodes(nodes, connections, on_error=None, on_node_executed=None):
     print("List of all nodes:")
     print("\n")
     for node in nodes:
@@ -39,6 +40,10 @@ def execute_all_nodes(nodes, connections):
     ready_queue = deque([node for node in nodes if incoming_count[node] == 0])
     node_outputs = {}
 
+    total_start = perf_counter()
+    error_count = 0
+    executed_count = 0
+
     while ready_queue:
         node = ready_queue.popleft()
 
@@ -52,18 +57,33 @@ def execute_all_nodes(nodes, connections):
                     local_vars.update(node_outputs[src_node])
 
         # Execute the node’s code with injected inputs
+        node_start = perf_counter()
         try:
             exec(node.code, {}, local_vars)
         except Exception as e:
             print(f"❌ Error executing node {node.title}: {e}")
+            error_count += 1
+            if on_error:
+                try:
+                    on_error(node=node, error=e)
+                except Exception:
+                    pass
             continue
 
         # Collect outputs
         node_outputs[node] = local_vars.get("outputs", {})
         node.outputs = node_outputs[node]
 
+        executed_count += 1
+        node_duration = perf_counter() - node_start
         print(f"\n✅ Executed node: {node.title}")
         print("Outputs:", node_outputs[node])
+
+        if on_node_executed:
+            try:
+                on_node_executed(node=node, duration_s=node_duration)
+            except Exception:
+                pass
 
         # Schedule dependents
         for dependent in dependents[node]:
@@ -71,4 +91,11 @@ def execute_all_nodes(nodes, connections):
             if incoming_count[dependent] == 0:
                 ready_queue.append(dependent)
 
-    return node_outputs
+    total_duration = perf_counter() - total_start
+    return {
+        "node_outputs": node_outputs,
+        "executed_count": executed_count,
+        "error_count": error_count,
+        "total_duration_s": total_duration,
+        "total_nodes": len(list(nodes)),
+    }
