@@ -143,7 +143,6 @@ class DebugConsole(QWidget):
     def setup_logging(self):
         """Setup logging capture"""
         # This would integrate with Python's logging module
-        pass
 
     def add_log(self, level, message, node_id=None, node_name=None):
         """Optimized log entry addition"""
