@@ -1,24 +1,26 @@
 """
 Optimized Debug Console - Efficient logging and monitoring
 """
-from PyQt6.QtWidgets import (
-    QWidget,
-    QVBoxLayout,
-    QHBoxLayout,
-    QLabel,
-    QPushButton,
-    QTextEdit,
-    QComboBox,
-    QSplitter,
-    QTableWidget,
-    QTableWidgetItem,
-    QHeaderView,
-)
-from PyQt6.QtCore import Qt, QTimer, QThread, pyqtSignal, pyqtSlot
-from PyQt6.QtGui import QFont, QTextCharFormat, QColor, QTextCursor
 import datetime
 import json
 from collections import deque
+
+from PyQt6.QtCore import Qt, QThread, QTimer, pyqtSignal, pyqtSlot
+from PyQt6.QtGui import QFont, QTextCursor
+from PyQt6.QtWidgets import (
+    QComboBox,
+    QHBoxLayout,
+    QHeaderView,
+    QLabel,
+    QPushButton,
+    QSplitter,
+    QTableWidget,
+    QTableWidgetItem,
+    QTextEdit,
+    QVBoxLayout,
+    QWidget,
+)
+
 
 class LogExport(QThread):
     finished = pyqtSignal()
@@ -36,6 +38,7 @@ class LogExport(QThread):
         except Exception as e:
             print(e)
         self.finished.emit()
+
 
 class LogEntry:
     __slots__ = ["timestamp", "level", "message", "node_id", "node_name"]
@@ -216,6 +219,7 @@ class DebugConsole(QWidget):
                 }
                 for log in self.logs
             ]
+
             def on_thread_complete():
                 self.export_button.setEnabled(True)
                 self.clear_button.setEnabled(True)
