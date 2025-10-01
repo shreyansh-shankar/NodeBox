@@ -1,11 +1,12 @@
-from PyQt6.QtWidgets import QWidget #type: ignore
-from PyQt6.QtGui import QPainter, QColor #type: ignore
-from PyQt6.QtCore import Qt, QSize, pyqtSignal #type: ignore
+from PyQt6.QtCore import QSize, Qt, pyqtSignal  # type: ignore
+from PyQt6.QtGui import QColor, QPainter  # type: ignore
+from PyQt6.QtWidgets import QWidget  # type: ignore
+
 
 class PortWidget(QWidget):
     clicked = pyqtSignal(object)
 
-    def __init__(self, parent=None, node=None, type = None):
+    def __init__(self, parent=None, node=None, type=None):
         super().__init__(parent)
         self.type = type
         self.radius = 10

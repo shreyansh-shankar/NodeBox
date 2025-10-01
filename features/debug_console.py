@@ -1,7 +1,6 @@
 """
 Optimized Debug Console - Efficient logging and monitoring
 """
-
 from PyQt6.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -17,10 +16,9 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import Qt, QTimer, QThread, pyqtSignal, pyqtSlot
 from PyQt6.QtGui import QFont, QTextCharFormat, QColor, QTextCursor
-import json
 import datetime
+import json
 from collections import deque
-
 
 class LogExport(QThread):
     finished = pyqtSignal()
@@ -38,7 +36,6 @@ class LogExport(QThread):
         except Exception as e:
             print(e)
         self.finished.emit()
-
 
 class LogEntry:
     __slots__ = ["timestamp", "level", "message", "node_id", "node_name"]
@@ -220,7 +217,6 @@ class DebugConsole(QWidget):
                 }
                 for log in self.logs
             ]
-
             def on_thread_complete():
                 self.export_button.setEnabled(True)
                 self.clear_button.setEnabled(True)
@@ -235,7 +231,6 @@ class DebugConsole(QWidget):
             self.clear_button.setEnabled(False)
             self.export_button.setText("Exporting...")
             self.worker.start()
-
         except Exception as e:
             self.add_log("ERROR", f"Export failed: {str(e)}")
 
@@ -255,11 +250,7 @@ class DebugConsole(QWidget):
             ("Warnings", str(warning_count)),
             (
                 "Error Rate",
-                (
-                    f"{(error_count/total_logs*100)             :.1f}%"
-                    if total_logs > 0
-                    else "0%"
-                ),
+                f"{(error_count/total_logs*100):.1f}%" if total_logs > 0 else "0%",
             ),
             ("Last Update", datetime.datetime.now().strftime("%H:%M:%S")),
         ]
@@ -274,16 +265,12 @@ class DebugConsole(QWidget):
         if success:
             self.add_log(
                 "INFO",
-                f"Node '{node_name}' executed successfully in {
-                         execution_time:.3f}s",
+                f"Node '{node_name}' executed successfully in {execution_time:.3f}s",
                 node_name=node_name,
             )
         else:
             self.add_log(
-                "ERROR",
-                f"Node '{node_name}' failed: {
-                         error}",
-                node_name=node_name,
+                "ERROR", f"Node '{node_name}' failed: {error}", node_name=node_name
             )
 
     def log_workflow_start(self, workflow_name):
@@ -295,12 +282,9 @@ class DebugConsole(QWidget):
         if success:
             self.add_log(
                 "INFO",
-                f"Workflow '{
-                         workflow_name}' completed successfully in {total_time:.3f}s",
+                f"Workflow '{workflow_name}' completed successfully in {total_time:.3f}s",
             )
         else:
             self.add_log(
-                "ERROR",
-                f"Workflow '{
-                         workflow_name}' failed after {total_time:.3f}s",
+                "ERROR", f"Workflow '{workflow_name}' failed after {total_time:.3f}s"
             )

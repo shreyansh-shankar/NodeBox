@@ -1,13 +1,13 @@
-from PyQt6.QtWidgets import QWidget, QLabel, QVBoxLayout, QPushButton, QMessageBox #type: ignore
-from PyQt6.QtGui import QPainter, QColor, QPen, QFont, QColor, QFontMetrics, QPainterPath #type: ignore
-from PyQt6.QtCore import Qt, QPoint, QPointF, QRectF, pyqtSignal #type: ignore
-
 import uuid
+
+from PyQt6.QtCore import QPointF, QRectF, Qt  # type: ignore
+from PyQt6.QtGui import QColor, QFont, QFontMetrics, QPainter, QPen  # type: ignore
+from PyQt6.QtWidgets import QMessageBox, QPushButton, QWidget  # type: ignore
 
 from automation_manager.ports import PortWidget
 
-class NodeWidget(QWidget):
 
+class NodeWidget(QWidget):
     def __init__(self, title, canvas, pos=None, inputs=None, outputs=None):
         super().__init__(canvas)
         self.id = str(uuid.uuid4())
@@ -20,7 +20,7 @@ class NodeWidget(QWidget):
         if outputs is None:
             self.outputs = {}
         elif isinstance(outputs, list):  # backward compatibility
-            self.outputs = {name: None for name in outputs}
+            self.outputs = dict.fromkeys(outputs)
         elif isinstance(outputs, dict):
             self.outputs = outputs
         else:
@@ -28,7 +28,7 @@ class NodeWidget(QWidget):
 
         # to track if the node is selected or not
         self.selected = False
-        
+
         # to track if the node itself is being dragged or not
         self.is_dragging = False
         self.drag_offset = QPointF()
@@ -48,7 +48,8 @@ class NodeWidget(QWidget):
         # --- Buttons (hidden by default) ---
         self.delete_button = QPushButton("x", self)
         self.delete_button.setFixedSize(25, 25)
-        self.delete_button.setStyleSheet("""
+        self.delete_button.setStyleSheet(
+            """
             QPushButton {
                 background-color: #aa0000;
                 color: white;
@@ -60,12 +61,14 @@ class NodeWidget(QWidget):
             QPushButton:hover {
                 background-color: #ff0000;
             }
-        """)
+        """
+        )
         self.delete_button.hide()
 
         self.open_button = QPushButton("O", self)
         self.open_button.setFixedSize(25, 25)
-        self.open_button.setStyleSheet("""
+        self.open_button.setStyleSheet(
+            """
             QPushButton {
                 background-color: #0066aa;
                 color: white;
@@ -77,7 +80,8 @@ class NodeWidget(QWidget):
             QPushButton:hover {
                 background-color: #0099ff;
             }
-        """)
+        """
+        )
         self.open_button.hide()
 
         self.delete_button.raise_()
@@ -96,7 +100,7 @@ class NodeWidget(QWidget):
 
     # updates position on the canvas when it is zoomed or panned
     def update_position(self):
-        """ Update screen position based on canvas pan and zoom """
+        """Update screen position based on canvas pan and zoom"""
         scale = self.canvas.scale
         offset = self.canvas.offset
         screen_pos = self.logical_pos * scale + offset
@@ -108,12 +112,16 @@ class NodeWidget(QWidget):
 
         # Left center for input
         input_x = node_rect.left() - self.input_port.width() // 2
-        input_y = node_rect.top() + node_rect.height() // 2 - self.input_port.height() // 2
+        input_y = (
+            node_rect.top() + node_rect.height() // 2 - self.input_port.height() // 2
+        )
         self.input_port.move(input_x, input_y)
 
         # Right center for output
         output_x = node_rect.right() - self.output_port.width() // 2
-        output_y = node_rect.top() + node_rect.height() // 2 - self.output_port.height() // 2
+        output_y = (
+            node_rect.top() + node_rect.height() // 2 - self.output_port.height() // 2
+        )
         self.output_port.move(output_x, output_y)
 
         # Optional: Resize port if zoom is applied
@@ -128,7 +136,7 @@ class NodeWidget(QWidget):
         self.delete_button.move(bx, by)
 
         self.open_button.move(bx - self.open_button.width() - margin, by)
-    
+
     def on_open_clicked(self):
         self.canvas.open_node(self)
 
@@ -140,8 +148,12 @@ class NodeWidget(QWidget):
         msg.setIcon(QMessageBox.Icon.Warning)
         msg.setWindowTitle("Delete node")
         msg.setText(f"Delete node '{self.title}'?")
-        msg.setInformativeText("This will remove the node and all its connections. This action cannot be undone.")
-        msg.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        msg.setInformativeText(
+            "This will remove the node and all its connections. This action cannot be undone."
+        )
+        msg.setStandardButtons(
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        )
         msg.setDefaultButton(QMessageBox.StandardButton.No)
 
         result = msg.exec()
@@ -176,8 +188,8 @@ class NodeWidget(QWidget):
         painter.setPen(QPen(border_color, 2))
         painter.drawRoundedRect(rect, 10, 10)
 
-        painter.setPen(QColor('white'))
-        font = QFont('Arial', 15)
+        painter.setPen(QColor("white"))
+        font = QFont("Arial", 15)
         font.setWeight(QFont.Weight.Bold)
         painter.setFont(font)
 
@@ -185,7 +197,11 @@ class NodeWidget(QWidget):
         text_height = QFontMetrics(font).height()
         text_rect.setTop(rect.top() + (rect.height() - text_height) / 2)
 
-        painter.drawText(text_rect, Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop, self.title)
+        painter.drawText(
+            text_rect,
+            Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop,
+            self.title,
+        )
 
         # Show/hide buttons based on selection
         if self.selected:
@@ -194,14 +210,14 @@ class NodeWidget(QWidget):
         else:
             self.delete_button.hide()
             self.open_button.hide()
-    
+
     def mouseMoveEvent(self, event):
-        pos = event.position().toPoint()
+        event.position().toPoint()
 
         # to check if we are trying to drag the node itself
         if self.is_dragging and self.selected:
             new_pos = self.mapToParent(event.pos() - self.drag_offset)
-            
+
             canvas_offset = self.canvas.offset
             scale = self.canvas.scale
             logical_pos = (QPointF(new_pos) - canvas_offset) / scale
@@ -218,12 +234,12 @@ class NodeWidget(QWidget):
             if child is self.delete_button or child is self.open_button:
                 # Let the button handle the click; do nothing else here
                 return
-            
+
             # to initiate the dragging of the node itself on the canvas
             self.canvas.select_node(self)
             self.is_dragging = True
             self.drag_offset = event.pos()
-    
+
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
             self.is_dragging = False

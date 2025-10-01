@@ -13,7 +13,7 @@
 At its core, **NodeBox** lets you design workflows on a **canvas-like interface**, where you can:
 
 - **Drag, drop, and connect nodes**
-- Each **node is just Python code**:  
+- Each **node is just Python code**:
    it can receive inputs, process them, and return outputs
 - Combine nodes to build **simple scripts → advanced multi-step automations**
 
@@ -21,31 +21,31 @@ At its core, **NodeBox** lets you design workflows on a **canvas-like interface*
 
 ---
 
-## Key Idea  
+## Key Idea
 
 *If you can write Python, you can automate it with NodeBox.*
 
 ---
 
-## AI Integration with Ollama  
+## AI Integration with Ollama
 
-One of the **standout features** of NodeBox is its **deep integration with [Ollama](https://ollama.com/)**.  
+One of the **standout features** of NodeBox is its **deep integration with [Ollama](https://ollama.com/)**.
 Since much of modern automation relies on AI, NodeBox allows you to:
 
-- **Browse** Ollama models  
-- **Download & manage** models locally  
-- **Integrate LLMs** directly into your workflows  
+- **Browse** Ollama models
+- **Download & manage** models locally
+- **Integrate LLMs** directly into your workflows
 
-This means you can build **AI-powered automations** without pricey API keys.  
+This means you can build **AI-powered automations** without pricey API keys.
 Everything runs **locally, offline, and under your control**.
 
 ---
 
-## What You Can Do with NodeBox  
+## What You Can Do with NodeBox
 
-- Automate repetitive tasks  
-- Build **custom AI-driven workflows**  
-- Connect & process data from multiple sources  
+- Automate repetitive tasks
+- Build **custom AI-driven workflows**
+- Connect & process data from multiple sources
 - Stay private with **local execution**
 
 ---
@@ -153,7 +153,7 @@ Tip: Start small (like a text-to-text pipeline) before experimenting with comple
   </ul>
 
   <p>
-    For more details, visit our website:  
+    For more details, visit our website:
     <a href="https://nodeboxlab.web.app" target="_blank">nodeboxlab.web.app</a>
   </p>
 </section>

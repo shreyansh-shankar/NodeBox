@@ -1,8 +1,197 @@
-__pycache__
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
 
-ui/__pycache__
+# C extensions
+*.so
 
-build
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
 
-.firebase/
+# PyInstaller / Build artifacts (relevant for PyQt6 desktop apps)
+*.manifest
+*.spec
+*.exe
+*.msi
+*.dmg
+*.app
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py.cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff (if applicable)
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff (if applicable)
+instance/
+.webassets-cache
+
+# Scrapy stuff (if applicable)
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+.pybuilder/
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# Environment variables
+.env
+.envrc
+
+# Virtual environments
+.venv/
 venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy type checking
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# IDEs - PyCharm/JetBrains
+.idea/
+
+# IDEs - Visual Studio Code
+.vscode/
+
+# Ruff linting cache
+.ruff_cache/
+
+# Pre-commit hooks
+.pre-commit-cache/
+
+# PyPI configuration
+.pypirc
+
+# MacOS-specific files
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.Spotlight-V100
+.Trashes
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Windows-specific files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msm
+*.msp
+*.lnk
+
+# Linux-specific files
+*~
+.swp
+.goutputstream-*
+
+# PyQt6 and Qt specific
+*.pyc
+*.pyo
+*.pyd
+*.dll
+*.dylib
+*.resources
+*.qm
+*.ts
+*.ui
+
+# Qt Designer and resource files (if not part of source)
+*.qrc
+
+# Temporary files
+*.tmp
+*.temp
+
+# Logs
+logs/
+*.log
+
+# Firebase
+.firebase/
+
+# NodeBox specific
+ui/__pycache__/
+NodeBox-Dev.spec
+NodeBox_Windows.spec
+NodeBox.spec

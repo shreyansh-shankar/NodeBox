@@ -1,5 +1,5 @@
-from PyQt6.QtGui import QPainter, QPainterPath, QPen, QColor #type: ignore
-from PyQt6.QtCore import QPointF, Qt #type: ignore
+from PyQt6.QtCore import QPointF  # type: ignore
+from PyQt6.QtGui import QColor, QPainter, QPainterPath, QPen  # type: ignore
 
 
 class BezierConnection:
@@ -47,7 +47,6 @@ class BezierConnection:
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         painter.setPen(QPen(QColor("#FFD700"), 2))
         painter.drawPath(path)
-
 
     def get_port_pos(self, port):
         if port:

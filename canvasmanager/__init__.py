@@ -1,7 +1,13 @@
+from .canvas_nodemethods import delete_node, open_node
 from .canvas_widget import CanvasWidget
-from .canvas_nodemethods import open_node, delete_node
-from .saveload_methods import save_canvas_state, load_canvas_state
-from .ports_handler import start_connection, complete_connection, cancel_connection, handle_port_click, get_port_at
+from .ports_handler import (
+    cancel_connection,
+    complete_connection,
+    get_port_at,
+    handle_port_click,
+    start_connection,
+)
+from .saveload_methods import load_canvas_state, save_canvas_state
 
 CanvasWidget.open_node = open_node
 CanvasWidget.delete_node = delete_node

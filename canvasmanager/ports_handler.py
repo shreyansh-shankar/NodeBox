@@ -1,8 +1,10 @@
 def start_connection(self, port_widget):
     from automation_manager.connection import BezierConnection  # define below
+
     self.connection_start_port = port_widget
     self.pending_connection = BezierConnection(start_port=port_widget, canvas=self)
     self.update()
+
 
 def complete_connection(self, target_port):
     if not (self.pending_connection and self.connection_start_port):
@@ -37,16 +39,19 @@ def complete_connection(self, target_port):
     self.save_canvas_state()
     self.update()
 
+
 def cancel_connection(self):
     self.pending_connection = None
     self.connection_start_port = None
     self.update()
+
 
 def handle_port_click(self, port):
     if self.pending_connection:
         self.complete_connection(port)
     else:
         self.start_connection(port)
+
 
 def get_port_at(self, pos):
     for node in self.nodes.values():

@@ -1,10 +1,18 @@
-import sys
 import subprocess
-from PyQt6.QtWidgets import (
-    QApplication, QDialog, QVBoxLayout, QLabel, QComboBox, QPushButton, QProgressBar, QTextEdit
-)
+
 from PyQt6.QtCore import QThread, pyqtSignal
+from PyQt6.QtWidgets import (
+    QComboBox,
+    QDialog,
+    QLabel,
+    QProgressBar,
+    QPushButton,
+    QTextEdit,
+    QVBoxLayout,
+)
+
 from utils.screen_manager import ScreenManager
+
 
 # Worker thread for downloading
 class DownloadWorker(QThread):
@@ -23,7 +31,9 @@ class DownloadWorker(QThread):
             self.status.emit(f"Starting download: {self.model_name}:{self.model_size}")
             cmd = ["ollama", "pull", f"{self.model_name}:{self.model_size}"]
 
-            self.process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+            self.process = subprocess.Popen(
+                cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
+            )
 
             for line in self.process.stdout:
                 self.status.emit(line.strip())
@@ -32,7 +42,7 @@ class DownloadWorker(QThread):
                     try:
                         percent = int(line.split("%")[0].split()[-1])
                         self.progress.emit(percent)
-                    except:
+                    except (ValueError, IndexError):
                         pass
 
             self.process.wait()
@@ -59,15 +69,12 @@ class DownloadManager(QDialog):
 
         self.setWindowTitle("Download Manager")
         self.setModal(True)
-        
+
         # Use dynamic window sizing for dialog
         width, height = ScreenManager.get_dialog_window_size(
-            width_percentage=0.3,
-            height_percentage=0.3,
-            min_width=350,
-            min_height=250
+            width_percentage=0.3, height_percentage=0.3, min_width=350, min_height=250
         )
-        
+
         # Center the window
         x, y = ScreenManager.calculate_window_position(width, height, center=True)
         self.setGeometry(x, y, width, height)
