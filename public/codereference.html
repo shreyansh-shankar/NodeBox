@@ -2,21 +2,21 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta property="og:title" content="Nodebox - Home" />
-    <meta property="og:description"
-        content=" Design and deploy workflows with Python-native nodes. Run automations on your machine without API costs or cloud dependencies. " />
+    <meta property="og:description" content=" Design and deploy workflows with Python-native nodes. Run automations on your machine without API costs or cloud dependencies. " />
     <meta property="og:image" content="https://nodeboxlab.web.app/thumbnail.png" />
     <meta property="og:url" content="https://nodeboxlab.web.app/" />
     <meta property="og:type" content="website" />
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    <link rel="icon" type="favicon" href="favicon.ico">
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="styles/navbar.css">
-    <link rel="stylesheet" href="styles/contribution.css">
-    <link rel="stylesheet" href="styles/docs.css">
+    <link rel="icon" type="favicon" href="favicon.ico" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles/navbar.css" />
+    <link rel="stylesheet" href="styles/contribution.css" />
+    <link rel="stylesheet" href="styles/docs.css" />
+
     <style>
         .api-block {
             display: block;
@@ -24,14 +24,16 @@
             padding: 18px 18px 18px 18px;
             background: #131820;
             border-radius: 10px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
         }
+
         .api-line {
             display: block;
             margin-bottom: 6px;
             font-size: 1rem;
             color: #fff;
         }
+
         .api-code {
             background: #222b3a;
             border-radius: 6px;
@@ -39,6 +41,18 @@
             font-size: 1rem;
             color: #00ff99;
             display: inline-block;
+        }
+
+        .api-label {
+            font-weight: 600;
+            margin-right: 6px;
+        }
+
+        .api-title {
+            font-weight: 700;
+            font-size: 1.15rem;
+            margin-bottom: 8px;
+            color: #00ff99;
         }
     </style>
 </head>
@@ -70,7 +84,7 @@
                 <ul>
                     <li><a href="gettingstarted.html">Getting Started</a></li>
                     <li><a href="contribute.html">How to Contribute</a></li>
-                    <li><a href="codereference.html">Code Reference</a></li>
+                    <li><a href="codereference.html" class="active">Code Reference</a></li>
                     <li><a href="examples.html">Examples</a></li>
                     <li><a href="faq.html">FAQ</a></li>
                 </ul>
@@ -81,29 +95,37 @@
         <main class="content">
 
             <h1 style="margin-top:0;"><i class="fa-solid fa-book"></i> Code Reference</h1>
-            <p style="margin-top:18px;">Welcome to the NodeBox technical reference. Here you'll find a high-level overview, module documentation, and API details to help you extend or debug the project.</p>
+            <p style="margin-top:18px;">
+                Welcome to the NodeBox technical reference. Here you'll find a high-level overview, module documentation,
+                and API details to help you extend or debug the project.
+            </p>
 
             <section>
                 <h2><i class="fa-solid fa-diagram-project"></i> Architecture Overview</h2>
+
                 <div class="api-block">
                     <div class="api-title">Main Application</div>
                     <div class="api-line"><span class="api-label">File:</span> <span class="api-code">main.py</span></div>
                     <div class="api-line"><span class="api-label">Purpose:</span> Launches UI, loads fonts, applies styles, starts Ollama</div>
                 </div>
+
                 <div class="api-block">
                     <div class="api-title">Automation Engine</div>
                     <div class="api-line"><span class="api-label">Purpose:</span> Handles workflow execution, node management, Ollama integration</div>
                 </div>
+
                 <div class="api-block">
                     <div class="api-title">Node System</div>
-                    <div class="api-line"><span class="api-label">Files:</span> <span class="api-code">canvasmanager</span>, <span class="api-code">ui/node.py</span></div>
+                    <div class="api-line"><span class="api-label">Files:</span> <span class="api-code">canvasmanager/</span>, <span class="api-code">ui/node.py</span></div>
                     <div class="api-line"><span class="api-label">Purpose:</span> Python node objects with inputs/outputs, visually connected on canvas</div>
                 </div>
+
                 <div class="api-block">
                     <div class="api-title">UI Components</div>
                     <div class="api-line"><span class="api-label">Files:</span> <span class="api-code">ui/main_window.py</span>, <span class="api-code">node_editor_window.py</span></div>
                     <div class="api-line"><span class="api-label">Purpose:</span> PyQt6-based main window, node editor, model browser, automation manager</div>
                 </div>
+
                 <div class="api-block">
                     <div class="api-title">Ollama Integration</div>
                     <div class="api-line"><span class="api-label">Files:</span> <span class="api-code">main.py</span>, <span class="api-code">models_data.py</span></div>
@@ -113,69 +135,104 @@
 
             <section>
                 <h2><i class="fa-solid fa-cubes"></i> Key Modules</h2>
+
+                <div class="api-block">
+                    <div class="api-title">automation_manager</div>
+                    <div class="api-line"><span class="api-label">Files:</span> <span class="api-code">connection.py</span>, <span class="api-code">node.py</span>, <span class="api-code">node_editor_window.py</span>, <span class="api-code">node_pallette.py</span>, <span class="api-code">nodeeditor_dialog.py</span>, <span class="api-code">ports.py</span></div>
+                    <div class="api-line"><span class="api-label">Purpose:</span> Workflow automation, node management and UI editing</div>
+                </div>
+
+                <div class="api-block">
+                    <div class="api-title">browsemodels_manager</div>
+                    <div class="api-line"><span class="api-label">Files:</span> <span class="api-code">browsemodel_window.py</span>, <span class="api-code">download_manager.py</span>, <span class="api-code">downloaded_models_window.py</span>, <span class="api-code">filter_window.py</span>, <span class="api-code">model_card.py</span></div>
+                    <div class="api-line"><span class="api-label">Purpose:</span> Model browsing, downloading, filtering and display</div>
+                </div>
+
                 <div class="api-block">
                     <div class="api-title">canvasmanager</div>
-                    <div class="api-line"><span class="api-label">Files:</span> <span class="api-code">canvas_nodemethods.py</span>, <span class="api-code">canvas_widget.py</span>, <span class="api-code">ports_handler.py</span>, <span class="api-code">saveload_methods.py</span></div>
-                    <div class="api-line"><span class="api-label">Purpose:</span> Node logic, canvas UI, port handling, workflow save/load</div>
+                    <div class="api-line"><span class="api-label">Files:</span> <span class="api-code">__init__.py</span>, <span class="api-code">canvas_nodemethods.py</span>, <span class="api-code">canvas_widget.py</span>, <span class="api-code">ports_handler.py</span>, <span class="api-code">saveload_methods.py</span></div>
+                    <div class="api-line"><span class="api-label">Purpose:</span> Canvas UI, node logic and port handling, save/load workflows</div>
                 </div>
+
+                <div class="api-block">
+                    <div class="api-title">features</div>
+                    <div class="api-line"><span class="api-label">Files:</span> <span class="api-code">debug_console.py</span>, <span class="api-code">export_import.py</span>, <span class="api-code">node_templates.py</span>, <span class="api-code">performance_monitor.py</span>, <span class="api-code">workflow_scheduler.py</span></div>
+                    <div class="api-line"><span class="api-label">Purpose:</span> Additional developer and workflow features</div>
+                </div>
+
+                <div class="api-block">
+                    <div class="api-title">qss</div>
+                    <div class="api-line"><span class="api-label">Files:</span> <span class="api-code">dark.qss</span></div>
+                    <div class="api-line"><span class="api-label">Purpose:</span> UI styling</div>
+                </div>
+
                 <div class="api-block">
                     <div class="api-title">ui</div>
-                    <div class="api-line"><span class="api-label">Files:</span> <span class="api-code">main_window.py</span>, <span class="api-code">node_editor_window.py</span>, <span class="api-code">model_card.py</span>, <span class="api-code">downloaded_models_window.py</span></div>
-                    <div class="api-line"><span class="api-label">Purpose:</span> Main window, node editor, model display, downloaded models</div>
+                    <div class="api-line"><span class="api-label">Files:</span> <span class="api-code">enhanced_main_window.py</span>, <span class="api-code">newautomation_window.py</span>, <span class="api-code">placeholder_widget.py</span></div>
+                    <div class="api-line"><span class="api-label">Purpose:</span> UI windows and widgets</div>
                 </div>
+
                 <div class="api-block">
                     <div class="api-title">utils</div>
-                    <div class="api-line"><span class="api-label">Files:</span> <span class="api-code">font_loader.py</span>, <span class="api-code">node_runner.py</span>, <span class="api-code">paths.py</span></div>
-                    <div class="api-line"><span class="api-label">Purpose:</span> Font management, node execution, path utilities</div>
-                </div>
-                <div class="api-block">
-                    <div class="api-title">models_data.py</div>
-                    <div class="api-line"><span class="api-label">Purpose:</span> Model metadata, supported models, icons, configuration</div>
+                    <div class="api-line"><span class="api-label">Purpose:</span> Utility functions (various helpers)</div>
                 </div>
             </section>
 
             <section>
                 <h2><i class="fa-solid fa-file-code"></i> Class & Function Reference</h2>
+
                 <div class="api-block">
                     <div class="api-title">main.py</div>
                     <div class="api-line"><span class="api-label">Function:</span> <span class="api-code">main()</span></div>
-                    <div class="api-line"><span class="api-label">Purpose:</span> Launches the app, sets up UI, starts Ollama</div>
+                    <div class="api-line"><span class="api-label">Purpose:</span> Launches the app and UI, starts Ollama</div>
                     <div class="api-line"><span class="api-label">Returns:</span> None</div>
                     <div class="api-line"><span class="api-label">Example:</span> <span class="api-code">python main.py</span></div>
                 </div>
+
                 <div class="api-block">
                     <div class="api-title">canvasmanager.canvas_nodemethods</div>
                     <div class="api-line"><span class="api-label">Function:</span> <span class="api-code">add_node(type, position)</span></div>
-                    <div class="api-line"><span class="api-label">Purpose:</span> Add node to canvas</div>
-                    <div class="api-line"><span class="api-label">Parameters:</span> <span class="api-code">type</span> (str), <span class="api-code">position</span> (tuple)</div>
+                    <div class="api-line"><span class="api-label">Purpose:</span> Add a new node to the canvas</div>
+                    <div class="api-line"><span class="api-label">Parameters:</span> <span class="api-code">type</span> (string), <span class="api-code">position</span> (tuple)</div>
                     <div class="api-line"><span class="api-label">Returns:</span> Node object</div>
-                    <div class="api-line"><span class="api-label">Example:</span> <span class="api-code">add_node('Input', (100, 200))</span></div>
+                    <div class="api-line"><span class="api-label">Example:</span> <span class="api-code">add_node("Input", (100, 200))</span></div>
                 </div>
+
                 <div class="api-block">
                     <div class="api-title">canvasmanager.canvas_nodemethods</div>
                     <div class="api-line"><span class="api-label">Function:</span> <span class="api-code">remove_node(node_id)</span></div>
-                    <div class="api-line"><span class="api-label">Purpose:</span> Remove node by ID</div>
-                    <div class="api-line"><span class="api-label">Parameters:</span> <span class="api-code">node_id</span> (str)</div>
+                    <div class="api-line"><span class="api-label">Purpose:</span> Remove a node by its id</div>
+                    <div class="api-line"><span class="api-label">Parameters:</span> <span class="api-code">node_id</span> (string)</div>
                     <div class="api-line"><span class="api-label">Returns:</span> None</div>
                 </div>
+
                 <div class="api-block">
-                    <div class="api-title">ui.main_window</div>
-                    <div class="api-line"><span class="api-label">Class:</span> <span class="api-code">MainWindow</span></div>
-                    <div class="api-line"><span class="api-label">Purpose:</span> Main application window</div>
-                    <div class="api-line"><span class="api-label">Methods:</span> <span class="api-code">show()</span>, <span class="api-code">close()</span>, <span class="api-code">load_automations()</span>, <span class="api-code">browse models</span></div>
+                    <div class="api-title">ui.enhanced_main_window</div>
+                    <div class="api-line"><span class="api-label">Class:</span> <span class="api-code">EnhancedMainWindow</span></div>
+                    <div class="api-line"><span class="api-label">Purpose:</span> Main UI window for NodeBox</div>
+                    <div class="api-line"><span class="api-label">Methods:</span> <span class="api-code">show()</span>, <span class="api-code">close()</span>, <span class="api-code">load_automations()</span></div>
                 </div>
+
+                <div class="api-block">
+                    <div class="api-title">features.debug_console</div>
+                    <div class="api-line"><span class="api-label">Class:</span> <span class="api-code">DebugConsole</span></div>
+                    <div class="api-line"><span class="api-label">Purpose:</span> Developer debug console widget</div>
+                    <div class="api-line"><span class="api-label">Methods:</span> <span class="api-code">log(message)</span>, <span class="api-code">clear()</span></div>
+                </div>
+
                 <div class="api-block">
                     <div class="api-title">utils.node_runner</div>
                     <div class="api-line"><span class="api-label">Function:</span> <span class="api-code">run_node(node)</span></div>
-                    <div class="api-line"><span class="api-label">Purpose:</span> Executes node logic</div>
+                    <div class="api-line"><span class="api-label">Purpose:</span> Execute workflow node logic</div>
                     <div class="api-line"><span class="api-label">Parameters:</span> <span class="api-code">node</span> (Node object)</div>
                     <div class="api-line"><span class="api-label">Returns:</span> Output data</div>
                 </div>
+
                 <div class="api-block">
                     <div class="api-title">models_data.py</div>
                     <div class="api-line"><span class="api-label">Function:</span> <span class="api-code">get_model_info(model_name)</span></div>
-                    <div class="api-line"><span class="api-label">Purpose:</span> Get model metadata</div>
-                    <div class="api-line"><span class="api-label">Parameters:</span> <span class="api-code">model_name</span> (str)</div>
+                    <div class="api-line"><span class="api-label">Purpose:</span> Get metadata for models</div>
+                    <div class="api-line"><span class="api-label">Parameters:</span> <span class="api-code">model_name</span> (string)</div>
                     <div class="api-line"><span class="api-label">Returns:</span> dict</div>
                 </div>
             </section>
@@ -198,9 +255,10 @@
                     <div class="api-line">Add or update docstrings in the codebase. Use <a href="https://www.pdoc.dev/">pdoc</a> or <a href="https://www.sphinx-doc.org/">Sphinx</a> for auto-generation. See <a href="contribute.html">How to Contribute</a> for details.</div>
                 </div>
             </section>
-        </main>
 
+        </main>
     </div>
+
     <script>
         const menuToggle = document.querySelector(".menu-toggle");
         const navLinks = document.querySelector(".nav-links");
