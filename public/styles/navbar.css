@@ -132,12 +132,12 @@
 
 @media (max-width: 768px) {
   .nav-links {
-    display: none; 
+    display: none;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     position: absolute;
-    top: 100%; 
+    top: 100%;
     left: 0;
     width: 100%;
     background: rgb(13 21 40);
@@ -172,12 +172,28 @@
     }
   }
 
-  .menu-toggle {
-    display: block;
-    z-index: 1100;
-  }
+.menu-toggle {
+  display: block;
+  z-index: 1100;
+  background: transparent;
+  border: 2px solid white;
+  border-radius: 8px;
+  padding: 0.4rem 0.6rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.menu-toggle:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #00d8ff;
+}
+
+.menu-toggle i {
+  color: white;
+  font-size: 1.8rem;
+}
 
   .btn-primary {
-    display: none; /* Optional: hide on mobile */
+    display: none;
   }
 }
