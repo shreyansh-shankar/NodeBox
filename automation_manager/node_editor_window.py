@@ -18,7 +18,7 @@ from PyQt6.QtWidgets import (  # type: ignore
 from automation_manager.node_pallete import NodePaletteItem
 from canvasmanager.canvas_widget import CanvasWidget
 from utils.screen_manager import ScreenManager
-
+from utils.paths import resource_path
 
 def resource_path(relative_path):
     """Get absolute path to resource, works for dev and PyInstaller"""

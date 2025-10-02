@@ -1,6 +1,7 @@
 import os
 import sys
 
+from utils.paths import resource_path
 from PyQt6.QtCore import QSize, Qt, QUrl, pyqtSignal  # type: ignore
 from PyQt6.QtGui import QCursor, QDesktopServices, QFont, QIcon, QPixmap  # type: ignore
 from PyQt6.QtWidgets import (  # type: ignore
@@ -10,18 +11,6 @@ from PyQt6.QtWidgets import (  # type: ignore
     QPushButton,
     QVBoxLayout,
 )
-
-
-# resource_path helper
-def resource_path(relative_path: str) -> str:
-    """Get absolute path to resource, works in dev and in PyInstaller bundle"""
-    if hasattr(sys, "_MEIPASS"):
-        base_path = sys._MEIPASS
-    else:
-        # Go one level up from the script folder to reach project root
-        base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-    return os.path.join(base_path, relative_path)
-
 
 class ModelCard(QFrame):
     downloadRequested = pyqtSignal(dict)

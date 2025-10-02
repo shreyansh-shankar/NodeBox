@@ -3,7 +3,7 @@ import sys
 
 from PyQt6.QtGui import QFont, QFontDatabase
 from PyQt6.QtWidgets import QApplication
-
+from utils.paths import resource_path
 
 def resource_path(relative_path: str) -> str:
     """
