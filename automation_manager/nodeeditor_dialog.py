@@ -2,16 +2,18 @@
 import io
 import sys
 
-from PyQt6.QtWidgets import (  # type: ignore
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import (
     QDialog,
     QDialogButtonBox,
+    QGroupBox,
     QHBoxLayout,
     QLabel,
     QListWidget,
     QPlainTextEdit,
+    QSplitter,
     QTextEdit,
     QVBoxLayout,
-    QWidget,
 )
 
 # Starter template shown when code editor is blank
@@ -48,30 +50,106 @@ outputs = {
 
 class NodeEditorDialog(QDialog):
     """
-    Basic Node Editor UI:
-    - Title (editable)
-    - Inputs list (read-only)
-    - Code editor (QTextEdit)
-    - Outputs (comma-separated)
-    - Save / Cancel buttons
+    A redesigned, fully responsive Node Editor UI.
+    - Uses QSplitter for adjustable panels.
+    - Uses QGroupBox for clean visual separation of UI elements.
+    - Avoids all fixed sizes to ensure smooth scaling across resolutions.
     """
 
     def __init__(self, node, inputs=None, initial_code="", parent=None):
         super().__init__(parent)
         self.node = node
-        self.setWindowTitle(f"Edit Node — {node.title}")
-        self.setModal(True)
-        self.setMinimumSize(1200, 800)
-
-        # Inputs: list of variable names (strings)
-        self.inputs = inputs or []  # list[str]
-
-        # Result stored after accept
+        self.inputs = inputs or []
         self.result_data = None
 
-        # --- UI widgets ---
+        self.setWindowTitle(f"Edit Node — {node.title}")
+        self.setModal(True)
+        # Set a reasonable starting size, but allow it to be resized freely
+        self.resize(1200, 800)
+
+        self._init_ui()
+        self._populate_data(initial_code)
+
+    def _init_ui(self):
+        """Initialize the user interface components and layout."""
+
+        # --- Create Widgets ---
         self.inputs_list = QListWidget()
         self.inputs_list.setSelectionMode(QListWidget.SelectionMode.NoSelection)
+
+        self.outputs_edit = QTextEdit()
+        self.outputs_edit.setReadOnly(True)
+
+        self.code_edit = QTextEdit()
+        self.terminal_output = QPlainTextEdit()
+        self.terminal_output.setReadOnly(True)
+
+        # --- Create GroupBoxes for clean UI separation ---
+        inputs_group = QGroupBox("Available Inputs")
+        inputs_layout = QVBoxLayout()
+        inputs_layout.addWidget(self.inputs_list)
+        inputs_group.setLayout(inputs_layout)
+
+        outputs_group = QGroupBox("Detected Outputs")
+        outputs_layout = QVBoxLayout()
+        outputs_layout.addWidget(self.outputs_edit)
+        outputs_group.setLayout(outputs_layout)
+
+        code_group = QGroupBox("Python Code")
+        code_layout = QVBoxLayout()
+        code_layout.addWidget(self.code_edit)
+        code_group.setLayout(code_layout)
+
+        terminal_group = QGroupBox("Terminal Window")
+        terminal_layout = QVBoxLayout()
+        terminal_layout.addWidget(self.terminal_output)
+        terminal_group.setLayout(terminal_layout)
+
+        # --- Create Splitters for a flexible, draggable layout ---
+        # Left panel splitter (vertical)
+        left_splitter = QSplitter(Qt.Orientation.Vertical)
+        left_splitter.addWidget(inputs_group)
+        left_splitter.addWidget(outputs_group)
+        left_splitter.setStretchFactor(0, 1) # Give inputs more space initially
+        left_splitter.setStretchFactor(1, 1)
+
+        # Right panel splitter (vertical)
+        right_splitter = QSplitter(Qt.Orientation.Vertical)
+        right_splitter.addWidget(code_group)
+        right_splitter.addWidget(terminal_group)
+        right_splitter.setStretchFactor(0, 3)  # Give code editor much more space
+        right_splitter.setStretchFactor(1, 1)
+
+        # Main splitter (horizontal)
+        main_splitter = QSplitter(Qt.Orientation.Horizontal)
+        main_splitter.addWidget(left_splitter)
+        main_splitter.addWidget(right_splitter)
+        main_splitter.setStretchFactor(0, 1)  # Give left panel less space
+        main_splitter.setStretchFactor(1, 3)  # Give right panel much more space
+
+        # --- Create Buttons ---
+        self.button_box = QDialogButtonBox(
+            QDialogButtonBox.StandardButton.Save | QDialogButtonBox.StandardButton.Cancel
+        )
+        self.play_button = self.button_box.addButton(
+            "▶ Run Code", QDialogButtonBox.ButtonRole.ActionRole
+        )
+        self.play_button.clicked.connect(self.on_run_code)
+        self.button_box.accepted.connect(self.on_save)
+        self.button_box.rejected.connect(self.reject)
+
+        # --- Set Final Layout ---
+        main_layout = QVBoxLayout()
+        main_layout.addWidget(main_splitter)
+        main_layout.addWidget(self.button_box)
+        self.setLayout(main_layout)
+
+        # --- Apply Styles ---
+        self._apply_styles()
+
+    def _populate_data(self, initial_code):
+        """Fill the UI widgets with initial data."""
+        # Populate inputs list
         if isinstance(self.inputs, dict):
             for k, v in self.inputs.items():
                 self.inputs_list.addItem(f"{k} = {v}")
@@ -79,86 +157,54 @@ class NodeEditorDialog(QDialog):
             for v in self.inputs:
                 self.inputs_list.addItem(str(v))
 
-        self.code_edit = QTextEdit()
-        # Prefill code if node provides stored code (optional attr 'code')
-        existing_code = initial_code if initial_code else getattr(node, "code", "")
+        # Populate code editor
+        existing_code = initial_code if initial_code else getattr(self.node, "code", "")
         if not (existing_code and existing_code.strip()):
             existing_code = TEMPLATE_CODE
         self.code_edit.setPlainText(existing_code)
 
-        # Buttons
-        self.button_box = QDialogButtonBox(
-            QDialogButtonBox.StandardButton.Save
-            | QDialogButtonBox.StandardButton.Cancel
-        )
-
-        # Add Play button
-        self.play_button = self.button_box.addButton(
-            "▶ Run", QDialogButtonBox.ButtonRole.ActionRole
-        )
-        self.play_button.clicked.connect(self.on_run_code)
-
-        self.button_box.accepted.connect(self.on_save)
-        self.button_box.rejected.connect(self.reject)
-
-        left_layout = QVBoxLayout()
-        left_layout.addWidget(QLabel("Available Inputs"))
-        left_layout.addWidget(self.inputs_list)
-
-        # Outputs edit background (moved here)
-        self.outputs_edit = QTextEdit()
-        self.outputs_edit.setReadOnly(True)
-        self.outputs_edit.setFixedWidth(300)
-        self.outputs_edit.setFixedHeight(500)
-        self.outputs_edit.setStyleSheet(
-            """
-            QTextEdit {
-                background-color: #1e1e1e;
-                color: #ffffff;
-                border: 1px solid #444444;
+        # Populate outputs if they already exist
+        existing_outputs = getattr(self.node, "outputs", None)
+        if existing_outputs:
+            self._update_outputs_display(existing_outputs)
+            
+    def _apply_styles(self):
+        """Consolidate all stylesheet settings here for maintainability."""
+        self.setStyleSheet("""
+            QDialog {
+                background-color: #2a2a2a;
             }
-        """
-        )
-        left_layout.addWidget(QLabel("Detected Outputs"))
-        left_layout.addWidget(self.outputs_edit)
-
-        left_widget = QWidget()
-        left_widget.setLayout(left_layout)
-
-        right_layout = QVBoxLayout()
-        right_layout.addWidget(QLabel("Python Code"))
-        right_layout.addWidget(self.code_edit)
-        self.terminal_output = QPlainTextEdit()
-        right_layout.addWidget(QLabel("Terminal Window"))
-        right_layout.addWidget(self.terminal_output)
-
-        # Main layout: inputs on left (narrow), code on right (wide)
-        main_layout = QHBoxLayout()
-        main_layout.addWidget(left_widget, 1)
-        main_layout.addLayout(right_layout, 2)
-
-        outer = QVBoxLayout(self)
-        outer.addLayout(main_layout)
-        outer.addWidget(self.button_box)
-
-        # Inputs list background
-        self.inputs_list.setFixedWidth(300)
-        self.inputs_list.setFixedHeight(500)
-        self.inputs_list.setStyleSheet(
-            """
+            QGroupBox {
+                color: #d4d4d4;
+                border: 1px solid #444444;
+                margin-top: 10px;
+                padding: 10px 5px 5px 5px;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                subcontrol-position: top left;
+                padding: 0 3px;
+                left: 10px;
+            }
+            QLabel {
+                color: #d4d4d4;
+            }
+        """)
+        self.inputs_list.setStyleSheet("""
             QListWidget {
                 background-color: #1e1e1e;
-                color: #ffffff;
+                color: #d4d4d4;
                 border: 1px solid #444444;
             }
-        """
-        )
-
-        # Code editor background
-        self.code_edit.setFixedWidth(900)
-        self.code_edit.setFixedHeight(700)
-        self.code_edit.setStyleSheet(
-            """
+        """)
+        self.outputs_edit.setStyleSheet("""
+            QTextEdit {
+                background-color: #1e1e1e;
+                color: #d4d4d4;
+                border: 1px solid #444444;
+            }
+        """)
+        self.code_edit.setStyleSheet("""
             QTextEdit {
                 background-color: #151515;
                 color: #d4d4d4;
@@ -166,13 +212,8 @@ class NodeEditorDialog(QDialog):
                 font-size: 13px;
                 border: 1px solid #444444;
             }
-        """
-        )
-
-        self.terminal_output.setReadOnly(True)
-        self.terminal_output.setFixedHeight(200)
-        self.terminal_output.setStyleSheet(
-            """
+        """)
+        self.terminal_output.setStyleSheet("""
             QPlainTextEdit {
                 background-color: #000000;
                 color: #00ff00;
@@ -180,62 +221,40 @@ class NodeEditorDialog(QDialog):
                 font-size: 12px;
                 border: 1px solid #444444;
             }
-        """
-        )
+        """)
 
-        # If node already has saved outputs, show them
-        existing_outputs = getattr(node, "outputs", None)
-        if existing_outputs:
-            if isinstance(existing_outputs, dict):
-                formatted = "\n".join(f"{k}: {v}" for k, v in existing_outputs.items())
-                self.outputs_edit.setText(formatted)
-            elif isinstance(existing_outputs, (list, tuple)):
-                formatted = "\n".join(map(str, existing_outputs))
-                self.outputs_edit.setText(formatted)
-            else:
-                self.outputs_edit.setText(str(existing_outputs))
+    def _update_outputs_display(self, outputs):
+        """Helper to format and display the outputs dictionary."""
+        if isinstance(outputs, dict):
+            formatted = "\n".join(f"{k}: {v}" for k, v in outputs.items())
+            self.outputs_edit.setText(formatted)
+        elif isinstance(outputs, (list, tuple)):
+            formatted = "\n".join(map(str, outputs))
+            self.outputs_edit.setText(formatted)
+        else:
+            self.outputs_edit.setText(str(outputs))
 
     def on_save(self):
         code = self.code_edit.toPlainText()
-        outputs_raw = self.outputs_edit.toPlainText()
-
-        # Always define output_vars
-        if isinstance(self.node.outputs, dict):
-            output_vars = list(self.node.outputs.keys())
-        else:
-            output_vars = [o.strip() for o in outputs_raw.split(",") if o.strip()]
-            self.node.outputs = dict.fromkeys(output_vars)
+        # The outputs are now derived purely from running the code
+        output_vars = list(self.node.outputs.keys()) if isinstance(self.node.outputs, dict) else []
 
         self.node.code = code
         self.node.canvas.save_canvas_state()
-
-        # Prepare result dict
-        self.result_data = {
-            "code": code,
-            "outputs": output_vars,
-        }
-
+        self.result_data = {"code": code, "outputs": output_vars}
         self.accept()
 
     def on_run_code(self):
-        """Run the code and show output in terminal window."""
+        """Run the code and show output in terminal and outputs panel."""
         code = self.code_edit.toPlainText()
-
         actual_inputs = self.inputs if isinstance(self.inputs, dict) else {}
         if not actual_inputs:
-            # fallback to dummy values
             actual_inputs = {"text": "example input", "user_id": 123}
 
         local_vars = {}
-        global_vars = {
-            "__builtins__": __builtins__,
-            "inputs": actual_inputs,
-            **actual_inputs,
-        }
-
+        global_vars = {"__builtins__": __builtins__, "inputs": actual_inputs, **actual_inputs}
         self.terminal_output.clear()
 
-        # Redirect stdout/stderr
         stdout_buffer = io.StringIO()
         stderr_buffer = io.StringIO()
         old_stdout, old_stderr = sys.stdout, sys.stderr
@@ -244,17 +263,13 @@ class NodeEditorDialog(QDialog):
         try:
             exec(code, global_vars, local_vars)
             outputs = local_vars.get("outputs", {})
-            if isinstance(outputs, dict):
-                self.node.outputs = outputs
-                formatted = "\n".join(f"{k}: {v}" for k, v in outputs.items())
-                self.outputs_edit.setText(formatted)
-
+            self.node.outputs = outputs
+            self._update_outputs_display(outputs)
         except Exception as e:
             self.terminal_output.appendPlainText(f"Error: {e}")
         finally:
             sys.stdout, sys.stderr = old_stdout, old_stderr
 
-        # Show output in terminal
         output_text = stdout_buffer.getvalue() + stderr_buffer.getvalue()
         if output_text.strip():
             self.terminal_output.appendPlainText(output_text)
