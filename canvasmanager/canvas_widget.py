@@ -13,6 +13,7 @@ from PyQt6.QtWidgets import QInputDialog, QWidget  # type: ignore
 from automation_manager.node import NodeWidget
 from utils.node_runner import execute_all_nodes
 from utils.performance_bus import get_performance_bus
+from predefined.registry import PredefinedNodeRegistry
 
 
 class CanvasWidget(QWidget):
@@ -222,12 +223,26 @@ class CanvasWidget(QWidget):
         node_type = event.mimeData().text()
         pos = (event.position() - self.offset) / self.scale  # convert to logical coords
 
+        # Check if this is a predefined node
+        predefined_node_class = PredefinedNodeRegistry.get_node(node_type)
+
         if node_type == "Custom Node":
             name, ok = QInputDialog.getText(self, "Create Node", "Enter node name:")
             if ok and name:
                 node = NodeWidget(name, self, pos=QPointF(pos))
             else:
                 return
+        elif predefined_node_class:
+            # This is a predefined node - create with pre-filled code and outputs
+            node_data = predefined_node_class.get_node_data()
+            node = NodeWidget(
+                node_data['name'],
+                self,
+                pos=QPointF(pos),
+                outputs=node_data['outputs']
+            )
+            # Set the pre-written code
+            node.code = node_data['code']
         else:
             node = NodeWidget(node_type, self, pos=QPointF(pos))
 
