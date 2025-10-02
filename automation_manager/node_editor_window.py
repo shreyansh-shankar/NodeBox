@@ -1,6 +1,5 @@
 import json
 import os
-import sys
 
 from PyQt6.QtCore import QSize, Qt, pyqtSignal  # type: ignore
 from PyQt6.QtGui import QIcon  # type: ignore
@@ -18,17 +17,8 @@ from PyQt6.QtWidgets import (  # type: ignore
 from automation_manager.node_pallete import NodePaletteItem
 from canvasmanager.canvas_widget import CanvasWidget
 from utils.screen_manager import ScreenManager
-
-
-def resource_path(relative_path):
-    """Get absolute path to resource, works for dev and PyInstaller"""
-    try:
-        # PyInstaller creates a temp folder and stores path in _MEIPASS
-        base_path = sys._MEIPASS
-    except Exception:
-        base_path = os.path.abspath(".")
-
-    return os.path.join(base_path, relative_path)
+from utils.paths import resource_path
+from predefined.registry import PredefinedNodeRegistry
 
 
 class NodeEditorWindow(QMainWindow):
@@ -80,6 +70,25 @@ class NodeEditorWindow(QMainWindow):
             "padding: 5px; font-size: 14px; background-color: #333333"
         )
         sidebar_layout.addWidget(search_bar)
+
+        # Predefined Nodes Section
+        predefined_label = QLabel("Predefined Nodes")
+        predefined_label.setStyleSheet(
+            "font-size: 14px; font-weight: bold; padding: 8px 5px 5px 5px; color: #aaaaaa;"
+        )
+        sidebar_layout.addWidget(predefined_label)
+
+        # Add all registered predefined nodes
+        predefined_nodes = PredefinedNodeRegistry.get_node_names()
+        for node_name in predefined_nodes:
+            sidebar_layout.addWidget(NodePaletteItem(node_name, sidebar))
+
+        # Custom Nodes Section
+        custom_label = QLabel("Custom Nodes")
+        custom_label.setStyleSheet(
+            "font-size: 14px; font-weight: bold; padding: 8px 5px 5px 5px; color: #aaaaaa;"
+        )
+        sidebar_layout.addWidget(custom_label)
 
         nodes = ["Custom Node"]
         for n in nodes:

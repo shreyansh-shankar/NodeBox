@@ -7,16 +7,7 @@ from PyQt6.QtWidgets import QApplication  # type: ignore
 
 from ui.enhanced_main_window import EnhancedMainWindow
 from utils.font_loader import load_custom_fonts, set_default_font
-
-
-def resource_path(relative_path: str) -> str:
-    """Get absolute path to resource, works in dev and PyInstaller bundle"""
-    if hasattr(sys, "_MEIPASS"):
-        base_path = sys._MEIPASS  # folder where PyInstaller extracts files
-    else:
-        base_path = os.path.dirname(os.path.abspath(__file__))
-    return os.path.join(base_path, relative_path)
-
+from utils.paths import resource_path
 
 def start_ollama():
     """Start ollama serve in the background."""

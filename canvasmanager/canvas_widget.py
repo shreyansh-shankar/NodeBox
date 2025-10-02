@@ -12,6 +12,8 @@ from PyQt6.QtWidgets import QInputDialog, QWidget  # type: ignore
 
 from automation_manager.node import NodeWidget
 from utils.node_runner import execute_all_nodes
+from utils.performance_bus import get_performance_bus
+from predefined.registry import PredefinedNodeRegistry
 
 
 class CanvasWidget(QWidget):
@@ -221,12 +223,26 @@ class CanvasWidget(QWidget):
         node_type = event.mimeData().text()
         pos = (event.position() - self.offset) / self.scale  # convert to logical coords
 
+        # Check if this is a predefined node
+        predefined_node_class = PredefinedNodeRegistry.get_node(node_type)
+
         if node_type == "Custom Node":
             name, ok = QInputDialog.getText(self, "Create Node", "Enter node name:")
             if ok and name:
                 node = NodeWidget(name, self, pos=QPointF(pos))
             else:
                 return
+        elif predefined_node_class:
+            # This is a predefined node - create with pre-filled code and outputs
+            node_data = predefined_node_class.get_node_data()
+            node = NodeWidget(
+                node_data['name'],
+                self,
+                pos=QPointF(pos),
+                outputs=node_data['outputs']
+            )
+            # Set the pre-written code
+            node.code = node_data['code']
         else:
             node = NodeWidget(node_type, self, pos=QPointF(pos))
 
@@ -241,6 +257,35 @@ class CanvasWidget(QWidget):
 
     def run_all_nodes(self, *args):
         print("Running all nodes...")
-        output = execute_all_nodes(self.nodes.values(), self.connections)
-        print(output)
+
+        bus = get_performance_bus()
+
+        def _on_error(node, error):
+            # Minimal handler; details are broadcast via bus after run
+            pass
+
+        node_exec_times = {}
+
+        def _on_node_executed(node, duration_s):
+            node_exec_times[getattr(node, 'title', str(id(node)))] = duration_s
+
+        result = execute_all_nodes(
+            self.nodes.values(),
+            self.connections,
+            on_error=_on_error,
+            on_node_executed=_on_node_executed,
+        )
+
+        print(result)
         self.save_canvas_state()
+
+        # Emit app metrics to performance tab
+        metrics = {
+            "active_nodes": len(self.nodes),
+            "total_nodes": result.get("total_nodes", len(self.nodes)),
+            "workflows_running": 0,  # single-run mode for now
+            "execution_time": result.get("total_duration_s", 0.0),
+            "error_count": result.get("error_count", 0),
+            "node_exec_times": node_exec_times,
+        }
+        bus.metrics_signal.emit(metrics)

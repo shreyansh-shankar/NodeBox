@@ -195,3 +195,85 @@ ui/__pycache__/
 NodeBox-Dev.spec
 NodeBox_Windows.spec
 NodeBox.spec
+
+# Added patterns for large/binary and ML/model artifacts, user downloads, and design/source assets not to commit
+
+# Machine learning / model weights / embeddings
+*.pt
+*.pth
+*.bin
+*.ckpt
+*.safetensors
+*.onnx
+*.tflite
+*.h5
+*.keras
+*.joblib
+*.pkl
+*.pickle
+*.npz
+*.npy
+models/
+model_weights/
+checkpoints/
+checkpoints/**
+*.cache/
+.huggingface/
+
+# Vector stores / indexes
+index.faiss
+*.faiss
+*.ann
+*.hnsw
+vector_store/
+
+# User downloaded model/data artifacts
+public/Downloads/
+public/Downloads/**
+assets/models_logo/*.png
+assets/models_logo/*.jpg
+assets/models_logo/*.jpeg
+
+# Large temporary export/import data
+exports/
+exports/**
+imports/
+imports/**
+.tmp/
+
+# Media (retain small icons already tracked; ignore raw large media sources)
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.wav
+*.flac
+*.aiff
+*.ogg
+
+# Archive bundles
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z
+
+# Performance profiling outputs
+profiling/
+profiles/
+*.prof
+*.lprof
+*.pstats
+
+# Crash dumps / core files
+core.*
+*.core
+
+# Local runtime state
+run/
+state/
+
+# End of additions
+
+#Ignore vscode AI rules
+.github/instructions/codacy.instructions.md

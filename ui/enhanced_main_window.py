@@ -453,6 +453,7 @@ class EnhancedMainWindow(QWidget):
         print("✅ Editor closed → main window should reappear")
         self.show()
 
+
     def edit_automation(self, item):
         """Edit selected automation"""
         automation_name = item.text()
@@ -470,6 +471,8 @@ class EnhancedMainWindow(QWidget):
         self.hide()
 
         self.editor_window = editor
+
+
 
     def open_browse_models_window(self):
         """Open browse models window"""
@@ -503,6 +506,7 @@ class EnhancedMainWindow(QWidget):
             "• Export/Import System\n\n"
             "Built with Python and PyQt6",
         )
+
 
     def closeEvent(self, event):
         """Optimized window close event"""
