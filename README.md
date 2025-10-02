@@ -84,6 +84,11 @@ source venv/bin/activate
 venv\Scripts\activate
 ```
 
+### 4. Install Dependencies
+```bash
+ pip install -r requirements.txt
+```
+
 ### 5. Setup Ollama
 
 - Install Ollama following the official [guide](https://ollama.com/)
