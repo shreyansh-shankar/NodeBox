@@ -67,6 +67,7 @@ class PerformanceMonitor(QWidget):
         self.network_baseline = psutil.net_io_counters()
 
         self.init_ui()
+        self._subscribe_bus()
         self.start_monitoring()
 
     def init_ui(self):
@@ -172,6 +173,29 @@ class PerformanceMonitor(QWidget):
         self.timer.start(self._update_interval)  # Configurable interval
         self.start_button.setEnabled(False)
         self.stop_button.setEnabled(True)
+
+    def _subscribe_bus(self):
+        try:
+            from utils.performance_bus import get_performance_bus
+
+            bus = get_performance_bus()
+            bus.metrics_signal.connect(self._on_app_metrics)
+        except Exception:
+            pass
+
+    def _on_app_metrics(self, data: dict):
+        try:
+            self.update_nodebox_metrics(
+                active_nodes=int(data.get("active_nodes", 0)),
+                total_nodes=int(data.get("total_nodes", 0)),
+                workflows_running=int(data.get("workflows_running", 0)),
+                execution_time=float(data.get("execution_time", 0.0)),
+                error_count=int(data.get("error_count", 0)),
+            )
+            self.update_ui()
+            self.add_to_history()
+        except Exception:
+            pass
 
     def stop_monitoring(self):
         """Stop performance monitoring"""
