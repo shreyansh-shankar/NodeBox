@@ -5,21 +5,6 @@ from PyQt6.QtGui import QFont, QFontDatabase
 from PyQt6.QtWidgets import QApplication
 from utils.paths import resource_path
 
-def resource_path(relative_path: str) -> str:
-    """
-    Get absolute path to resource, works for dev (python main.py)
-    and for PyInstaller bundle (dist/main.exe).
-    """
-    if getattr(sys, "frozen", False):
-        # Running in a bundle
-        base_path = sys._MEIPASS
-    else:
-        # Running in normal Python
-        base_path = os.path.dirname(os.path.abspath(__file__))
-
-    return os.path.join(base_path, "..", relative_path)
-
-
 def load_custom_fonts():
     font_dir = resource_path("assets/fonts")  # handle both cases
     if not os.path.exists(font_dir):
