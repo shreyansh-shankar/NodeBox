@@ -56,6 +56,7 @@ class EnhancedMainWindow(QWidget):
 
         # Main content area with tabs
         self.tab_widget = QTabWidget()
+        self.tab_widget.setMovable(True)  # Allow tabs to be reordered by dragging
         main_layout.addWidget(self.tab_widget)
 
         # Home tab
@@ -112,19 +113,19 @@ class EnhancedMainWindow(QWidget):
         tools_menu = self.menu_bar.addMenu("Tools")
 
         templates_action = QAction("Node Templates", self)
-        templates_action.triggered.connect(lambda: self.tab_widget.setCurrentIndex(1))
+        templates_action.triggered.connect(lambda: self.switch_to_tab("Templates"))
         tools_menu.addAction(templates_action)
 
         scheduler_action = QAction("Workflow Scheduler", self)
-        scheduler_action.triggered.connect(lambda: self.tab_widget.setCurrentIndex(2))
+        scheduler_action.triggered.connect(lambda: self.switch_to_tab("Scheduler"))
         tools_menu.addAction(scheduler_action)
 
         debug_action = QAction("Debug Console", self)
-        debug_action.triggered.connect(lambda: self.tab_widget.setCurrentIndex(3))
+        debug_action.triggered.connect(lambda: self.switch_to_tab("Debug"))
         tools_menu.addAction(debug_action)
 
         performance_action = QAction("Performance Monitor", self)
-        performance_action.triggered.connect(lambda: self.tab_widget.setCurrentIndex(4))
+        performance_action.triggered.connect(lambda: self.switch_to_tab("Performance"))
         tools_menu.addAction(performance_action)
 
         # Help menu
@@ -472,3 +473,17 @@ class EnhancedMainWindow(QWidget):
                 widget.cleanup()
 
         event.accept()
+
+    def find_tab_index_by_text(self, text: str) -> int:
+        """Returns the index of the tab whose label is `text` or -1 if not found."""
+        for i in range(self.tab_widget.count()):
+            if self.tab_widget.tabText(i) == text:
+                return i
+        return -1
+
+    def switch_to_tab(self, text: str):
+        idx = self.find_tab_index_by_text(text)
+        if idx != -1:
+            self.tab_widget.setCurrentIndex(idx)
+        else:
+            self.status_bar.showMessage(f"Tab '{text}' not found")
