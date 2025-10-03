@@ -44,7 +44,7 @@ The `@register_predefined_node` decorator automatically registers nodes when the
 The first predefined node implementation:
 
 - **Input**: `file_path` (string) - Path to the file to read
-- **Outputs**: 
+- **Outputs**:
   - `content` (string) - The text content of the file
   - `error` (string or None) - Error message if something goes wrong
 - **Features**:
@@ -83,7 +83,7 @@ from predefined.registry import register_predefined_node
 class APIFetcherNode(PredefinedNode):
     name = "API Fetcher"
     description = "Fetches data from an API endpoint"
-    
+
     code = '''import requests
 
 url = inputs.get('url', '')
@@ -102,7 +102,7 @@ except Exception as e:
     outputs['error'] = f'Error fetching data: {str(e)}'
     print(f'Error fetching data: {str(e)}')
 '''
-    
+
     inputs = ['url']
     outputs = {
         'data': None,

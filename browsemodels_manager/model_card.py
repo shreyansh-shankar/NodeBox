@@ -1,7 +1,3 @@
-import os
-import sys
-
-from utils.paths import resource_path
 from PyQt6.QtCore import QSize, Qt, QUrl, pyqtSignal  # type: ignore
 from PyQt6.QtGui import QCursor, QDesktopServices, QFont, QIcon, QPixmap  # type: ignore
 from PyQt6.QtWidgets import (  # type: ignore
@@ -11,6 +7,9 @@ from PyQt6.QtWidgets import (  # type: ignore
     QPushButton,
     QVBoxLayout,
 )
+
+from utils.paths import resource_path
+
 
 class ModelCard(QFrame):
     downloadRequested = pyqtSignal(dict)

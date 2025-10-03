@@ -245,24 +245,28 @@ class DebugConsole(QWidget):
         total_logs = len(self.logs)
         error_count = len([log for log in self.logs if log.level == "ERROR"])
         warning_count = len([log for log in self.logs if log.level == "WARNING"])
-        
+
         current_metrics = {
             "Total Logs": str(total_logs),
             "Errors": str(error_count),
             "Warnings": str(warning_count),
-            "Error Rate": f"{(error_count/total_logs*100):.1f}%" if total_logs > 0 else "0%",
+            "Error Rate": f"{(error_count/total_logs*100):.1f}%"
+            if total_logs > 0
+            else "0%",
             "Last Update": datetime.datetime.now().strftime("%H:%M:%S"),
         }
-        
+
         # Initialize table if empty
         if self.metrics_table.rowCount() == 0:
             self.metrics_table.setRowCount(len(current_metrics))
             for i, metric_name in enumerate(current_metrics.keys()):
                 self.metrics_table.setItem(i, 0, QTableWidgetItem(metric_name))
-                self.metrics_table.setItem(i, 1, QTableWidgetItem(current_metrics[metric_name]))
+                self.metrics_table.setItem(
+                    i, 1, QTableWidgetItem(current_metrics[metric_name])
+                )
             self._cached_metrics = current_metrics.copy()
             return
-        
+
         # Update only changed cells
         for i, (metric_name, new_value) in enumerate(current_metrics.items()):
             cached_value = self._cached_metrics.get(metric_name)

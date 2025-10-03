@@ -1,4 +1,3 @@
-import os
 import subprocess
 import sys
 
@@ -8,6 +7,7 @@ from PyQt6.QtWidgets import QApplication  # type: ignore
 from ui.enhanced_main_window import EnhancedMainWindow
 from utils.font_loader import load_custom_fonts, set_default_font
 from utils.paths import resource_path
+
 
 def start_ollama():
     """Start ollama serve in the background."""

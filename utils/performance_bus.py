@@ -19,5 +19,3 @@ def get_performance_bus() -> PerformanceEventBus:
     if _instance is None:
         _instance = PerformanceEventBus()
     return _instance
-
-
