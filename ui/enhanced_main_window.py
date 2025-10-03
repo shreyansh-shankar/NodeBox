@@ -2,6 +2,7 @@
 Optimized Enhanced Main Window - Minimalist and efficient
 """
 import json
+from contextlib import suppress
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QAction, QFont
@@ -26,6 +27,7 @@ from ui.newautomation_window import NewAutomationWindow
 from ui.placeholder_widget import PlaceholderWidget
 from utils.paths import AUTOMATIONS_DIR
 from utils.screen_manager import ScreenManager
+
 
 class EnhancedMainWindow(QWidget):
     # --- Centered tab labels ---
@@ -119,11 +121,15 @@ class EnhancedMainWindow(QWidget):
         tools_menu = self.menu_bar.addMenu("Tools")
 
         templates_action = QAction("Node Templates", self)
-        templates_action.triggered.connect(lambda: self.switch_to_tab(self.TAB_TEMPLATES))
+        templates_action.triggered.connect(
+            lambda: self.switch_to_tab(self.TAB_TEMPLATES)
+        )
         tools_menu.addAction(templates_action)
 
         scheduler_action = QAction("Workflow Scheduler", self)
-        scheduler_action.triggered.connect(lambda: self.switch_to_tab(self.TAB_SCHEDULER))
+        scheduler_action.triggered.connect(
+            lambda: self.switch_to_tab(self.TAB_SCHEDULER)
+        )
         tools_menu.addAction(scheduler_action)
 
         debug_action = QAction("Debug Console", self)
@@ -131,7 +137,9 @@ class EnhancedMainWindow(QWidget):
         tools_menu.addAction(debug_action)
 
         performance_action = QAction("Performance Monitor", self)
-        performance_action.triggered.connect(lambda: self.switch_to_tab(self.TAB_PERFORMANCE))
+        performance_action.triggered.connect(
+            lambda: self.switch_to_tab(self.TAB_PERFORMANCE)
+        )
         tools_menu.addAction(performance_action)
 
         # Help menu
@@ -309,10 +317,8 @@ class EnhancedMainWindow(QWidget):
         """Load the actual templates widget"""
         from features.node_templates import NodeTemplateWidget
 
-        try:
+        with suppress(TypeError):
             self.tab_widget.currentChanged.disconnect(self._on_tab_changed)
-        except TypeError:
-            pass
 
         widget = NodeTemplateWidget()
         self._feature_widgets["templates"] = widget
@@ -326,10 +332,8 @@ class EnhancedMainWindow(QWidget):
         """Load the actual scheduler widget"""
         from features.workflow_scheduler import WorkflowScheduler
 
-        try:
+        with suppress(TypeError):
             self.tab_widget.currentChanged.disconnect(self._on_tab_changed)
-        except TypeError:
-            pass
 
         widget = WorkflowScheduler()
         widget.schedule_triggered.connect(self.run_scheduled_automation)
@@ -344,10 +348,8 @@ class EnhancedMainWindow(QWidget):
         """Load the actual debug console widget"""
         from features.debug_console import DebugConsole
 
-        try:
+        with suppress(TypeError):
             self.tab_widget.currentChanged.disconnect(self._on_tab_changed)
-        except TypeError:
-            pass
 
         widget = DebugConsole()
         self._feature_widgets["debug"] = widget
@@ -361,10 +363,9 @@ class EnhancedMainWindow(QWidget):
         """Load the actual performance monitor widget"""
         try:
             from features.performance_monitor import PerformanceMonitor
-            try:
+
+            with suppress(TypeError):
                 self.tab_widget.currentChanged.disconnect(self._on_tab_changed)
-            except TypeError:
-                pass
 
             # Tenta criar o widget e captura qualquer erro
             try:
@@ -373,7 +374,7 @@ class EnhancedMainWindow(QWidget):
                 QMessageBox.critical(
                     self,
                     "Erro ao carregar Performance Monitor",
-                    f"Erro ao criar PerformanceMonitor:\n{e}"
+                    f"Erro ao criar PerformanceMonitor:\n{e}",
                 )
                 # Marca como carregado para evitar loop infinito de erro
                 self._loaded_tabs.add(index)
@@ -389,7 +390,7 @@ class EnhancedMainWindow(QWidget):
             QMessageBox.critical(
                 self,
                 "Erro inesperado",
-                f"Erro inesperado ao carregar a aba Performance:\n{e}"
+                f"Erro inesperado ao carregar a aba Performance:\n{e}",
             )
             self._loaded_tabs.add(index)
 
@@ -397,10 +398,8 @@ class EnhancedMainWindow(QWidget):
         """Load the actual export/import widget"""
         from features.export_import import ExportImportManager
 
-        try:
+        with suppress(TypeError):
             self.tab_widget.currentChanged.disconnect(self._on_tab_changed)
-        except TypeError:
-            pass
 
         widget = ExportImportManager()
         self._feature_widgets["export_import"] = widget
