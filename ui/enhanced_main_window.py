@@ -2,6 +2,8 @@
 Optimized Enhanced Main Window - Minimalist and efficient
 """
 import json
+from features.model_manager import ModelManager
+
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QAction, QFont
@@ -44,6 +46,11 @@ class EnhancedMainWindow(QWidget):
         self.init_ui()
         self.setup_connections()
         self.setup_lazy_loading()
+
+    def open_model_manager_dialog(self):
+        """Open the local models manager dialog"""
+        dialog = ModelManager(self)
+        dialog.exec()
 
     def init_ui(self):
         # Main layout
@@ -126,6 +133,9 @@ class EnhancedMainWindow(QWidget):
         performance_action = QAction("Performance Monitor", self)
         performance_action.triggered.connect(lambda: self.tab_widget.setCurrentIndex(4))
         tools_menu.addAction(performance_action)
+        view_models_action = QAction("View Local Models", self)
+        view_models_action.triggered.connect(self.open_model_manager_dialog)
+        tools_menu.addAction(view_models_action)
 
         # Help menu
         help_menu = self.menu_bar.addMenu("Help")
