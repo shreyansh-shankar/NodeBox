@@ -30,5 +30,5 @@ class PredefinedNode:
             "description": cls.description,
             "code": cls.code,
             "inputs": cls.inputs,
-            "outputs": cls.outputs
+            "outputs": cls.outputs,
         }

@@ -7,8 +7,6 @@ from PyQt6.QtWidgets import (
     QDialog,
     QDialogButtonBox,
     QGroupBox,
-    QHBoxLayout,
-    QLabel,
     QListWidget,
     QPlainTextEdit,
     QSplitter,
@@ -110,7 +108,7 @@ class NodeEditorDialog(QDialog):
         left_splitter = QSplitter(Qt.Orientation.Vertical)
         left_splitter.addWidget(inputs_group)
         left_splitter.addWidget(outputs_group)
-        left_splitter.setStretchFactor(0, 1) # Give inputs more space initially
+        left_splitter.setStretchFactor(0, 1)  # Give inputs more space initially
         left_splitter.setStretchFactor(1, 1)
 
         # Right panel splitter (vertical)
@@ -129,7 +127,8 @@ class NodeEditorDialog(QDialog):
 
         # --- Create Buttons ---
         self.button_box = QDialogButtonBox(
-            QDialogButtonBox.StandardButton.Save | QDialogButtonBox.StandardButton.Cancel
+            QDialogButtonBox.StandardButton.Save
+            | QDialogButtonBox.StandardButton.Cancel
         )
         self.play_button = self.button_box.addButton(
             "▶ Run Code", QDialogButtonBox.ButtonRole.ActionRole
@@ -167,10 +166,11 @@ class NodeEditorDialog(QDialog):
         existing_outputs = getattr(self.node, "outputs", None)
         if existing_outputs:
             self._update_outputs_display(existing_outputs)
-            
+
     def _apply_styles(self):
         """Consolidate all stylesheet settings here for maintainability."""
-        self.setStyleSheet("""
+        self.setStyleSheet(
+            """
             QDialog {
                 background-color: #2a2a2a;
             }
@@ -189,22 +189,28 @@ class NodeEditorDialog(QDialog):
             QLabel {
                 color: #d4d4d4;
             }
-        """)
-        self.inputs_list.setStyleSheet("""
+        """
+        )
+        self.inputs_list.setStyleSheet(
+            """
             QListWidget {
                 background-color: #1e1e1e;
                 color: #d4d4d4;
                 border: 1px solid #444444;
             }
-        """)
-        self.outputs_edit.setStyleSheet("""
+        """
+        )
+        self.outputs_edit.setStyleSheet(
+            """
             QTextEdit {
                 background-color: #1e1e1e;
                 color: #d4d4d4;
                 border: 1px solid #444444;
             }
-        """)
-        self.code_edit.setStyleSheet("""
+        """
+        )
+        self.code_edit.setStyleSheet(
+            """
             QTextEdit {
                 background-color: #151515;
                 color: #d4d4d4;
@@ -212,8 +218,10 @@ class NodeEditorDialog(QDialog):
                 font-size: 13px;
                 border: 1px solid #444444;
             }
-        """)
-        self.terminal_output.setStyleSheet("""
+        """
+        )
+        self.terminal_output.setStyleSheet(
+            """
             QPlainTextEdit {
                 background-color: #000000;
                 color: #00ff00;
@@ -221,7 +229,8 @@ class NodeEditorDialog(QDialog):
                 font-size: 12px;
                 border: 1px solid #444444;
             }
-        """)
+        """
+        )
 
     def _update_outputs_display(self, outputs):
         """Helper to format and display the outputs dictionary."""
@@ -237,7 +246,11 @@ class NodeEditorDialog(QDialog):
     def on_save(self):
         code = self.code_edit.toPlainText()
         # The outputs are now derived purely from running the code
-        output_vars = list(self.node.outputs.keys()) if isinstance(self.node.outputs, dict) else []
+        output_vars = (
+            list(self.node.outputs.keys())
+            if isinstance(self.node.outputs, dict)
+            else []
+        )
 
         self.node.code = code
         self.node.canvas.save_canvas_state()
@@ -252,7 +265,11 @@ class NodeEditorDialog(QDialog):
             actual_inputs = {"text": "example input", "user_id": 123}
 
         local_vars = {}
-        global_vars = {"__builtins__": __builtins__, "inputs": actual_inputs, **actual_inputs}
+        global_vars = {
+            "__builtins__": __builtins__,
+            "inputs": actual_inputs,
+            **actual_inputs,
+        }
         self.terminal_output.clear()
 
         stdout_buffer = io.StringIO()

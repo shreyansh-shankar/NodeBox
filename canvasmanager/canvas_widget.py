@@ -11,9 +11,9 @@ from PyQt6.QtGui import (  # type: ignore
 from PyQt6.QtWidgets import QInputDialog, QWidget  # type: ignore
 
 from automation_manager.node import NodeWidget
+from predefined.registry import PredefinedNodeRegistry
 from utils.node_runner import execute_all_nodes
 from utils.performance_bus import get_performance_bus
-from predefined.registry import PredefinedNodeRegistry
 
 
 class CanvasWidget(QWidget):
@@ -236,13 +236,10 @@ class CanvasWidget(QWidget):
             # This is a predefined node - create with pre-filled code and outputs
             node_data = predefined_node_class.get_node_data()
             node = NodeWidget(
-                node_data['name'],
-                self,
-                pos=QPointF(pos),
-                outputs=node_data['outputs']
+                node_data["name"], self, pos=QPointF(pos), outputs=node_data["outputs"]
             )
             # Set the pre-written code
-            node.code = node_data['code']
+            node.code = node_data["code"]
         else:
             node = NodeWidget(node_type, self, pos=QPointF(pos))
 
@@ -267,7 +264,7 @@ class CanvasWidget(QWidget):
         node_exec_times = {}
 
         def _on_node_executed(node, duration_s):
-            node_exec_times[getattr(node, 'title', str(id(node)))] = duration_s
+            node_exec_times[getattr(node, "title", str(id(node)))] = duration_s
 
         result = execute_all_nodes(
             self.nodes.values(),

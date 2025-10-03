@@ -2,7 +2,6 @@
 Optimized Enhanced Main Window - Minimalist and efficient
 """
 import json
-from contextlib import suppress
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QAction, QFont
@@ -30,14 +29,6 @@ from utils.screen_manager import ScreenManager
 
 
 class EnhancedMainWindow(QWidget):
-    # --- Centered tab labels ---
-    TAB_HOME = "Home"
-    TAB_TEMPLATES = "Templates"
-    TAB_SCHEDULER = "Scheduler"
-    TAB_DEBUG = "Debug"
-    TAB_PERFORMANCE = "Performance"
-    TAB_EXPORT_IMPORT = "Export/Import"
-
     def __init__(self):
         super().__init__()
         self.setWindowTitle("NodeBox")
@@ -48,7 +39,8 @@ class EnhancedMainWindow(QWidget):
 
         # Initialize feature widgets lazily
         self._feature_widgets = {}
-        self._loaded_tabs = set()
+        self._loaded_tabs = set()  # Track which tabs have been loaded
+
         self.init_ui()
         self.setup_connections()
         self.setup_lazy_loading()
@@ -65,7 +57,6 @@ class EnhancedMainWindow(QWidget):
         # Main content area with tabs
         self.tab_widget = QTabWidget()
         main_layout.addWidget(self.tab_widget)
-        self.tab_widget.setMovable(True)
 
         # Home tab
         self.create_home_tab()
@@ -121,25 +112,19 @@ class EnhancedMainWindow(QWidget):
         tools_menu = self.menu_bar.addMenu("Tools")
 
         templates_action = QAction("Node Templates", self)
-        templates_action.triggered.connect(
-            lambda: self.switch_to_tab(self.TAB_TEMPLATES)
-        )
+        templates_action.triggered.connect(lambda: self.tab_widget.setCurrentIndex(1))
         tools_menu.addAction(templates_action)
 
         scheduler_action = QAction("Workflow Scheduler", self)
-        scheduler_action.triggered.connect(
-            lambda: self.switch_to_tab(self.TAB_SCHEDULER)
-        )
+        scheduler_action.triggered.connect(lambda: self.tab_widget.setCurrentIndex(2))
         tools_menu.addAction(scheduler_action)
 
         debug_action = QAction("Debug Console", self)
-        debug_action.triggered.connect(lambda: self.switch_to_tab(self.TAB_DEBUG))
+        debug_action.triggered.connect(lambda: self.tab_widget.setCurrentIndex(3))
         tools_menu.addAction(debug_action)
 
         performance_action = QAction("Performance Monitor", self)
-        performance_action.triggered.connect(
-            lambda: self.switch_to_tab(self.TAB_PERFORMANCE)
-        )
+        performance_action.triggered.connect(lambda: self.tab_widget.setCurrentIndex(4))
         tools_menu.addAction(performance_action)
 
         # Help menu
@@ -237,32 +222,32 @@ class EnhancedMainWindow(QWidget):
         self.load_automations()
 
         home_widget.setLayout(layout)
-        self.tab_widget.addTab(home_widget, self.TAB_HOME)
+        self.tab_widget.addTab(home_widget, "Home")
 
     def create_templates_tab(self):
         """Create node templates tab - lazy loaded"""
         placeholder = PlaceholderWidget("Node Templates")
-        self.tab_widget.addTab(placeholder, self.TAB_TEMPLATES)
+        self.tab_widget.addTab(placeholder, "Templates")
 
     def create_scheduler_tab(self):
         """Create workflow scheduler tab - lazy loaded"""
         placeholder = PlaceholderWidget("Workflow Scheduler")
-        self.tab_widget.addTab(placeholder, self.TAB_SCHEDULER)
+        self.tab_widget.addTab(placeholder, "Scheduler")
 
     def create_debug_tab(self):
         """Create debug console tab - lazy loaded"""
         placeholder = PlaceholderWidget("Debug Console")
-        self.tab_widget.addTab(placeholder, self.TAB_DEBUG)
+        self.tab_widget.addTab(placeholder, "Debug")
 
     def create_performance_tab(self):
         """Create performance monitor tab - lazy loaded"""
         placeholder = PlaceholderWidget("Performance Monitor")
-        self.tab_widget.addTab(placeholder, self.TAB_PERFORMANCE)
+        self.tab_widget.addTab(placeholder, "Performance")
 
     def create_export_import_tab(self):
         """Create export/import tab - lazy loaded"""
         placeholder = PlaceholderWidget("Export/Import Manager")
-        self.tab_widget.addTab(placeholder, self.TAB_EXPORT_IMPORT)
+        self.tab_widget.addTab(placeholder, "Export/Import")
 
     def setup_connections(self):
         """Setup signal connections"""
@@ -271,21 +256,6 @@ class EnhancedMainWindow(QWidget):
     def setup_lazy_loading(self):
         """Setup lazy loading for tabs"""
         self.tab_widget.currentChanged.connect(self._on_tab_changed)
-
-    def find_tab_index_by_text(self, text: str) -> int:
-        """Returns the index of the tab whose label is `text` or -1 if not found."""
-        for i in range(self.tab_widget.count()):
-            if self.tab_widget.tabText(i) == text:
-                return i
-        return -1
-
-    def switch_to_tab(self, text: str):
-        """Select the tab by label safely."""
-        idx = self.find_tab_index_by_text(text)
-        if idx != -1:
-            self.tab_widget.setCurrentIndex(idx)
-        else:
-            self.status_bar.showMessage(f"Tab '{text}' não encontrada")
 
     def _on_tab_changed(self, index):
         """Handle tab change for lazy loading"""
@@ -299,15 +269,15 @@ class EnhancedMainWindow(QWidget):
         # Get the tab text to determine which feature to load
         tab_text = self.tab_widget.tabText(index)
 
-        if tab_text == self.TAB_TEMPLATES:
+        if tab_text == "Templates" and index not in self._loaded_tabs:
             self._load_templates_tab(index)
-        elif tab_text == self.TAB_SCHEDULER:
+        elif tab_text == "Scheduler" and index not in self._loaded_tabs:
             self._load_scheduler_tab(index)
-        elif tab_text == self.TAB_DEBUG:
+        elif tab_text == "Debug" and index not in self._loaded_tabs:
             self._load_debug_tab(index)
-        elif tab_text == self.TAB_PERFORMANCE:
+        elif tab_text == "Performance" and index not in self._loaded_tabs:
             self._load_performance_tab(index)
-        elif tab_text == self.TAB_EXPORT_IMPORT:
+        elif tab_text == "Export/Import" and index not in self._loaded_tabs:
             self._load_export_import_tab(index)
 
         # Mark this tab as loaded
@@ -317,96 +287,81 @@ class EnhancedMainWindow(QWidget):
         """Load the actual templates widget"""
         from features.node_templates import NodeTemplateWidget
 
-        with suppress(TypeError):
-            self.tab_widget.currentChanged.disconnect(self._on_tab_changed)
+        # Temporarily disconnect signal to avoid infinite loop
+        self.tab_widget.currentChanged.disconnect()
 
         widget = NodeTemplateWidget()
         self._feature_widgets["templates"] = widget
         self.tab_widget.removeTab(index)
-        self.tab_widget.insertTab(index, widget, self.TAB_TEMPLATES)
+        self.tab_widget.insertTab(index, widget, "Templates")
         self.tab_widget.setCurrentIndex(index)
 
+        # Reconnect signal
         self.tab_widget.currentChanged.connect(self._on_tab_changed)
 
     def _load_scheduler_tab(self, index):
         """Load the actual scheduler widget"""
         from features.workflow_scheduler import WorkflowScheduler
 
-        with suppress(TypeError):
-            self.tab_widget.currentChanged.disconnect(self._on_tab_changed)
+        # Temporarily disconnect signal to avoid infinite loop
+        self.tab_widget.currentChanged.disconnect()
 
         widget = WorkflowScheduler()
         widget.schedule_triggered.connect(self.run_scheduled_automation)
         self._feature_widgets["scheduler"] = widget
         self.tab_widget.removeTab(index)
-        self.tab_widget.insertTab(index, widget, self.TAB_SCHEDULER)
+        self.tab_widget.insertTab(index, widget, "Scheduler")
         self.tab_widget.setCurrentIndex(index)
 
+        # Reconnect signal
         self.tab_widget.currentChanged.connect(self._on_tab_changed)
 
     def _load_debug_tab(self, index):
         """Load the actual debug console widget"""
         from features.debug_console import DebugConsole
 
-        with suppress(TypeError):
-            self.tab_widget.currentChanged.disconnect(self._on_tab_changed)
+        # Temporarily disconnect signal to avoid infinite loop
+        self.tab_widget.currentChanged.disconnect()
 
         widget = DebugConsole()
         self._feature_widgets["debug"] = widget
         self.tab_widget.removeTab(index)
-        self.tab_widget.insertTab(index, widget, self.TAB_DEBUG)
+        self.tab_widget.insertTab(index, widget, "Debug")
         self.tab_widget.setCurrentIndex(index)
 
+        # Reconnect signal
         self.tab_widget.currentChanged.connect(self._on_tab_changed)
 
     def _load_performance_tab(self, index):
         """Load the actual performance monitor widget"""
-        try:
-            from features.performance_monitor import PerformanceMonitor
+        from features.performance_monitor import PerformanceMonitor
 
-            with suppress(TypeError):
-                self.tab_widget.currentChanged.disconnect(self._on_tab_changed)
+        # Temporarily disconnect signal to avoid infinite loop
+        self.tab_widget.currentChanged.disconnect()
 
-            # Tenta criar o widget e captura qualquer erro
-            try:
-                widget = PerformanceMonitor()
-            except Exception as e:
-                QMessageBox.critical(
-                    self,
-                    "Erro ao carregar Performance Monitor",
-                    f"Erro ao criar PerformanceMonitor:\n{e}",
-                )
-                # Marca como carregado para evitar loop infinito de erro
-                self._loaded_tabs.add(index)
-                return
+        widget = PerformanceMonitor()
+        self._feature_widgets["performance"] = widget
+        self.tab_widget.removeTab(index)
+        self.tab_widget.insertTab(index, widget, "Performance")
+        self.tab_widget.setCurrentIndex(index)
 
-            self._feature_widgets["performance"] = widget
-            self.tab_widget.removeTab(index)
-            self.tab_widget.insertTab(index, widget, self.TAB_PERFORMANCE)
-            self.tab_widget.setCurrentIndex(index)
-
-            self.tab_widget.currentChanged.connect(self._on_tab_changed)
-        except Exception as e:
-            QMessageBox.critical(
-                self,
-                "Erro inesperado",
-                f"Erro inesperado ao carregar a aba Performance:\n{e}",
-            )
-            self._loaded_tabs.add(index)
+        # Reconnect signal
+        self.tab_widget.currentChanged.connect(self._on_tab_changed)
 
     def _load_export_import_tab(self, index):
         """Load the actual export/import widget"""
         from features.export_import import ExportImportManager
 
-        with suppress(TypeError):
-            self.tab_widget.currentChanged.disconnect(self._on_tab_changed)
+        # Temporarily disconnect signal to avoid infinite loop
+        self.tab_widget.currentChanged.disconnect()
 
         widget = ExportImportManager()
         self._feature_widgets["export_import"] = widget
         self.tab_widget.removeTab(index)
-        self.tab_widget.insertTab(index, widget, self.TAB_EXPORT_IMPORT)
+        self.tab_widget.insertTab(index, widget, "Export/Import")
         self.tab_widget.setCurrentIndex(index)
 
+        # Reconnect signal
         self.tab_widget.currentChanged.connect(self._on_tab_changed)
 
     def load_automations(self):
@@ -463,7 +418,8 @@ class EnhancedMainWindow(QWidget):
         editor = NodeEditorWindow(automation_name)
         editor.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
 
-        editor.closed.connect(self.on_editor_closed)
+        # ✅ Prevent duplicate connections
+        editor.closed.connect(self.on_editor_closed, Qt.ConnectionType.UniqueConnection)
 
         editor.show()
         self.hide()
@@ -478,15 +434,16 @@ class EnhancedMainWindow(QWidget):
     def run_scheduled_automation(self, automation_name):
         """Run a scheduled automation"""
         self.status_bar.showMessage(f"Running scheduled automation: {automation_name}")
+        # This would integrate with the actual automation runner
         print(f"Running scheduled automation: {automation_name}")
 
     def show_import_dialog(self):
         """Show import dialog"""
-        self.switch_to_tab(self.TAB_EXPORT_IMPORT)
+        self.tab_widget.setCurrentIndex(5)  # Switch to export/import tab
 
     def show_export_dialog(self):
         """Show export dialog"""
-        self.switch_to_tab(self.TAB_EXPORT_IMPORT)
+        self.tab_widget.setCurrentIndex(5)  # Switch to export/import tab
 
     def show_about(self):
         """Show about dialog"""
@@ -502,17 +459,16 @@ class EnhancedMainWindow(QWidget):
             "• Export/Import System\n\n"
             "Built with Python and PyQt6",
         )
-        
 
     def closeEvent(self, event):
         """Optimized window close event"""
+        # Stop any running monitors
         if "performance" in self._feature_widgets:
-            performance_widget = self._feature_widgets["performance"]
-            if hasattr(performance_widget, "stop_monitoring"):
-                performance_widget.stop_monitoring()
+            self._feature_widgets["performance"].stop_monitoring()
 
+        # Clean up feature widgets
         for widget in self._feature_widgets.values():
             if hasattr(widget, "cleanup"):
                 widget.cleanup()
 
-        super().closeEvent(event)
+        event.accept()

@@ -1,9 +1,10 @@
 import os
-import sys
 
 from PyQt6.QtGui import QFont, QFontDatabase
 from PyQt6.QtWidgets import QApplication
+
 from utils.paths import resource_path
+
 
 def load_custom_fonts():
     font_dir = resource_path("assets/fonts")  # handle both cases

@@ -17,7 +17,7 @@ class FileReaderNode(PredefinedNode):
 
     name = "File Reader"
     description = "Reads content from a file and outputs the text"
-    
+
     # Pre-written code that will be inserted into the node
     code = """import os
 
@@ -48,8 +48,5 @@ except Exception as e:
 """
 
     # Define inputs and outputs
-    inputs = ['file_path']
-    outputs = {
-        'content': '',
-        'error': None
-    }
+    inputs = ["file_path"]
+    outputs = {"content": "", "error": None}
