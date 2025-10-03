@@ -1,5 +1,6 @@
 from PyQt6.QtCore import Qt  # type: ignore
 from PyQt6.QtWidgets import (  # type: ignore
+    QApplication,  # ← ADD THIS IMPORT
     QGridLayout,
     QHBoxLayout,
     QLineEdit,
@@ -9,6 +10,7 @@ from PyQt6.QtWidgets import (  # type: ignore
     QWidget,
 )
 
+
 from browsemodels_manager.downlaod_manager import DownloadManager
 from browsemodels_manager.filter_window import FilterWindow
 from browsemodels_manager.model_card import ModelCard
@@ -16,91 +18,102 @@ from models_data import models
 from utils.screen_manager import ScreenManager
 
 
+
 class BrowseModelsWindow(QWidget):
     def __init__(self):
-        super().__init__()
-        self.setWindowTitle("Browse Models")
+        # Set busy cursor at the start (before loading models)
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
+        
+        try:
+            super().__init__()
+            self.setWindowTitle("Browse Models")
 
-        # Use dynamic window sizing based on screen resolution
-        x, y, width, height = ScreenManager.get_browse_window_geometry()
-        self.setGeometry(x, y, width, height)
-        self.setStyleSheet("background-color: #121212;")
+            # Use dynamic window sizing based on screen resolution
+            x, y, width, height = ScreenManager.get_browse_window_geometry()
+            self.setGeometry(x, y, width, height)
+            self.setStyleSheet("background-color: #121212;")
 
-        self._downloads = []
+            self._downloads = []
 
-        main_layout = QVBoxLayout(self)
+            main_layout = QVBoxLayout(self)
 
-        # 🔍 Search bar + Filter button in one row
-        search_filter_layout = QHBoxLayout()
+            # 🔍 Search bar + Filter button in one row
+            search_filter_layout = QHBoxLayout()
 
-        # Search bar
-        self.search_input = QLineEdit()
-        self.search_input.setPlaceholderText("Search models...")
-        self.search_input.setStyleSheet(
+            # Search bar
+            self.search_input = QLineEdit()
+            self.search_input.setPlaceholderText("Search models...")
+            self.search_input.setStyleSheet(
+                """
+                QLineEdit {
+                    padding: 10px;
+                    border-radius: 8px;
+                    background-color: #1e1e1e;
+                    color: white;
+                    font-size: 14px;
+                }
             """
-            QLineEdit {
-                padding: 10px;
-                border-radius: 8px;
-                background-color: #1e1e1e;
-                color: white;
-                font-size: 14px;
-            }
-        """
-        )
-        self.search_input.textChanged.connect(self.update_grid)
-        search_filter_layout.addWidget(self.search_input, stretch=1)  # take most space
+            )
+            self.search_input.textChanged.connect(self.update_grid)
+            search_filter_layout.addWidget(self.search_input, stretch=1)  # take most space
 
-        # Filter button
-        self.filter_button = QPushButton("Filter")
-        self.filter_button.setStyleSheet(
+            # Filter button
+            self.filter_button = QPushButton("Filter")
+            self.filter_button.setStyleSheet(
+                """
+                QPushButton {
+                    padding: 10px 20px;
+                    background-color: #2e2e2e;
+                    color: white;
+                    border-radius: 8px;
+                    font-size: 14px;
+                }
+                QPushButton:hover {
+                    background-color: #3e3e3e;
+                }
             """
-            QPushButton {
-                padding: 10px 20px;
-                background-color: #2e2e2e;
-                color: white;
-                border-radius: 8px;
-                font-size: 14px;
-            }
-            QPushButton:hover {
-                background-color: #3e3e3e;
-            }
-        """
-        )
-        self.filter_button.clicked.connect(self.open_filter_window)
-        search_filter_layout.addWidget(self.filter_button)
-        main_layout.addLayout(search_filter_layout)
+            )
+            self.filter_button.clicked.connect(self.open_filter_window)
+            search_filter_layout.addWidget(self.filter_button)
+            main_layout.addLayout(search_filter_layout)
 
-        # 📜 Scroll Area
-        self.scroll = QScrollArea()
-        self.scroll.setWidgetResizable(True)
-        self.scroll.setStyleSheet("border: none;")
+            # 📜 Scroll Area
+            self.scroll = QScrollArea()
+            self.scroll.setWidgetResizable(True)
+            self.scroll.setStyleSheet("border: none;")
 
-        self.scroll_content = QWidget()
-        self.grid = QGridLayout(self.scroll_content)
-        self.grid.setSpacing(20)
-        self.scroll.setWidget(self.scroll_content)
+            self.scroll_content = QWidget()
+            self.grid = QGridLayout(self.scroll_content)
+            self.grid.setSpacing(20)
+            self.scroll.setWidget(self.scroll_content)
 
-        # Hide scrollbars but keep scrolling functionality
-        self.scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+            # Hide scrollbars but keep scrolling functionality
+            self.scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+            self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
-        # Optional: If you want smoother scrolling via mouse
-        self.scroll.setStyleSheet(
+            # Optional: If you want smoother scrolling via mouse
+            self.scroll.setStyleSheet(
+                """
+                QScrollArea {
+                    border: none;
+                }
+                QScrollBar:vertical, QScrollBar:horizontal {
+                    width: 0px;
+                    height: 0px;
+                    background: transparent;
+                }
             """
-            QScrollArea {
-                border: none;
-            }
-            QScrollBar:vertical, QScrollBar:horizontal {
-                width: 0px;
-                height: 0px;
-                background: transparent;
-            }
-        """
-        )
+            )
 
-        main_layout.addWidget(self.scroll)
+            main_layout.addWidget(self.scroll)
 
-        self.update_grid()
+            # This loads all the model cards (potentially slow)
+            self.update_grid()
+        
+        finally:
+            # Restore cursor after window is loaded
+            QApplication.restoreOverrideCursor()
+
 
     def update_grid(self):
         search_term = self.search_input.text().lower()
@@ -114,6 +127,7 @@ class BrowseModelsWindow(QWidget):
             card.downloadRequested.connect(self.open_download_manager)
             self.grid.addWidget(card, row, col)
 
+
     def open_filter_window(self):
         self.filter_window = FilterWindow(self)
         self.filter_window = FilterWindow(self)  # Pass parent to keep it tied
@@ -125,6 +139,7 @@ class BrowseModelsWindow(QWidget):
             button_pos.x() - 250, button_pos.y()
         )  # Position it just below the button
         self.filter_window.show()
+
 
     def open_download_manager(self, model):
         sizes = model.get("sizes", ["latest"])
