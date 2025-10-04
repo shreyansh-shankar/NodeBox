@@ -1,6 +1,7 @@
 import os
-import requests
 import xml.etree.ElementTree as ET
+
+import requests
 
 # Create icons directory
 os.makedirs("assets/icons", exist_ok=True)
@@ -23,35 +24,38 @@ icons = [
     "package.svg",
     "file.svg",
     "home.svg",
-    "database.svg"
+    "database.svg",
 ]
+
 
 def make_icon_white(svg_content):
     """Convert SVG to white by modifying stroke attribute"""
     # Parse the SVG
     try:
         # Add XML declaration if missing
-        if not svg_content.startswith('<?xml'):
+        if not svg_content.startswith("<?xml"):
             svg_content = '<?xml version="1.0" encoding="UTF-8"?>' + svg_content
 
         root = ET.fromstring(svg_content)
 
         # Update all stroke attributes to white
         for elem in root.iter():
-            if 'stroke' in elem.attrib:
-                elem.attrib['stroke'] = 'white'
-            if 'fill' in elem.attrib and elem.attrib['fill'] != 'none':
-                elem.attrib['fill'] = 'white'
+            if "stroke" in elem.attrib:
+                elem.attrib["stroke"] = "white"
+            if "fill" in elem.attrib and elem.attrib["fill"] != "none":
+                elem.attrib["fill"] = "white"
 
         # Return modified SVG
-        return ET.tostring(root, encoding='unicode')
-    except:
+        return ET.tostring(root, encoding="unicode")
+    except (ET.ParseError, ValueError) as e:  
         # Fallback: simple string replacement
+        print(f"Warning: XML parsing failed ({e}), using string replacement")
         svg_content = svg_content.replace('stroke="currentColor"', 'stroke="white"')
         svg_content = svg_content.replace('stroke="#000"', 'stroke="white"')
         svg_content = svg_content.replace('stroke="#000000"', 'stroke="white"')
         svg_content = svg_content.replace('stroke="black"', 'stroke="white"')
         return svg_content
+
 
 for icon in icons:
     url = base_url + icon
