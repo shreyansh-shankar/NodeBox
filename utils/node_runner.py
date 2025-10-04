@@ -1,5 +1,6 @@
 from collections import defaultdict, deque
 from time import perf_counter
+
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QApplication
 
@@ -9,10 +10,10 @@ def execute_all_nodes(nodes, connections, on_error=None, on_node_executed=None):
     Execute all nodes in the workflow with cursor feedback.
     Shows busy cursor during execution.
     """
-    
+
     # Set busy cursor at the start
     QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
-    
+
     try:
         print("List of all nodes:")
         print("\n")
@@ -103,7 +104,7 @@ def execute_all_nodes(nodes, connections, on_error=None, on_node_executed=None):
                     ready_queue.append(dependent)
 
         total_duration = perf_counter() - total_start
-        
+
         return {
             "node_outputs": node_outputs,
             "executed_count": executed_count,
@@ -111,7 +112,7 @@ def execute_all_nodes(nodes, connections, on_error=None, on_node_executed=None):
             "total_duration_s": total_duration,
             "total_nodes": len(list(nodes)),
         }
-    
+
     finally:
         # ALWAYS restore cursor when done (success or error)
         QApplication.restoreOverrideCursor()

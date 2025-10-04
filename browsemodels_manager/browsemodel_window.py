@@ -1,6 +1,6 @@
 from PyQt6.QtCore import Qt  # type: ignore
+from PyQt6.QtWidgets import QApplication  # ← ADD THIS IMPORT
 from PyQt6.QtWidgets import (  # type: ignore
-    QApplication,  # ← ADD THIS IMPORT
     QGridLayout,
     QHBoxLayout,
     QLineEdit,
@@ -10,7 +10,6 @@ from PyQt6.QtWidgets import (  # type: ignore
     QWidget,
 )
 
-
 from browsemodels_manager.downlaod_manager import DownloadManager
 from browsemodels_manager.filter_window import FilterWindow
 from browsemodels_manager.model_card import ModelCard
@@ -18,12 +17,11 @@ from models_data import models
 from utils.screen_manager import ScreenManager
 
 
-
 class BrowseModelsWindow(QWidget):
     def __init__(self):
         # Set busy cursor at the start (before loading models)
         QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
-        
+
         try:
             super().__init__()
             self.setWindowTitle("Browse Models")
@@ -55,7 +53,9 @@ class BrowseModelsWindow(QWidget):
             """
             )
             self.search_input.textChanged.connect(self.update_grid)
-            search_filter_layout.addWidget(self.search_input, stretch=1)  # take most space
+            search_filter_layout.addWidget(
+                self.search_input, stretch=1
+            )  # take most space
 
             # Filter button
             self.filter_button = QPushButton("Filter")
@@ -88,8 +88,12 @@ class BrowseModelsWindow(QWidget):
             self.scroll.setWidget(self.scroll_content)
 
             # Hide scrollbars but keep scrolling functionality
-            self.scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-            self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+            self.scroll.setVerticalScrollBarPolicy(
+                Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+            )
+            self.scroll.setHorizontalScrollBarPolicy(
+                Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+            )
 
             # Optional: If you want smoother scrolling via mouse
             self.scroll.setStyleSheet(
@@ -109,11 +113,10 @@ class BrowseModelsWindow(QWidget):
 
             # This loads all the model cards (potentially slow)
             self.update_grid()
-        
+
         finally:
             # Restore cursor after window is loaded
             QApplication.restoreOverrideCursor()
-
 
     def update_grid(self):
         search_term = self.search_input.text().lower()
@@ -127,7 +130,6 @@ class BrowseModelsWindow(QWidget):
             card.downloadRequested.connect(self.open_download_manager)
             self.grid.addWidget(card, row, col)
 
-
     def open_filter_window(self):
         self.filter_window = FilterWindow(self)
         self.filter_window = FilterWindow(self)  # Pass parent to keep it tied
@@ -139,7 +141,6 @@ class BrowseModelsWindow(QWidget):
             button_pos.x() - 250, button_pos.y()
         )  # Position it just below the button
         self.filter_window.show()
-
 
     def open_download_manager(self, model):
         sizes = model.get("sizes", ["latest"])
