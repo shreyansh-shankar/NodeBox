@@ -71,97 +71,355 @@ class PerformanceMonitor(QWidget):
         self.start_monitoring()
 
     def init_ui(self):
-        layout = QVBoxLayout()
+        # Apply consistent background styling
+        self.setStyleSheet("background-color: #252526;")
 
-        # Minimalist title
-        title = QLabel("Performance")
-        title.setFont(QFont("Poppins", 14, QFont.Weight.Bold))
+        layout = QVBoxLayout()
+        layout.setContentsMargins(24, 24, 24, 24)
+        layout.setSpacing(16)
+
+        # Enhanced title matching Home tab style
+        title = QLabel("Performance Monitor")
+        title.setFont(QFont("Segoe UI", 28, QFont.Weight.Bold))
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        title.setStyleSheet("color: #ffffff; margin-bottom: 8px;")
         layout.addWidget(title)
 
-        # Compact controls
-        controls_layout = QHBoxLayout()
+        # Subtitle for consistency
+        subtitle = QLabel("System and NodeBox Performance Metrics")
+        subtitle.setFont(QFont("Segoe UI", 13))
+        subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        subtitle.setStyleSheet("color: #a0a0a0; margin-bottom: 16px;")
+        layout.addWidget(subtitle)
 
-        self.start_button = QPushButton("Start")
+        # Enhanced controls layout
+        controls_layout = QHBoxLayout()
+        controls_layout.setSpacing(12)
+
+        self.start_button = QPushButton("  Start Monitoring")
         self.start_button.clicked.connect(self.start_monitoring)
-        self.start_button.setStyleSheet("QPushButton { padding: 4px 8px; }")
+        self.start_button.setFont(QFont("Segoe UI", 12))
+        self.start_button.setMinimumHeight(44)
+        self.start_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.start_button.setStyleSheet(
+            """
+            QPushButton {
+                padding: 12px 24px;
+                background-color: #0e639c;
+                color: white;
+                border: none;
+                border-radius: 6px;
+                font-weight: 600;
+                text-align: left;
+            }
+            QPushButton:hover {
+                background-color: #1177bb;
+            }
+            QPushButton:pressed {
+                background-color: #0d5a8f;
+            }
+            QPushButton:disabled {
+                background-color: #3e3e42;
+                color: #888888;
+            }
+        """
+        )
         controls_layout.addWidget(self.start_button)
 
-        self.stop_button = QPushButton("Stop")
+        self.stop_button = QPushButton("  Stop Monitoring")
         self.stop_button.clicked.connect(self.stop_monitoring)
-        self.stop_button.setStyleSheet("QPushButton { padding: 4px 8px; }")
+        self.stop_button.setFont(QFont("Segoe UI", 12))
+        self.stop_button.setMinimumHeight(44)
+        self.stop_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.stop_button.setStyleSheet(
+            """
+            QPushButton {
+                padding: 12px 24px;
+                background-color: #a74444;
+                color: white;
+                border: none;
+                border-radius: 6px;
+                font-weight: 600;
+                text-align: left;
+            }
+            QPushButton:hover {
+                background-color: #c55555;
+            }
+            QPushButton:pressed {
+                background-color: #943a3a;
+            }
+            QPushButton:disabled {
+                background-color: #3e3e42;
+                color: #888888;
+            }
+        """
+        )
         controls_layout.addWidget(self.stop_button)
 
-        self.reset_button = QPushButton("Reset")
+        self.reset_button = QPushButton("  Reset Data")
         self.reset_button.clicked.connect(self.reset_metrics)
-        self.reset_button.setStyleSheet("QPushButton { padding: 4px 8px; }")
+        self.reset_button.setFont(QFont("Segoe UI", 12))
+        self.reset_button.setMinimumHeight(44)
+        self.reset_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.reset_button.setStyleSheet(
+            """
+            QPushButton {
+                padding: 12px 24px;
+                background-color: #0d7d3a;
+                color: white;
+                border: none;
+                border-radius: 6px;
+                font-weight: 600;
+                text-align: left;
+            }
+            QPushButton:hover {
+                background-color: #0f9d4a;
+            }
+            QPushButton:pressed {
+                background-color: #0b6d32;
+            }
+        """
+        )
         controls_layout.addWidget(self.reset_button)
 
         layout.addLayout(controls_layout)
 
-        # System metrics
+        # Enhanced System metrics section
         system_group = QGroupBox("System Metrics")
+        system_group.setFont(QFont("Segoe UI", 14, QFont.Weight.DemiBold))
+        system_group.setStyleSheet(
+            """
+            QGroupBox {
+                font-weight: bold;
+                border: 1px solid #3e3e42;
+                border-radius: 6px;
+                padding: 16px;
+                margin-top: 12px;
+                background-color: #1e1e1e;
+                color: #ffffff;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 12px;
+                padding: 0 8px 0 8px;
+                color: #ffffff;
+            }
+        """
+        )
         system_layout = QGridLayout()
+        system_layout.setSpacing(12)
+        system_layout.setContentsMargins(16, 20, 16, 16)
 
         # CPU Usage
         self.cpu_label = QLabel("CPU Usage:")
+        self.cpu_label.setFont(QFont("Segoe UI", 12))
+        self.cpu_label.setStyleSheet("color: #e0e0e0;")
         self.cpu_progress = QProgressBar()
         self.cpu_progress.setRange(0, 100)
+        self.cpu_progress.setMinimumHeight(24)
+        self.cpu_progress.setStyleSheet(
+            """
+            QProgressBar {
+                border: 1px solid #3e3e42;
+                border-radius: 4px;
+                text-align: center;
+                background-color: #2d2d30;
+                color: #ffffff;
+                font-weight: 600;
+            }
+            QProgressBar::chunk {
+                background-color: #44ff44;
+                border-radius: 3px;
+            }
+        """
+        )
         system_layout.addWidget(self.cpu_label, 0, 0)
         system_layout.addWidget(self.cpu_progress, 0, 1)
 
         # Memory Usage
         self.memory_label = QLabel("Memory Usage:")
+        self.memory_label.setFont(QFont("Segoe UI", 12))
+        self.memory_label.setStyleSheet("color: #e0e0e0;")
         self.memory_progress = QProgressBar()
         self.memory_progress.setRange(0, 100)
+        self.memory_progress.setMinimumHeight(24)
+        self.memory_progress.setStyleSheet(
+            """
+            QProgressBar {
+                border: 1px solid #3e3e42;
+                border-radius: 4px;
+                text-align: center;
+                background-color: #2d2d30;
+                color: #ffffff;
+                font-weight: 600;
+            }
+            QProgressBar::chunk {
+                background-color: #44ff44;
+                border-radius: 3px;
+            }
+        """
+        )
         system_layout.addWidget(self.memory_label, 1, 0)
         system_layout.addWidget(self.memory_progress, 1, 1)
 
         # Disk Usage
         self.disk_label = QLabel("Disk Usage:")
+        self.disk_label.setFont(QFont("Segoe UI", 12))
+        self.disk_label.setStyleSheet("color: #e0e0e0;")
         self.disk_progress = QProgressBar()
         self.disk_progress.setRange(0, 100)
+        self.disk_progress.setMinimumHeight(24)
+        self.disk_progress.setStyleSheet(
+            """
+            QProgressBar {
+                border: 1px solid #3e3e42;
+                border-radius: 4px;
+                text-align: center;
+                background-color: #2d2d30;
+                color: #ffffff;
+                font-weight: 600;
+            }
+            QProgressBar::chunk {
+                background-color: #44ff44;
+                border-radius: 3px;
+            }
+        """
+        )
         system_layout.addWidget(self.disk_label, 2, 0)
         system_layout.addWidget(self.disk_progress, 2, 1)
 
         system_group.setLayout(system_layout)
         layout.addWidget(system_group)
 
-        # NodeBox metrics
+        # Enhanced NodeBox metrics section
         nodebox_group = QGroupBox("NodeBox Metrics")
+        nodebox_group.setFont(QFont("Segoe UI", 14, QFont.Weight.DemiBold))
+        nodebox_group.setStyleSheet(
+            """
+            QGroupBox {
+                font-weight: bold;
+                border: 1px solid #3e3e42;
+                border-radius: 6px;
+                padding: 16px;
+                margin-top: 12px;
+                background-color: #1e1e1e;
+                color: #ffffff;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 12px;
+                padding: 0 8px 0 8px;
+                color: #ffffff;
+            }
+        """
+        )
         nodebox_layout = QGridLayout()
+        nodebox_layout.setSpacing(12)
+        nodebox_layout.setContentsMargins(16, 20, 16, 16)
 
         self.active_nodes_label = QLabel("Active Nodes: 0")
+        self.active_nodes_label.setFont(QFont("Segoe UI", 12))
+        self.active_nodes_label.setStyleSheet("color: #e0e0e0; padding: 8px;")
         nodebox_layout.addWidget(self.active_nodes_label, 0, 0)
 
         self.total_nodes_label = QLabel("Total Nodes: 0")
+        self.total_nodes_label.setFont(QFont("Segoe UI", 12))
+        self.total_nodes_label.setStyleSheet("color: #e0e0e0; padding: 8px;")
         nodebox_layout.addWidget(self.total_nodes_label, 0, 1)
 
         self.workflows_label = QLabel("Running Workflows: 0")
+        self.workflows_label.setFont(QFont("Segoe UI", 12))
+        self.workflows_label.setStyleSheet("color: #e0e0e0; padding: 8px;")
         nodebox_layout.addWidget(self.workflows_label, 1, 0)
 
         self.execution_time_label = QLabel("Avg Execution Time: 0.0s")
+        self.execution_time_label.setFont(QFont("Segoe UI", 12))
+        self.execution_time_label.setStyleSheet("color: #e0e0e0; padding: 8px;")
         nodebox_layout.addWidget(self.execution_time_label, 1, 1)
 
         self.error_count_label = QLabel("Errors: 0")
+        self.error_count_label.setFont(QFont("Segoe UI", 12))
+        self.error_count_label.setStyleSheet("color: #e0e0e0; padding: 8px;")
         nodebox_layout.addWidget(self.error_count_label, 2, 0)
 
         nodebox_group.setLayout(nodebox_layout)
         layout.addWidget(nodebox_group)
 
-        # Performance history table
+        # Enhanced Performance history table section
         history_group = QGroupBox("Performance History")
+        history_group.setFont(QFont("Segoe UI", 14, QFont.Weight.DemiBold))
+        history_group.setStyleSheet(
+            """
+            QGroupBox {
+                font-weight: bold;
+                border: 1px solid #3e3e42;
+                border-radius: 6px;
+                padding: 16px;
+                margin-top: 12px;
+                background-color: #1e1e1e;
+                color: #ffffff;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 12px;
+                padding: 0 8px 0 8px;
+                color: #ffffff;
+            }
+        """
+        )
         history_layout = QVBoxLayout()
+        history_layout.setContentsMargins(16, 20, 16, 16)
 
         self.history_table = QTableWidget()
         self.history_table.setColumnCount(6)
         self.history_table.setHorizontalHeaderLabels(
             ["Time", "CPU %", "Memory %", "Disk %", "Active Nodes", "Errors"]
         )
+        self.history_table.setFont(QFont("Segoe UI", 11))
+        self.history_table.setMinimumHeight(
+            300
+        )  # Set minimum height for better visibility
+        self.history_table.setAlternatingRowColors(
+            True
+        )  # Add row alternating colors for better readability
+        self.history_table.horizontalHeader().setStretchLastSection(
+            True
+        )  # Stretch last column
+        self.history_table.setStyleSheet(
+            """
+            QTableWidget {
+                border: 1px solid #3e3e42;
+                border-radius: 6px;
+                background-color: #2d2d30;
+                color: #e0e0e0;
+                gridline-color: #3e3e42;
+                selection-background-color: #0e639c;
+                alternate-background-color: #252526;
+            }
+            QTableWidget::item {
+                padding: 10px;
+                border-bottom: 1px solid #3e3e42;
+                min-height: 20px;
+            }
+            QTableWidget::item:selected {
+                background-color: #0e639c;
+                color: #ffffff;
+            }
+            QHeaderView::section {
+                background-color: #2d2d30;
+                color: #ffffff;
+                padding: 10px;
+                border: 1px solid #3e3e42;
+                font-weight: 600;
+                min-height: 25px;
+            }
+        """
+        )
         history_layout.addWidget(self.history_table)
 
         history_group.setLayout(history_layout)
-        layout.addWidget(history_group)
+        # Make the history group expand to take available space
+        layout.addWidget(history_group, 1)  # stretch factor of 1 to make it expand
 
         self.setLayout(layout)
 
@@ -276,47 +534,164 @@ class PerformanceMonitor(QWidget):
         self.update_progress_colors()
 
     def update_progress_colors(self):
-        """Update progress bar colors based on usage levels"""
+        """Update progress bar colors based on usage levels with refined styling"""
         # CPU
         if self.metrics.cpu_usage > 80:
             self.cpu_progress.setStyleSheet(
-                "QProgressBar::chunk { background-color: #ff4444; }"
+                """
+                QProgressBar {
+                    border: 1px solid #3e3e42;
+                    border-radius: 4px;
+                    text-align: center;
+                    background-color: #2d2d30;
+                    color: #ffffff;
+                    font-weight: 600;
+                }
+                QProgressBar::chunk {
+                    background-color: #ff4444;
+                    border-radius: 3px;
+                }
+            """
             )
         elif self.metrics.cpu_usage > 60:
             self.cpu_progress.setStyleSheet(
-                "QProgressBar::chunk { background-color: #ffaa44; }"
+                """
+                QProgressBar {
+                    border: 1px solid #3e3e42;
+                    border-radius: 4px;
+                    text-align: center;
+                    background-color: #2d2d30;
+                    color: #ffffff;
+                    font-weight: 600;
+                }
+                QProgressBar::chunk {
+                    background-color: #ffaa44;
+                    border-radius: 3px;
+                }
+            """
             )
         else:
             self.cpu_progress.setStyleSheet(
-                "QProgressBar::chunk { background-color: #44ff44; }"
+                """
+                QProgressBar {
+                    border: 1px solid #3e3e42;
+                    border-radius: 4px;
+                    text-align: center;
+                    background-color: #2d2d30;
+                    color: #ffffff;
+                    font-weight: 600;
+                }
+                QProgressBar::chunk {
+                    background-color: #44ff44;
+                    border-radius: 3px;
+                }
+            """
             )
 
         # Memory
         if self.metrics.memory_usage > 80:
             self.memory_progress.setStyleSheet(
-                "QProgressBar::chunk { background-color: #ff4444; }"
+                """
+                QProgressBar {
+                    border: 1px solid #3e3e42;
+                    border-radius: 4px;
+                    text-align: center;
+                    background-color: #2d2d30;
+                    color: #ffffff;
+                    font-weight: 600;
+                }
+                QProgressBar::chunk {
+                    background-color: #ff4444;
+                    border-radius: 3px;
+                }
+            """
             )
         elif self.metrics.memory_usage > 60:
             self.memory_progress.setStyleSheet(
-                "QProgressBar::chunk { background-color: #ffaa44; }"
+                """
+                QProgressBar {
+                    border: 1px solid #3e3e42;
+                    border-radius: 4px;
+                    text-align: center;
+                    background-color: #2d2d30;
+                    color: #ffffff;
+                    font-weight: 600;
+                }
+                QProgressBar::chunk {
+                    background-color: #ffaa44;
+                    border-radius: 3px;
+                }
+            """
             )
         else:
             self.memory_progress.setStyleSheet(
-                "QProgressBar::chunk { background-color: #44ff44; }"
+                """
+                QProgressBar {
+                    border: 1px solid #3e3e42;
+                    border-radius: 4px;
+                    text-align: center;
+                    background-color: #2d2d30;
+                    color: #ffffff;
+                    font-weight: 600;
+                }
+                QProgressBar::chunk {
+                    background-color: #44ff44;
+                    border-radius: 3px;
+                }
+            """
             )
 
         # Disk
         if self.metrics.disk_usage > 90:
             self.disk_progress.setStyleSheet(
-                "QProgressBar::chunk { background-color: #ff4444; }"
+                """
+                QProgressBar {
+                    border: 1px solid #3e3e42;
+                    border-radius: 4px;
+                    text-align: center;
+                    background-color: #2d2d30;
+                    color: #ffffff;
+                    font-weight: 600;
+                }
+                QProgressBar::chunk {
+                    background-color: #ff4444;
+                    border-radius: 3px;
+                }
+            """
             )
         elif self.metrics.disk_usage > 80:
             self.disk_progress.setStyleSheet(
-                "QProgressBar::chunk { background-color: #ffaa44; }"
+                """
+                QProgressBar {
+                    border: 1px solid #3e3e42;
+                    border-radius: 4px;
+                    text-align: center;
+                    background-color: #2d2d30;
+                    color: #ffffff;
+                    font-weight: 600;
+                }
+                QProgressBar::chunk {
+                    background-color: #ffaa44;
+                    border-radius: 3px;
+                }
+            """
             )
         else:
             self.disk_progress.setStyleSheet(
-                "QProgressBar::chunk { background-color: #44ff44; }"
+                """
+                QProgressBar {
+                    border: 1px solid #3e3e42;
+                    border-radius: 4px;
+                    text-align: center;
+                    background-color: #2d2d30;
+                    color: #ffffff;
+                    font-weight: 600;
+                }
+                QProgressBar::chunk {
+                    background-color: #44ff44;
+                    border-radius: 3px;
+                }
+            """
             )
 
     def add_to_history(self):
@@ -342,7 +717,7 @@ class PerformanceMonitor(QWidget):
         self._history_update_counter = getattr(self, "_history_update_counter", 0) + 1
 
     def update_history_table(self):
-        """Update the history table"""
+        """Update the history table with improved column sizing"""
         self.history_table.setRowCount(len(self.history))
 
         for i, entry in enumerate(self.history):
@@ -358,6 +733,17 @@ class PerformanceMonitor(QWidget):
                 i, 4, QTableWidgetItem(str(entry["active_nodes"]))
             )
             self.history_table.setItem(i, 5, QTableWidgetItem(str(entry["errors"])))
+
+        # Auto-resize columns to content for better visibility
+        self.history_table.resizeColumnsToContents()
+
+        # Ensure minimum column widths for readability
+        for col in range(self.history_table.columnCount()):
+            if self.history_table.columnWidth(col) < 80:
+                self.history_table.setColumnWidth(col, 80)
+
+        # Scroll to bottom to show latest entries
+        self.history_table.scrollToBottom()
 
     def update_nodebox_metrics(
         self, active_nodes, total_nodes, workflows_running, execution_time, error_count
