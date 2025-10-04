@@ -47,7 +47,7 @@ def make_icon_white(svg_content):
 
         # Return modified SVG
         return ET.tostring(root, encoding="unicode")
-    except (ET.ParseError, ValueError) as e:  
+    except (ET.ParseError, ValueError) as e:
         # Fallback: simple string replacement
         print(f"Warning: XML parsing failed ({e}), using string replacement")
         svg_content = svg_content.replace('stroke="currentColor"', 'stroke="white"')

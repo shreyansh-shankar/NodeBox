@@ -2,34 +2,36 @@
 Model Manager - View and manage local Ollama models
 """
 import subprocess
+
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont
 from PyQt6.QtWidgets import (
     QDialog,
-    QWidget,
-    QVBoxLayout,
     QHBoxLayout,
+    QHeaderView,
     QLabel,
+    QMessageBox,
+    QPushButton,
     QTableWidget,
     QTableWidgetItem,
-    QPushButton,
-    QMessageBox,
-    QHeaderView,
+    QVBoxLayout,
+    QWidget,
 )
 
 
 class ModelManager(QDialog):
     """Dialog version for standalone use"""
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Local Models Manager")
         self.setMinimumSize(700, 500)
         self.widget = ModelManagerWidget()
-        
+
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.widget)
-        
+
         # Close button
         button_layout = QHBoxLayout()
         button_layout.addStretch()
@@ -37,7 +39,8 @@ class ModelManager(QDialog):
         close_button.setFont(QFont("Segoe UI", 11))
         close_button.setMinimumHeight(36)
         close_button.setCursor(Qt.CursorShape.PointingHandCursor)
-        close_button.setStyleSheet("""
+        close_button.setStyleSheet(
+            """
             QPushButton {
                 padding: 8px 20px;
                 background-color: #0e639c;
@@ -49,17 +52,19 @@ class ModelManager(QDialog):
             QPushButton:hover {
                 background-color: #1177bb;
             }
-        """)
+        """
+        )
         close_button.clicked.connect(self.close)
         button_layout.addWidget(close_button)
         layout.addLayout(button_layout)
-        
+
         self.setLayout(layout)
         self.setStyleSheet("QDialog { background-color: #252526; }")
 
 
 class ModelManagerWidget(QWidget):
     """Widget version for embedding in main window"""
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setup_ui()
@@ -101,7 +106,9 @@ class ModelManagerWidget(QWidget):
             3, QHeaderView.ResizeMode.ResizeToContents
         )
         self.models_table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
-        self.models_table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+        self.models_table.setSelectionBehavior(
+            QTableWidget.SelectionBehavior.SelectRows
+        )
         self.models_table.setStyleSheet(
             """
             QTableWidget {
@@ -314,7 +321,5 @@ class ModelManagerWidget(QWidget):
                 QMessageBox.warning(self, "Error", "Timeout while deleting model")
                 self.status_label.setText("Timeout")
             except Exception as e:
-                QMessageBox.warning(
-                    self, "Error", f"Error deleting model:\n\n{str(e)}"
-                )
+                QMessageBox.warning(self, "Error", f"Error deleting model:\n\n{str(e)}")
                 self.status_label.setText("Error")

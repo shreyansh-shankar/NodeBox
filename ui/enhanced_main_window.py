@@ -21,7 +21,6 @@ from PyQt6.QtWidgets import (
 )
 
 from browsemodels_manager.browsemodel_window import BrowseModelsWindow
-from features.model_manager import ModelManager  
 from ui.newautomation_window import NewAutomationWindow
 from ui.placeholder_widget import PlaceholderWidget
 from utils.paths import AUTOMATIONS_DIR, resource_path
@@ -54,35 +53,35 @@ class EnhancedMainWindow(QWidget):
                 color: #e0e0e0;
                 font-family: 'Segoe UI', 'Roboto', sans-serif;
             }
-            
+
             QMenuBar {
                 background-color: #2d2d30;
                 color: #e0e0e0;
                 border-bottom: 1px solid #3e3e42;
                 padding: 4px;
             }
-            
+
             QMenuBar::item {
                 padding: 8px 14px;
                 border-radius: 4px;
             }
-            
+
             QMenuBar::item:selected {
                 background-color: #3e3e42;
             }
-            
+
             QStatusBar {
                 background-color: #2d2d30;
                 color: #a0a0a0;
                 border-top: 1px solid #3e3e42;
             }
-            
+
             QTabWidget::pane {
                 border: 1px solid #3e3e42;
                 border-radius: 4px;
                 background-color: #252526;
             }
-            
+
             QTabBar::tab {
                 background-color: #2d2d30;
                 color: #a0a0a0;
@@ -92,13 +91,13 @@ class EnhancedMainWindow(QWidget):
                 margin-right: 2px;
                 font-weight: 500;
             }
-            
+
             QTabBar::tab:selected {
                 background-color: #252526;
                 color: #ffffff;
                 border-bottom: 2px solid #007acc;
             }
-            
+
             QTabBar::tab:hover:!selected {
                 background-color: #3e3e42;
             }
@@ -134,7 +133,7 @@ class EnhancedMainWindow(QWidget):
         self.create_debug_tab()
         self.create_performance_tab()
         self.create_export_import_tab()
-        self.create_models_tab()  
+        self.create_models_tab()
 
         main_layout.addWidget(self.status_bar)
 
@@ -340,7 +339,6 @@ class EnhancedMainWindow(QWidget):
         placeholder = PlaceholderWidget("Export/Import Manager")
         self.tab_widget.addTab(placeholder, self.get_icon("package"), " Export/Import")
 
-    
     def create_models_tab(self):
         """Create local models tab - lazy loaded"""
         placeholder = PlaceholderWidget("Local Models Manager")
@@ -368,7 +366,7 @@ class EnhancedMainWindow(QWidget):
             self._load_performance_tab(index)
         elif "Export/Import" in tab_text:
             self._load_export_import_tab(index)
-        elif "Local Models" in tab_text: 
+        elif "Local Models" in tab_text:
             self._load_models_tab(index)
 
         self._loaded_tabs.add(index)
@@ -435,7 +433,6 @@ class EnhancedMainWindow(QWidget):
         self.tab_widget.setCurrentIndex(index)
         self.tab_widget.currentChanged.connect(self._on_tab_changed)
 
-    
     def _load_models_tab(self, index):
         """Load the actual models manager widget"""
         from features.model_manager import ModelManagerWidget
@@ -601,5 +598,3 @@ class EnhancedMainWindow(QWidget):
             self.tab_widget.setCurrentIndex(idx)
         else:
             self.status_bar.showMessage(f"Tab '{text}' not found")
-
-    
