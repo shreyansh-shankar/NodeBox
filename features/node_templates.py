@@ -1,238 +1,489 @@
 """
-Node Templates - Optimized pre-built templates
+Node Templates Widget - Professionally styled with Feather icons and detailed node dialog
 """
+import os
+
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QFont
-from PyQt6.QtWidgets import QComboBox, QLabel, QTextEdit, QVBoxLayout, QWidget
+from PyQt6.QtGui import QFont, QIcon
+from PyQt6.QtWidgets import (
+    QDialog,
+    QFrame,
+    QGridLayout,
+    QHBoxLayout,
+    QLabel,
+    QListWidget,
+    QListWidgetItem,
+    QPushButton,
+    QScrollArea,
+    QVBoxLayout,
+    QWidget,
+)
+
+from utils.paths import resource_path
 
 
-class NodeTemplate:
-    __slots__ = ["name", "description", "code_template", "category"]
+class NodeDetailsDialog(QDialog):
+    """Dialog showing detailed nodes in a category"""
 
-    def __init__(self, name, description, code_template, category="General"):
-        self.name = name
-        self.description = description
-        self.code_template = code_template
-        self.category = category
+    def __init__(self, category_data, parent=None):
+        super().__init__(parent)
+        self.category_data = category_data
+        self.setWindowTitle(f"{category_data['title']} - Available Nodes")
+        self.setMinimumSize(600, 500)
+        self.setup_ui()
 
+    def get_icon(self, icon_name):
+        """Get white icon from assets"""
+        icon_path = resource_path(f"assets/icons/{icon_name}.svg")
+        if os.path.exists(icon_path):
+            return QIcon(icon_path)
+        return QIcon()
 
-class NodeTemplateManager:
-    def __init__(self):
-        self.templates = self._load_default_templates()
-        self._category_cache = None
+    def setup_ui(self):
+        """Setup dialog UI"""
+        layout = QVBoxLayout()
+        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setSpacing(16)
 
-    def _load_default_templates(self):
-        """Load optimized default templates"""
-        return [
-            NodeTemplate(
-                name="Text Processor",
-                description="Process and transform text data",
-                category="Data Processing",
-                code_template="""def process(input_data):
-    # Process text input
-    result = input_data.upper()
-    return result""",
-            ),
-            NodeTemplate(
-                name="File Watcher",
-                description="Monitor file system changes",
-                category="File Operations",
-                code_template="""import os
-import time
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
+        # Header with icon and title
+        header_layout = QHBoxLayout()
+        header_layout.setSpacing(12)
 
-def watch_directory(path):
-    class Handler(FileSystemEventHandler):
-        def on_modified(self, event):
-            if not event.is_directory:
-                print(f"File modified: {event.src_path}")
+        icon_label = QLabel()
+        icon = self.get_icon(self.category_data["icon"])
+        if not icon.isNull():
+            icon_label.setPixmap(icon.pixmap(32, 32))
+        header_layout.addWidget(icon_label)
 
-    observer = Observer()
-    observer.schedule(Handler(), path, recursive=True)
-    observer.start()
-    return observer""",
-            ),
-            NodeTemplate(
-                name="HTTP Request",
-                description="Make HTTP requests to APIs",
-                category="Web",
-                code_template=r"""import requests
-import json
+        title = QLabel(self.category_data["title"])
+        title.setFont(QFont("Segoe UI", 16, QFont.Weight.Bold))
+        title.setStyleSheet("color: #ffffff;")
+        header_layout.addWidget(title)
+        header_layout.addStretch()
 
-def make_request(url, method="GET", data=None, headers=None):
-    try:
-        if method.upper() == "GET":
-            response = requests.get(url, headers=headers)
-        elif method.upper() == "POST":
-            response = requests.post(url, json=data, headers=headers)
+        layout.addLayout(header_layout)
 
-        return {
-            "status_code": response.status_code,
-            "data": response.json() if response.headers.get('content-type', '').startswith('application/json') else response.text
-        }
-    except Exception as e:
-        return {"error": str(e)}""",
-            ),
-            NodeTemplate(
-                name="Data Validator",
-                description="Validate and clean data",
-                category="Data Processing",
-                code_template=r"""import re
-import json
+        # Description
+        desc = QLabel(self.category_data["description"])
+        desc.setFont(QFont("Segoe UI", 10))
+        desc.setStyleSheet("color: #a0a0a0; margin-bottom: 10px;")
+        desc.setWordWrap(True)
+        layout.addWidget(desc)
 
-def validate_data(data, validation_rules):
-    errors = []
+        # Nodes list
+        nodes_label = QLabel("Available Nodes:")
+        nodes_label.setFont(QFont("Segoe UI", 12, QFont.Weight.DemiBold))
+        nodes_label.setStyleSheet("color: #ffffff; margin-top: 8px;")
+        layout.addWidget(nodes_label)
 
-    for field, rules in validation_rules.items():
-        if field not in data:
-            errors.append(f"Missing field: {field}")
-            continue
+        # List widget for nodes
+        self.node_list = QListWidget()
+        self.node_list.setStyleSheet(
+            """
+            QListWidget {
+                background-color: #1e1e1e;
+                border: 1px solid #3e3e42;
+                border-radius: 4px;
+                padding: 8px;
+            }
+            QListWidget::item {
+                padding: 12px;
+                border-bottom: 1px solid #2d2d30;
+                border-radius: 4px;
+                margin: 2px 0px;
+                color: #e0e0e0;
+            }
+            QListWidget::item:hover {
+                background-color: #2d2d30;
+            }
+            QListWidget::item:selected {
+                background-color: #0e639c;
+                color: #ffffff;
+            }
+        """
+        )
 
-        value = data[field]
+        # Add nodes to list
+        for node in self.category_data["nodes"]:
+            item = QListWidgetItem(self.get_icon("package"), f"  {node['name']}")
+            item.setFont(QFont("Segoe UI", 10))
+            # Store node description as tooltip
+            item.setToolTip(node["description"])
+            self.node_list.addItem(item)
 
-        if "required" in rules and not value:
-            errors.append(f"{field} is required")
+        layout.addWidget(self.node_list)
 
-        if "type" in rules:
-            if rules["type"] == "email" and not re.match(r"[^@]+@[^@]+\.[^@]+", str(value)):
-                errors.append(f"{field} must be a valid email")
-            elif rules["type"] == "number" and not str(value).replace('.', '').isdigit():
-                errors.append(f"{field} must be a number")
+        # Button row
+        button_layout = QHBoxLayout()
+        button_layout.addStretch()
 
-    return {
-        "valid": len(errors) == 0,
-        "errors": errors,
-        "cleaned_data": data
-    }""",
-            ),
-            NodeTemplate(
-                name="Database Connector",
-                description="Connect to databases",
-                category="Database",
-                code_template="""import sqlite3
-import json
+        close_button = QPushButton("Close")
+        close_button.setFont(QFont("Segoe UI", 10))
+        close_button.setMinimumHeight(32)
+        close_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        close_button.setStyleSheet(
+            """
+            QPushButton {
+                padding: 8px 20px;
+                background-color: #3e3e42;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                font-weight: 600;
+            }
+            QPushButton:hover {
+                background-color: #4e4e52;
+            }
+        """
+        )
+        close_button.clicked.connect(self.close)
+        button_layout.addWidget(close_button)
 
-def connect_database(db_path):
-    try:
-        conn = sqlite3.connect(db_path)
-        return conn
-    except Exception as e:
-        return {"error": str(e)}
+        layout.addLayout(button_layout)
 
-def execute_query(conn, query, params=None):
-    try:
-        cursor = conn.cursor()
-        if params:
-            cursor.execute(query, params)
-        else:
-            cursor.execute(query)
-
-        if query.strip().upper().startswith('SELECT'):
-            return cursor.fetchall()
-        else:
-            conn.commit()
-            return {"rows_affected": cursor.rowcount}
-    except Exception as e:
-        return {"error": str(e)}""",
-            ),
-            NodeTemplate(
-                name="Email Sender",
-                description="Send emails programmatically",
-                category="Communication",
-                code_template="""import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-
-def send_email(smtp_server, port, username, password, to_email, subject, body):
-    try:
-        msg = MIMEMultipart()
-        msg['From'] = username
-        msg['To'] = to_email
-        msg['Subject'] = subject
-
-        msg.attach(MIMEText(body, 'plain'))
-
-        server = smtplib.SMTP(smtp_server, port)
-        server.starttls()
-        server.login(username, password)
-        text = msg.as_string()
-        server.sendmail(username, to_email, text)
-        server.quit()
-
-        return {"status": "success", "message": "Email sent successfully"}
-    except Exception as e:
-        return {"status": "error", "message": str(e)}""",
-            ),
-        ]
-
-    def get_templates_by_category(self, category):
-        """Get templates filtered by category - optimized"""
-        return [t for t in self.templates if t.category == category]
-
-    def get_all_categories(self):
-        """Get all available categories - cached"""
-        if self._category_cache is None:
-            self._category_cache = list({t.category for t in self.templates})
-        return self._category_cache
-
-    def get_template_by_name(self, name):
-        """Get template by name - optimized"""
-        return next((t for t in self.templates if t.name == name), None)
+        self.setLayout(layout)
+        self.setStyleSheet("QDialog { background-color: #252526; }")
 
 
 class NodeTemplateWidget(QWidget):
+    """Template gallery matching Home tab design with Feather icons"""
+
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.template_manager = NodeTemplateManager()
-        self._current_templates = []
-        self.init_ui()
+        self.setup_ui()
 
-    def init_ui(self):
-        layout = QVBoxLayout()
+    def get_icon(self, icon_name):
+        """Get white icon from assets"""
+        icon_path = resource_path(f"assets/icons/{icon_name}.svg")
+        if os.path.exists(icon_path):
+            return QIcon(icon_path)
+        return QIcon()
 
-        # Minimalist title
-        title = QLabel("Templates")
-        title.setFont(QFont("Poppins", 14, QFont.Weight.Bold))
-        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(title)
+    def setup_ui(self):
+        """Setup the UI with modern styling"""
+        # Main layout
+        main_layout = QVBoxLayout()
+        main_layout.setContentsMargins(24, 24, 24, 24)
+        main_layout.setSpacing(16)
 
-        # Category selector
-        self.category_combo = QComboBox()
-        self.category_combo.addItem("All")
-        self.category_combo.addItems(self.template_manager.get_all_categories())
-        self.category_combo.currentTextChanged.connect(self.filter_templates)
-        layout.addWidget(self.category_combo)
+        # Title section
+        title = QLabel("Node Templates")
+        title.setFont(QFont("Segoe UI", 18, QFont.Weight.Bold))
+        title.setStyleSheet("color: #ffffff;")
+        main_layout.addWidget(title)
 
-        # Template list - optimized
-        self.template_list = QTextEdit()
-        self.template_list.setReadOnly(True)
-        self.template_list.setMaximumHeight(150)
-        self.template_list.setStyleSheet("font-family: 'Consolas'; font-size: 11px;")
-        layout.addWidget(self.template_list)
+        subtitle = QLabel("Pre-built automation nodes ready to use")
+        subtitle.setFont(QFont("Segoe UI", 11))
+        subtitle.setStyleSheet("color: #a0a0a0; margin-bottom: 10px;")
+        main_layout.addWidget(subtitle)
 
-        self.setLayout(layout)
-        self.filter_templates()
-
-    def filter_templates(self):
-        """Optimized template filtering"""
-        category = self.category_combo.currentText()
-
-        if category == "All":
-            self._current_templates = self.template_manager.templates
-        else:
-            self._current_templates = self.template_manager.get_templates_by_category(
-                category
-            )
-
-        # Build template text efficiently
-        template_text = "\n".join(
-            f"• {t.name} ({t.category})\n  {t.description}"
-            for t in self._current_templates
+        # Scroll area for templates
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        scroll.setStyleSheet(
+            """
+            QScrollArea {
+                border: none;
+                background-color: transparent;
+            }
+            QScrollBar:vertical {
+                background-color: #2d2d30;
+                width: 12px;
+                border-radius: 6px;
+            }
+            QScrollBar::handle:vertical {
+                background-color: #3e3e42;
+                border-radius: 6px;
+                min-height: 30px;
+            }
+            QScrollBar::handle:vertical:hover {
+                background-color: #4e4e52;
+            }
+        """
         )
 
-        self.template_list.setPlainText(template_text)
+        # Container for template cards
+        scroll_content = QWidget()
+        scroll_content.setStyleSheet("background-color: transparent;")
+        self.grid_layout = QGridLayout(scroll_content)
+        self.grid_layout.setSpacing(16)  # Increased spacing
+        self.grid_layout.setContentsMargins(0, 0, 0, 0)
 
-    def get_selected_template(self):
-        """Get currently selected template"""
-        return self._current_templates[0] if self._current_templates else None
+        # Add template categories
+        self.create_template_cards()
+
+        scroll.setWidget(scroll_content)
+        main_layout.addWidget(scroll)
+
+        self.setLayout(main_layout)
+        self.setStyleSheet("QWidget { background-color: #252526; }")
+
+    def get_template_data(self):
+        """Get all template categories with detailed node information"""
+        return [
+            {
+                "title": "Data Processing",
+                "description": "Extract, transform, and load data between sources",
+                "icon": "bar-chart-2",
+                "count": 4,
+                "nodes": [
+                    {
+                        "name": "CSV Reader",
+                        "description": "Read data from CSV files with customizable delimiters",
+                    },
+                    {
+                        "name": "JSON Parser",
+                        "description": "Parse and extract data from JSON structures",
+                    },
+                    {
+                        "name": "Data Filter",
+                        "description": "Filter data based on custom conditions",
+                    },
+                    {
+                        "name": "Data Merger",
+                        "description": "Combine multiple data sources into one",
+                    },
+                ],
+            },
+            {
+                "title": "File Operations",
+                "description": "File and folder manipulation tools",
+                "icon": "folder",
+                "count": 4,
+                "nodes": [
+                    {
+                        "name": "File Reader",
+                        "description": "Read content from text and binary files",
+                    },
+                    {
+                        "name": "File Writer",
+                        "description": "Write data to files with multiple formats",
+                    },
+                    {
+                        "name": "Directory Scanner",
+                        "description": "Scan and list files in directories recursively",
+                    },
+                    {
+                        "name": "File Mover",
+                        "description": "Move, copy, or rename files and folders",
+                    },
+                ],
+            },
+            {
+                "title": "Web Automation",
+                "description": "Web scraping and API integration",
+                "icon": "globe",
+                "count": 4,
+                "nodes": [
+                    {
+                        "name": "HTTP Request",
+                        "description": "Make HTTP/HTTPS requests with custom headers",
+                    },
+                    {
+                        "name": "Web Scraper",
+                        "description": "Extract data from websites using CSS selectors",
+                    },
+                    {
+                        "name": "API Caller",
+                        "description": "Call REST APIs with authentication support",
+                    },
+                    {
+                        "name": "HTML Parser",
+                        "description": "Parse and extract data from HTML content",
+                    },
+                ],
+            },
+            {
+                "title": "Text Processing",
+                "description": "Text manipulation and analysis",
+                "icon": "type",
+                "count": 4,
+                "nodes": [
+                    {
+                        "name": "Text Splitter",
+                        "description": "Split text by delimiters or patterns",
+                    },
+                    {
+                        "name": "Regex Matcher",
+                        "description": "Match and extract text using regular expressions",
+                    },
+                    {
+                        "name": "Text Combiner",
+                        "description": "Concatenate multiple text inputs",
+                    },
+                    {
+                        "name": "Formatter",
+                        "description": "Format text using templates and variables",
+                    },
+                ],
+            },
+            {
+                "title": "AI & ML",
+                "description": "AI models and machine learning",
+                "icon": "cpu",
+                "count": 4,
+                "nodes": [
+                    {
+                        "name": "Ollama LLM",
+                        "description": "Run local LLM models with Ollama",
+                    },
+                    {
+                        "name": "Image Generator",
+                        "description": "Generate images using AI models",
+                    },
+                    {
+                        "name": "Sentiment Analysis",
+                        "description": "Analyze sentiment in text data",
+                    },
+                    {
+                        "name": "Classifier",
+                        "description": "Classify data using trained models",
+                    },
+                ],
+            },
+            {
+                "title": "Notifications",
+                "description": "Multi-platform alert systems",
+                "icon": "bell",
+                "count": 4,
+                "nodes": [
+                    {
+                        "name": "Email Sender",
+                        "description": "Send emails via SMTP with attachments",
+                    },
+                    {
+                        "name": "Slack Bot",
+                        "description": "Post messages to Slack channels",
+                    },
+                    {
+                        "name": "SMS Sender",
+                        "description": "Send SMS messages via Twilio or similar",
+                    },
+                    {
+                        "name": "Discord Webhook",
+                        "description": "Send notifications to Discord channels",
+                    },
+                ],
+            },
+        ]
+
+    def create_template_cards(self):
+        """Create template category cards with Feather icons"""
+        templates = self.get_template_data()
+
+        row = 0
+        col = 0
+        max_cols = 2  # 2 columns for better sizing
+
+        for template in templates:
+            card = self.create_template_card(template)
+            self.grid_layout.addWidget(card, row, col)
+
+            col += 1
+            if col >= max_cols:
+                col = 0
+                row += 1
+
+        # Add stretch to push cards to top
+        self.grid_layout.setRowStretch(row + 1, 1)
+
+    def create_template_card(self, template_data):
+        """Create a template card with Feather icon"""
+        card = QFrame()
+        card.setFixedHeight(180)  # Slightly taller
+        card.setStyleSheet(
+            """
+            QFrame {
+                background-color: #1e1e1e;
+                border: 1px solid #3e3e42;
+                border-radius: 6px;
+            }
+            QFrame:hover {
+                border: 1px solid #007acc;
+                background-color: #2a2a2a;
+            }
+        """
+        )
+
+        layout = QVBoxLayout()
+        layout.setSpacing(10)  # More spacing
+        layout.setContentsMargins(16, 14, 16, 14)  # More padding
+
+        # Icon and title row
+        title_row = QHBoxLayout()
+        title_row.setSpacing(10)
+
+        # Icon label with actual icon
+        icon_label = QLabel()
+        icon = self.get_icon(template_data["icon"])
+        if not icon.isNull():
+            icon_label.setPixmap(icon.pixmap(28, 28))  # Larger icon
+        title_row.addWidget(icon_label)
+
+        title_label = QLabel(template_data["title"])
+        title_label.setFont(QFont("Segoe UI", 13, QFont.Weight.Bold))  # Larger font
+        title_label.setStyleSheet("color: #ffffff;")
+        title_row.addWidget(title_label)
+        title_row.addStretch()
+
+        layout.addLayout(title_row)
+
+        # Description
+        desc_label = QLabel(template_data["description"])
+        desc_label.setFont(QFont("Segoe UI", 10))  # Larger font
+        desc_label.setStyleSheet("color: #a0a0a0;")
+        desc_label.setWordWrap(True)
+        layout.addWidget(desc_label)
+
+        # Node count badge
+        count_label = QLabel(f"{template_data['count']} nodes available")
+        count_label.setFont(QFont("Segoe UI", 8))
+        count_label.setStyleSheet(
+            """
+            color: #007acc;
+            background-color: #0e639c20;
+            padding: 4px 8px;
+            border-radius: 3px;
+        """
+        )
+        layout.addWidget(count_label)
+
+        layout.addStretch()
+
+        # Explore button
+        explore_button = QPushButton("View Nodes")
+        explore_button.setFont(QFont("Segoe UI", 9))
+        explore_button.setFixedHeight(32)  # Taller button
+        explore_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        explore_button.setStyleSheet(
+            """
+            QPushButton {
+                padding: 6px 12px;
+                background-color: #0e639c;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                font-weight: 600;
+            }
+            QPushButton:hover {
+                background-color: #1177bb;
+            }
+            QPushButton:pressed {
+                background-color: #0d5a8f;
+            }
+        """
+        )
+        explore_button.clicked.connect(
+            lambda checked, cat=template_data: self.explore_category(cat)
+        )
+        layout.addWidget(explore_button)
+
+        card.setLayout(layout)
+        return card
+
+    def explore_category(self, category_data):
+        """Open dialog showing detailed nodes"""
+        dialog = NodeDetailsDialog(category_data, self)
+        dialog.exec()
