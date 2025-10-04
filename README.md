@@ -102,9 +102,40 @@ python main.py
 
 ---
 
+## Building a Standalone App (PyInstaller)
+
+All UI resources (fonts, icons, images, stylesheets) are bundled automatically via the included `nodebox.spec`. To create a distributable build:
+
+1. Activate your virtual environment and install PyInstaller:
+
+   ```bash
+   pip install pyinstaller
+   ```
+
+1. Build the desktop app using the provided spec file (auto-adds `assets/`, `qss/`, and `data/`):
+
+   ```powershell
+   pyinstaller --clean --noconfirm nodebox.spec
+   ```
+
+   macOS/Linux users can run the same command from a shell (no changes needed).
+
+1. Launch the packaged app from the generated `dist/NodeBox` folder (e.g., `dist/NodeBox/NodeBox.exe` on Windows) and verify that fonts, icons, and model artwork render as expected.
+
+If you prefer invoking PyInstaller without the spec file, make sure every resource folder is passed through `--add-data` (use `;` on Windows, `:` on Unix-based systems):
+
+```powershell
+pyinstaller --clean --noconfirm --windowed --name NodeBox main.py --add-data "assets;assets" --add-data "qss;qss" --add-data "data;data"
+```
+
+The application now resolves bundled resources via `utils.resource_path`, so the same paths work in both development and packaged builds.
+
+---
+
 ## How to Create Your First Automation
 
 Follow these steps to build your very first automation inside the app:
+
 ```plaintext
 - Open the Application – Start the app from your system.
 - Browse Models – Head over to the Browse Models section.
@@ -123,9 +154,11 @@ Follow these steps to build your very first automation inside the app:
 - Debug & Iterate – If something breaks, check node logs and update code accordingly.
 - Save Your Work – Don't forget to save your automation for later use.
 ```
+
 Tip: Start small (like a text-to-text pipeline) before experimenting with complex multi-node automations.
 
 ## Example Use Cases
+
 - Run a local LLM to summarize documents
 - Watch a folder and auto-organize files
 - Scrape data from websites and process it
