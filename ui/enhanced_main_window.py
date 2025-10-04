@@ -21,6 +21,7 @@ from PyQt6.QtWidgets import (
 )
 
 from browsemodels_manager.browsemodel_window import BrowseModelsWindow
+from features.model_manager import ModelManager  
 from ui.newautomation_window import NewAutomationWindow
 from ui.placeholder_widget import PlaceholderWidget
 from utils.paths import AUTOMATIONS_DIR, resource_path
@@ -133,6 +134,7 @@ class EnhancedMainWindow(QWidget):
         self.create_debug_tab()
         self.create_performance_tab()
         self.create_export_import_tab()
+        self.create_models_tab()  
 
         main_layout.addWidget(self.status_bar)
 
@@ -338,6 +340,12 @@ class EnhancedMainWindow(QWidget):
         placeholder = PlaceholderWidget("Export/Import Manager")
         self.tab_widget.addTab(placeholder, self.get_icon("package"), " Export/Import")
 
+    
+    def create_models_tab(self):
+        """Create local models tab - lazy loaded"""
+        placeholder = PlaceholderWidget("Local Models Manager")
+        self.tab_widget.addTab(placeholder, self.get_icon("database"), " Local Models")
+
     def setup_connections(self):
         self.automation_list.itemDoubleClicked.connect(self.edit_automation)
 
@@ -360,6 +368,8 @@ class EnhancedMainWindow(QWidget):
             self._load_performance_tab(index)
         elif "Export/Import" in tab_text:
             self._load_export_import_tab(index)
+        elif "Local Models" in tab_text:  
+            self._load_models_tab(index)
 
         self._loaded_tabs.add(index)
 
@@ -421,6 +431,21 @@ class EnhancedMainWindow(QWidget):
         self.tab_widget.removeTab(index)
         self.tab_widget.insertTab(
             index, widget, self.get_icon("package"), " Export/Import"
+        )
+        self.tab_widget.setCurrentIndex(index)
+        self.tab_widget.currentChanged.connect(self._on_tab_changed)
+
+    
+    def _load_models_tab(self, index):
+        """Load the actual models manager widget"""
+        from features.model_manager import ModelManagerWidget
+
+        self.tab_widget.currentChanged.disconnect()
+        widget = ModelManagerWidget()
+        self._feature_widgets["models"] = widget
+        self.tab_widget.removeTab(index)
+        self.tab_widget.insertTab(
+            index, widget, self.get_icon("database"), " Local Models"
         )
         self.tab_widget.setCurrentIndex(index)
         self.tab_widget.currentChanged.connect(self._on_tab_changed)
@@ -520,6 +545,7 @@ class EnhancedMainWindow(QWidget):
                 <li>Debug Console</li>
                 <li>Performance Monitor</li>
                 <li>Export/Import System</li>
+                <li>Local Models Manager</li>
             </ul>
             <p style='color: #888; font-size: 12px;'>Built with Python & PyQt6</p>
         </div>

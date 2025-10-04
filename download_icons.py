@@ -22,7 +22,8 @@ icons = [
     "plus-circle.svg",
     "package.svg",
     "file.svg",
-    "home.svg"
+    "home.svg",
+    "database.svg"
 ]
 
 def make_icon_white(svg_content):
@@ -32,16 +33,16 @@ def make_icon_white(svg_content):
         # Add XML declaration if missing
         if not svg_content.startswith('<?xml'):
             svg_content = '<?xml version="1.0" encoding="UTF-8"?>' + svg_content
-        
+
         root = ET.fromstring(svg_content)
-        
+
         # Update all stroke attributes to white
         for elem in root.iter():
             if 'stroke' in elem.attrib:
                 elem.attrib['stroke'] = 'white'
             if 'fill' in elem.attrib and elem.attrib['fill'] != 'none':
                 elem.attrib['fill'] = 'white'
-        
+
         # Return modified SVG
         return ET.tostring(root, encoding='unicode')
     except:
@@ -58,7 +59,7 @@ for icon in icons:
     if response.status_code == 200:
         # Convert to white
         white_svg = make_icon_white(response.text)
-        
+
         # Save white version
         with open(f"assets/icons/{icon}", "w", encoding="utf-8") as f:
             f.write(white_svg)
