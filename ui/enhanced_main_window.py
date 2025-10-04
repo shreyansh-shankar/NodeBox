@@ -27,6 +27,8 @@ from ui.placeholder_widget import PlaceholderWidget
 from utils.paths import AUTOMATIONS_DIR, resource_path
 from utils.screen_manager import ScreenManager
 
+PLACEHOLDER_TEXT = "No automations found. Create your first automation!"
+
 
 class EnhancedMainWindow(QWidget):
     def __init__(self):
@@ -457,7 +459,7 @@ class EnhancedMainWindow(QWidget):
         automations = self.fetch_automations()
 
         if not automations:
-            item = QListWidgetItem("No automations found. Create your first!")
+            item = QListWidgetItem(item = QListWidgetItem(PLACEHOLDER_TEXT))
             item.setFlags(Qt.ItemFlag.NoItemFlags)
             item.setFont(QFont("Segoe UI", 12))
             self.automation_list.addItem(item)
@@ -496,9 +498,9 @@ class EnhancedMainWindow(QWidget):
         self.load_automations()
 
     def edit_automation(self, item):
-        automation_name = item.text().strip()
-
-        if "No automations found" in automation_name:
+        """Edit selected automation"""
+        automation_name = item.text()
+        if automation_name == PLACEHOLDER_TEXT:
             return
 
         from automation_manager.node_editor_window import NodeEditorWindow
