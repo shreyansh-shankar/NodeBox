@@ -214,6 +214,292 @@
   background: transparent;
 }
 
+/* --- Examples Page Styles --- */
+.example-section {
+  margin: 50px 0;
+  padding: 30px;
+  background: rgba(20, 25, 40, 0.6);
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.example-section h2 {
+  font-size: 1.8rem;
+  color: #00c6ff;
+  margin-bottom: 15px;
+  font-family: "Sansation", sans-serif;
+}
+
+.example-section h2 i {
+  margin-right: 10px;
+  color: #00c6ff;
+}
+
+.example-section h3 {
+  font-size: 1.3rem;
+  color: #00ff88;
+  margin-top: 25px;
+  margin-bottom: 15px;
+  font-family: "Sansation", sans-serif;
+}
+
+.example-description {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: #ccc;
+  margin-bottom: 20px;
+}
+
+.example-steps {
+  margin-left: 25px;
+  color: #ddd;
+  line-height: 1.9;
+  font-size: 1rem;
+}
+
+.example-steps li {
+  margin-bottom: 12px;
+}
+
+.example-steps strong {
+  color: #00c6ff;
+}
+
+.example-prereqs {
+  margin-left: 25px;
+  color: #ddd;
+  line-height: 1.8;
+  font-size: 1rem;
+}
+
+.example-prereqs li {
+  margin-bottom: 10px;
+}
+
+.code-block {
+  margin: 20px 0;
+  background: rgba(10, 15, 25, 0.8);
+  border-radius: 8px;
+  border: 1px solid rgba(0, 198, 255, 0.2);
+  overflow-x: auto;
+}
+
+.code-block pre {
+  margin: 0;
+  padding: 20px;
+}
+
+.code-block code {
+  font-family: 'Courier New', monospace;
+  font-size: 0.95rem;
+  color: #00ff88;
+  line-height: 1.6;
+}
+
+.example-result {
+  margin: 25px 0;
+  padding: 20px;
+  background: rgba(0, 198, 255, 0.1);
+  border-left: 4px solid #00c6ff;
+  border-radius: 6px;
+}
+
+.example-result strong {
+  color: #00c6ff;
+  font-size: 1.1rem;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.example-result pre {
+  margin: 10px 0 0 0;
+  padding: 15px;
+  background: rgba(10, 15, 25, 0.6);
+  border-radius: 6px;
+  color: #ddd;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  overflow-x: auto;
+}
+
+.example-note, .example-tip {
+  margin: 20px 0;
+  padding: 15px 20px;
+  border-radius: 8px;
+  border-left: 4px solid #00ff88;
+  background: rgba(0, 255, 136, 0.1);
+}
+
+.example-note strong, .example-tip strong {
+  color: #00ff88;
+  display: block;
+  margin-bottom: 8px;
+  font-size: 1.05rem;
+}
+
+/* Tips Section */
+.tips-section {
+  margin: 50px 0;
+}
+
+.tips-section h2 {
+  font-size: 1.8rem;
+  color: #00c6ff;
+  margin-bottom: 30px;
+  font-family: "Sansation", sans-serif;
+}
+
+.tips-section h2 i {
+  margin-right: 10px;
+  color: #00ff88;
+}
+
+.tip-card {
+  margin: 20px 0;
+  padding: 20px;
+  background: rgba(20, 25, 40, 0.6);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tip-card:hover {
+  transform: translateX(5px);
+  box-shadow: 0 4px 15px rgba(0, 198, 255, 0.2);
+}
+
+.tip-card h3 {
+  font-size: 1.2rem;
+  color: #00c6ff;
+  margin-bottom: 10px;
+  font-family: "Sansation", sans-serif;
+}
+
+.tip-card h3 i {
+  margin-right: 8px;
+  color: #00ff88;
+}
+
+.tip-card p {
+  font-size: 1rem;
+  color: #ccc;
+  line-height: 1.6;
+}
+
+.tip-card code {
+  background: rgba(0, 198, 255, 0.15);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #00c6ff;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+}
+
+/* Patterns Section */
+.patterns-section {
+  margin: 50px 0;
+}
+
+.patterns-section h2 {
+  font-size: 1.8rem;
+  color: #00c6ff;
+  margin-bottom: 30px;
+  font-family: "Sansation", sans-serif;
+}
+
+.patterns-section h2 i {
+  margin-right: 10px;
+}
+
+.pattern-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.pattern-card {
+  padding: 20px;
+  background: rgba(20, 25, 40, 0.6);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pattern-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 20px rgba(0, 255, 136, 0.2);
+  border-color: rgba(0, 255, 136, 0.3);
+}
+
+.pattern-card h3 {
+  font-size: 1.2rem;
+  color: #00ff88;
+  margin-bottom: 8px;
+  font-family: "Sansation", sans-serif;
+}
+
+.pattern-card p {
+  font-size: 1rem;
+  color: #00c6ff;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.pattern-card small {
+  font-size: 0.9rem;
+  color: #aaa;
+  line-height: 1.5;
+}
+
+/* Next Steps Section */
+.next-steps {
+  margin: 50px 0;
+  padding: 30px;
+  background: rgba(0, 198, 255, 0.05);
+  border-radius: 14px;
+  border: 2px solid rgba(0, 198, 255, 0.2);
+}
+
+.next-steps h2 {
+  font-size: 1.8rem;
+  color: #00c6ff;
+  margin-bottom: 20px;
+  font-family: "Sansation", sans-serif;
+}
+
+.next-steps h2 i {
+  margin-right: 10px;
+}
+
+.next-steps p {
+  font-size: 1.1rem;
+  color: #ddd;
+  margin-bottom: 20px;
+}
+
+.next-steps ul {
+  margin-left: 25px;
+  color: #ddd;
+  line-height: 1.9;
+  font-size: 1rem;
+}
+
+.next-steps ul li {
+  margin-bottom: 12px;
+}
+
+.next-steps a {
+  color: #00c6ff;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.next-steps a:hover {
+  color: #00ff88;
+}
+
 /* Responsive */
 @media (max-width: 992px) {
   .docs-container {
@@ -234,5 +520,13 @@
 
   .content {
     padding: 30px 20px;
+  }
+
+  .example-section {
+    padding: 20px;
+  }
+
+  .pattern-grid {
+    grid-template-columns: 1fr;
   }
 }

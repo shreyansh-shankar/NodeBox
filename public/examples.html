@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="Nodebox - Home" />
+    <title>NodeBox - Examples</title>
+    <meta property="og:title" content="Nodebox - Examples" />
     <meta property="og:description"
         content=" Design and deploy workflows with Python-native nodes. Run automations on your machine without API costs or cloud dependencies. " />
     <meta property="og:image" content="https://nodeboxlab.web.app/thumbnail.png" />
@@ -55,7 +56,372 @@
         <!-- Main content -->
         <main class="content">
 
-            <!-- add your code here -->
+            <h1><i class="fas fa-code"></i> NodeBox Examples</h1>
+            <p>
+                Learn NodeBox by exploring real-world examples! Each example demonstrates key features 
+                and workflows to help you build powerful automations.
+            </p>
+
+            <!-- Example 1: Basic Node Connection -->
+            <section class="example-section">
+                <h2><i class="fas fa-circle-nodes"></i> Example 1: Basic Node Connection</h2>
+                <p class="example-description">
+                    This example shows how to create a simple automation with two nodes: a text input node 
+                    that outputs data, and a display node that receives and processes that data.
+                </p>
+
+                <h3>Step-by-Step Guide:</h3>
+                <ol class="example-steps">
+                    <li>Open NodeBox and click <strong>New Automation</strong></li>
+                    <li>Name your automation (e.g., "My First Workflow")</li>
+                    <li>Right-click on the canvas and select <strong>Add Node</strong></li>
+                    <li>Create your first node and name it "Input Node"</li>
+                    <li>Click on the node and click <strong>Open</strong> to access the Node Editor</li>
+                    <li>Add the following code:</li>
+                </ol>
+
+                <div class="code-block">
+                    <pre><code># Input Node - Generates a greeting message
+message = "Hello from NodeBox!"
+outputs['message'] = message
+print(f"Output: {message}")</code></pre>
+                </div>
+
+                <ol class="example-steps" start="7">
+                    <li>Click <strong>Save</strong> and close the Node Editor</li>
+                    <li>Create a second node named "Display Node"</li>
+                    <li>Add this code to the Display Node:</li>
+                </ol>
+
+                <div class="code-block">
+                    <pre><code># Display Node - Receives and processes the message
+received_message = inputs.get('message', 'No message received')
+outputs['result'] = f"Processed: {received_message}"
+print(f"Received: {received_message}")</code></pre>
+                </div>
+
+                <ol class="example-steps" start="10">
+                    <li>Connect the output port of "Input Node" to the input port of "Display Node"</li>
+                    <li>Click <strong>Run</strong> to execute the automation</li>
+                </ol>
+
+                <div class="example-result">
+                    <strong>Expected Output:</strong>
+                    <pre>Output: Hello from NodeBox!
+Received: Hello from NodeBox!</pre>
+                </div>
+            </section>
+
+            <!-- Example 2: File Reader Node -->
+            <section class="example-section">
+                <h2><i class="fas fa-file-alt"></i> Example 2: File Handling with File Reader Node</h2>
+                <p class="example-description">
+                    This example demonstrates how to use the built-in File Reader node to read 
+                    a text file and process its contents.
+                </p>
+
+                <h3>Prerequisites:</h3>
+                <ul class="example-prereqs">
+                    <li>Create a text file at <code>/path/to/sample.txt</code> with some content</li>
+                    <li>Example content: "This is a sample text file for NodeBox automation."</li>
+                </ul>
+
+                <h3>Step-by-Step Guide:</h3>
+                <ol class="example-steps">
+                    <li>Create a new automation named "File Reader Demo"</li>
+                    <li>Add a node and name it "File Path Input"</li>
+                    <li>Add this code to provide the file path:</li>
+                </ol>
+
+                <div class="code-block">
+                    <pre><code># File Path Input Node
+file_path = "/path/to/sample.txt"  # Update with your file path
+outputs['file_path'] = file_path
+print(f"File path set to: {file_path}")</code></pre>
+                </div>
+
+                <ol class="example-steps" start="4">
+                    <li>Add a <strong>File Reader</strong> node (available in predefined nodes)</li>
+                    <li>Connect the output of "File Path Input" to the input of "File Reader"</li>
+                    <li>Add a third node named "Content Processor"</li>
+                    <li>Add this code to process the file content:</li>
+                </ol>
+
+                <div class="code-block">
+                    <pre><code># Content Processor Node
+content = inputs.get('content', '')
+error = inputs.get('error', None)
+
+if error:
+    print(f"Error: {error}")
+    outputs['result'] = f"Failed: {error}"
+else:
+    word_count = len(content.split())
+    char_count = len(content)
+    outputs['result'] = f"File read successfully!\nWords: {word_count}\nCharacters: {char_count}"
+    print(f"File contains {word_count} words and {char_count} characters")</code></pre>
+                </div>
+
+                <ol class="example-steps" start="8">
+                    <li>Connect the "File Reader" outputs to "Content Processor" inputs</li>
+                    <li>Run the automation to see the file statistics</li>
+                </ol>
+
+                <div class="example-result">
+                    <strong>Expected Output:</strong>
+                    <pre>File path set to: /path/to/sample.txt
+Successfully read file: /path/to/sample.txt
+File contains 9 words and 55 characters</pre>
+                </div>
+            </section>
+
+            <!-- Example 3: Data Transformation Pipeline -->
+            <section class="example-section">
+                <h2><i class="fas fa-arrow-right-arrow-left"></i> Example 3: Data Transformation Pipeline</h2>
+                <p class="example-description">
+                    Build a multi-node pipeline that processes data through several transformation steps.
+                    This demonstrates how to chain multiple nodes together for complex workflows.
+                </p>
+
+                <h3>Workflow Overview:</h3>
+                <p>Data Generator → Filter Node → Transform Node → Output Node</p>
+
+                <h3>Node 1: Data Generator</h3>
+                <div class="code-block">
+                    <pre><code># Data Generator Node - Creates a list of numbers
+data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+outputs['numbers'] = data
+print(f"Generated data: {data}")</code></pre>
+                </div>
+
+                <h3>Node 2: Filter Node</h3>
+                <div class="code-block">
+                    <pre><code># Filter Node - Keeps only even numbers
+numbers = inputs.get('numbers', [])
+filtered = [n for n in numbers if n % 2 == 0]
+outputs['filtered_numbers'] = filtered
+print(f"Filtered to even numbers: {filtered}")</code></pre>
+                </div>
+
+                <h3>Node 3: Transform Node</h3>
+                <div class="code-block">
+                    <pre><code># Transform Node - Squares each number
+numbers = inputs.get('filtered_numbers', [])
+squared = [n ** 2 for n in numbers]
+outputs['transformed'] = squared
+print(f"Squared numbers: {squared}")</code></pre>
+                </div>
+
+                <h3>Node 4: Output Node</h3>
+                <div class="code-block">
+                    <pre><code># Output Node - Calculates the sum
+numbers = inputs.get('transformed', [])
+total = sum(numbers)
+outputs['final_result'] = total
+print(f"Final sum: {total}")
+print(f"Result of pipeline: {numbers} → Sum = {total}")</code></pre>
+                </div>
+
+                <div class="example-result">
+                    <strong>Expected Output:</strong>
+                    <pre>Generated data: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+Filtered to even numbers: [2, 4, 6, 8, 10]
+Squared numbers: [4, 16, 36, 64, 100]
+Final sum: 220
+Result of pipeline: [4, 16, 36, 64, 100] → Sum = 220</pre>
+                </div>
+            </section>
+
+            <!-- Example 4: AI Integration with Ollama -->
+            <section class="example-section">
+                <h2><i class="fas fa-robot"></i> Example 4: AI Integration with Ollama</h2>
+                <p class="example-description">
+                    Integrate local AI models using Ollama. This example shows how to send a prompt 
+                    to an AI model and process the response.
+                </p>
+
+                <h3>Prerequisites:</h3>
+                <ul class="example-prereqs">
+                    <li>Ollama installed and running (<code>ollama serve</code>)</li>
+                    <li>A model downloaded (e.g., <code>ollama pull llama2</code>)</li>
+                </ul>
+
+                <h3>Node 1: Prompt Generator</h3>
+                <div class="code-block">
+                    <pre><code># Prompt Generator Node
+prompt = "Explain what NodeBox is in one sentence."
+outputs['prompt'] = prompt
+print(f"Sending prompt: {prompt}")</code></pre>
+                </div>
+
+                <h3>Node 2: Ollama API Call</h3>
+                <div class="code-block">
+                    <pre><code># Ollama API Node
+import requests
+import json
+
+prompt = inputs.get('prompt', '')
+
+try:
+    response = requests.post(
+        'http://localhost:11434/api/generate',
+        json={
+            'model': 'llama2',
+            'prompt': prompt,
+            'stream': False
+        }
+    )
+    
+    if response.status_code == 200:
+        result = response.json()
+        ai_response = result.get('response', '')
+        outputs['ai_response'] = ai_response
+        print(f"AI Response: {ai_response}")
+    else:
+        outputs['ai_response'] = f"Error: {response.status_code}"
+        print(f"API Error: {response.status_code}")
+        
+except Exception as e:
+    outputs['ai_response'] = f"Exception: {str(e)}"
+    print(f"Error calling Ollama: {str(e)}")</code></pre>
+                </div>
+
+                <div class="example-note">
+                    <strong>Note:</strong> Make sure Ollama is running with <code>ollama serve</code> 
+                    before executing this automation.
+                </div>
+            </section>
+
+            <!-- Example 5: Scheduled Automation -->
+            <section class="example-section">
+                <h2><i class="fas fa-clock"></i> Example 5: Scheduled Automation</h2>
+                <p class="example-description">
+                    Learn how to schedule automations to run at specific times or intervals 
+                    using NodeBox's built-in scheduler.
+                </p>
+
+                <h3>Step-by-Step Guide:</h3>
+                <ol class="example-steps">
+                    <li>Create a simple automation (e.g., a daily reminder or log generator)</li>
+                    <li>Save your automation with a meaningful name</li>
+                    <li>Navigate to the <strong>Scheduler</strong> tab in NodeBox</li>
+                    <li>Click <strong>New Schedule</strong></li>
+                    <li>Configure the schedule:
+                        <ul>
+                            <li><strong>Automation:</strong> Select your saved automation</li>
+                            <li><strong>Schedule Type:</strong> Choose "Interval" or "Cron"</li>
+                            <li><strong>Interval:</strong> e.g., "Every 1 hour" or "Every day at 9:00 AM"</li>
+                        </ul>
+                    </li>
+                    <li>Click <strong>Save Schedule</strong></li>
+                    <li>Your automation will now run automatically based on the schedule</li>
+                </ol>
+
+                <h3>Example: Daily Log Generator</h3>
+                <div class="code-block">
+                    <pre><code># Daily Log Node
+import datetime
+
+current_time = datetime.datetime.now()
+log_message = f"Daily log generated at {current_time.strftime('%Y-%m-%d %H:%M:%S')}"
+
+outputs['log'] = log_message
+print(log_message)
+
+# Optional: Save to file
+with open('automation_log.txt', 'a') as f:
+    f.write(log_message + '\n')</code></pre>
+                </div>
+
+                <div class="example-tip">
+                    <strong>Tip:</strong> You can view and manage all scheduled automations 
+                    from the Scheduler tab. Use the toggle to enable/disable schedules without deleting them.
+                </div>
+            </section>
+
+            <!-- Tips and Best Practices -->
+            <section class="tips-section">
+                <h2><i class="fas fa-lightbulb"></i> Tips & Best Practices</h2>
+                
+                <div class="tip-card">
+                    <h3><i class="fas fa-save"></i> Save Often</h3>
+                    <p>Always save your automations before running them. Use descriptive names 
+                    to easily identify workflows later.</p>
+                </div>
+
+                <div class="tip-card">
+                    <h3><i class="fas fa-bug"></i> Debugging Nodes</h3>
+                    <p>Use <code>print()</code> statements liberally in your node code. 
+                    The output will appear in the console and help you trace data flow.</p>
+                </div>
+
+                <div class="tip-card">
+                    <h3><i class="fas fa-plug"></i> Port Naming</h3>
+                    <p>Give your input and output ports meaningful names. This makes it easier 
+                    to understand connections when workflows get complex.</p>
+                </div>
+
+                <div class="tip-card">
+                    <h3><i class="fas fa-layer-group"></i> Modular Design</h3>
+                    <p>Break complex tasks into smaller, reusable nodes. This makes debugging 
+                    easier and allows you to reuse nodes across different automations.</p>
+                </div>
+
+                <div class="tip-card">
+                    <h3><i class="fas fa-exclamation-triangle"></i> Error Handling</h3>
+                    <p>Always include try-except blocks when working with external resources 
+                    (files, APIs, etc.) to handle errors gracefully.</p>
+                </div>
+
+                <div class="tip-card">
+                    <h3><i class="fas fa-folder"></i> File Paths</h3>
+                    <p>Use absolute paths for file operations to avoid confusion. 
+                    Supported formats: .txt, .json, .csv, and more.</p>
+                </div>
+            </section>
+
+            <!-- Common Patterns -->
+            <section class="patterns-section">
+                <h2><i class="fas fa-diagram-project"></i> Common Automation Patterns</h2>
+                
+                <div class="pattern-grid">
+                    <div class="pattern-card">
+                        <h3>ETL Pattern</h3>
+                        <p>Extract → Transform → Load</p>
+                        <small>Read data from a source, process it, and save to a destination</small>
+                    </div>
+
+                    <div class="pattern-card">
+                        <h3>Fan-Out Pattern</h3>
+                        <p>One Input → Multiple Processors</p>
+                        <small>Send one piece of data to multiple nodes for parallel processing</small>
+                    </div>
+
+                    <div class="pattern-card">
+                        <h3>Fan-In Pattern</h3>
+                        <p>Multiple Inputs → One Aggregator</p>
+                        <small>Combine outputs from multiple nodes into a single result</small>
+                    </div>
+
+                    <div class="pattern-card">
+                        <h3>Pipeline Pattern</h3>
+                        <p>Sequential Processing</p>
+                        <small>Chain nodes in sequence where each step builds on the previous</small>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Next Steps -->
+            <section class="next-steps">
+                <h2><i class="fas fa-forward"></i> Next Steps</h2>
+                <p>Ready to build your own automations? Here's what to do next:</p>
+                <ul>
+                    <li>Explore the <a href="codereference.html">Code Reference</a> for detailed API documentation</li>
+                    <li>Check the <a href="faq.html">FAQ</a> for common questions and troubleshooting</li>
+                    <li>Join the community on <a href="https://github.com/shreyansh-shankar/Nodebox" target="_blank">GitHub</a></li>
+                    <li>Contribute your own examples and improvements!</li>
+                </ul>
+            </section>
 
         </main>
 
