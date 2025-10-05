@@ -26,6 +26,7 @@ from ui.placeholder_widget import PlaceholderWidget
 from utils.paths import AUTOMATIONS_DIR, resource_path
 from utils.screen_manager import ScreenManager
 
+AUTOMATION_LIST_PLACEHOLDER = "No automations found. Create your first!"
 
 class EnhancedMainWindow(QWidget):
     def __init__(self):
@@ -454,9 +455,10 @@ class EnhancedMainWindow(QWidget):
         automations = self.fetch_automations()
 
         if not automations:
-            item = QListWidgetItem("No automations found. Create your first!")
+            item = QListWidgetItem(AUTOMATION_LIST_PLACEHOLDER)
             item.setFlags(Qt.ItemFlag.NoItemFlags)
             item.setFont(QFont("Segoe UI", 12))
+            item.setData(Qt.ItemDataRole.UserRole, {"is_placeholder": True})
             self.automation_list.addItem(item)
             self.status_bar.showMessage("Ready")
             return
@@ -464,6 +466,7 @@ class EnhancedMainWindow(QWidget):
         for name in automations:
             item = QListWidgetItem(self.get_icon("file"), f" {name}")
             item.setFont(QFont("Segoe UI", 12))
+            item.setData(Qt.ItemDataRole.UserRole, {"is_placeholder": False})
             self.automation_list.addItem(item)
 
         self.status_bar.showMessage(f"Loaded {len(automations)} automation(s)")
@@ -495,7 +498,8 @@ class EnhancedMainWindow(QWidget):
     def edit_automation(self, item):
         automation_name = item.text().strip()
 
-        if "No automations found" in automation_name:
+        item_data = item.data(Qt.ItemDataRole.UserRole)
+        if item_data and item_data.get("is_placeholder", False):
             return
 
         from automation_manager.node_editor_window import NodeEditorWindow
