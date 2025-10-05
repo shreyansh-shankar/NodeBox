@@ -3,7 +3,7 @@ models = [
         "name": "deepseek-r1",
         "icon": "assets/models_logo/deepseek.png",
         "description": "DeepSeek-R1 is a family of open reasoning models with performance approaching that of leading models, such as O3 and Gemini 2.5 Pro.",
-        "tags": ["deepseek", "thinking" "tools"],
+        "tags": ["deepseek", "thinking", "tools"],
         "sizes": ["1.5b", "7b", "8b", "14b", "32b", "70b", "671b"],
     },
     {
