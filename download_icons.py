@@ -36,25 +36,20 @@ icons = [
 
 def make_icon_white(svg_content):
     """Convert SVG to white by modifying stroke attribute"""
-    
     try:
-        
         if not svg_content.startswith("<?xml"):
             svg_content = '<?xml version="1.0" encoding="UTF-8"?>' + svg_content
 
         root = ET.fromstring(svg_content)
 
-        
         for elem in root.iter():
             if "stroke" in elem.attrib:
                 elem.attrib["stroke"] = "white"
             if "fill" in elem.attrib and elem.attrib["fill"] != "none":
                 elem.attrib["fill"] = "white"
 
-        
         return ET.tostring(root, encoding="unicode")
     except (ET.ParseError, ValueError) as e:
-        
         print(f"Warning: XML parsing failed ({e}), using string replacement")
         svg_content = svg_content.replace('stroke="currentColor"', 'stroke="white"')
         svg_content = svg_content.replace('stroke="#000"', 'stroke="white"')
@@ -67,10 +62,8 @@ for icon in icons:
     url = base_url + icon
     response = requests.get(url)
     if response.status_code == 200:
-        
         white_svg = make_icon_white(response.text)
 
-        
         with open(f"assets/icons/{icon}", "w", encoding="utf-8") as f:
             f.write(white_svg)
         print(f"✓ Downloaded and converted {icon} to white")
