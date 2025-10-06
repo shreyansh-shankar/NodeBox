@@ -40,39 +40,39 @@ class NodeDetailsDialog(QDialog):
         return QIcon()
 
     def setup_ui(self):
-        """Setup dialog UI"""
+        """Setup dialog UI - Match main window style"""
         layout = QVBoxLayout()
-        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setContentsMargins(24, 24, 24, 24)
         layout.setSpacing(16)
 
-        # Header with icon and title
+        # Header with icon and title - Match Home tab style
         header_layout = QHBoxLayout()
         header_layout.setSpacing(12)
 
         icon_label = QLabel()
         icon = self.get_icon(self.category_data["icon"])
         if not icon.isNull():
-            icon_label.setPixmap(icon.pixmap(32, 32))
+            icon_label.setPixmap(icon.pixmap(36, 36))
         header_layout.addWidget(icon_label)
 
         title = QLabel(self.category_data["title"])
-        title.setFont(QFont("Segoe UI", 16, QFont.Weight.Bold))
+        title.setFont(QFont("Segoe UI", 18, QFont.Weight.Bold))
         title.setStyleSheet("color: #ffffff;")
         header_layout.addWidget(title)
         header_layout.addStretch()
 
         layout.addLayout(header_layout)
 
-        # Description
+        # Description - Match Home tab typography
         desc = QLabel(self.category_data["description"])
-        desc.setFont(QFont("Segoe UI", 10))
-        desc.setStyleSheet("color: #a0a0a0; margin-bottom: 10px;")
+        desc.setFont(QFont("Segoe UI", 11))
+        desc.setStyleSheet("color: #a0a0a0; margin-bottom: 12px;")
         desc.setWordWrap(True)
         layout.addWidget(desc)
 
         # Nodes list
         nodes_label = QLabel("Available Nodes:")
-        nodes_label.setFont(QFont("Segoe UI", 12, QFont.Weight.DemiBold))
+        nodes_label.setFont(QFont("Segoe UI", 13, QFont.Weight.DemiBold))
         nodes_label.setStyleSheet("color: #ffffff; margin-top: 8px;")
         layout.addWidget(nodes_label)
 
@@ -106,33 +106,37 @@ class NodeDetailsDialog(QDialog):
         # Add nodes to list
         for node in self.category_data["nodes"]:
             item = QListWidgetItem(self.get_icon("package"), f"  {node['name']}")
-            item.setFont(QFont("Segoe UI", 10))
+            item.setFont(QFont("Segoe UI", 11))
             # Store node description as tooltip
             item.setToolTip(node["description"])
             self.node_list.addItem(item)
 
         layout.addWidget(self.node_list)
 
-        # Button row
+        # Button row - Match Home tab button style
         button_layout = QHBoxLayout()
         button_layout.addStretch()
 
-        close_button = QPushButton("Close")
-        close_button.setFont(QFont("Segoe UI", 10))
-        close_button.setMinimumHeight(32)
+        close_button = QPushButton("  Close")
+        close_button.setIcon(self.get_icon("x"))
+        close_button.setFont(QFont("Segoe UI", 11))
+        close_button.setMinimumHeight(36)
         close_button.setCursor(Qt.CursorShape.PointingHandCursor)
         close_button.setStyleSheet(
             """
             QPushButton {
-                padding: 8px 20px;
+                padding: 8px 24px;
                 background-color: #3e3e42;
                 color: white;
                 border: none;
-                border-radius: 4px;
+                border-radius: 6px;
                 font-weight: 600;
             }
             QPushButton:hover {
                 background-color: #4e4e52;
+            }
+            QPushButton:pressed {
+                background-color: #2e2e32;
             }
         """
         )
@@ -160,21 +164,21 @@ class NodeTemplateWidget(QWidget):
         return QIcon()
 
     def setup_ui(self):
-        """Setup the UI with modern styling"""
-        # Main layout
+        """Setup the UI with modern styling matching Home tab"""
+        # Main layout - Match Home tab spacing
         main_layout = QVBoxLayout()
         main_layout.setContentsMargins(24, 24, 24, 24)
         main_layout.setSpacing(16)
 
-        # Title section
+        # Title section - Match Home tab typography
         title = QLabel("Node Templates")
-        title.setFont(QFont("Segoe UI", 18, QFont.Weight.Bold))
+        title.setFont(QFont("Segoe UI", 20, QFont.Weight.Bold))
         title.setStyleSheet("color: #ffffff;")
         main_layout.addWidget(title)
 
         subtitle = QLabel("Pre-built automation nodes ready to use")
-        subtitle.setFont(QFont("Segoe UI", 11))
-        subtitle.setStyleSheet("color: #a0a0a0; margin-bottom: 10px;")
+        subtitle.setFont(QFont("Segoe UI", 13))
+        subtitle.setStyleSheet("color: #a0a0a0; margin-bottom: 16px;")
         main_layout.addWidget(subtitle)
 
         # Scroll area for templates
@@ -204,12 +208,12 @@ class NodeTemplateWidget(QWidget):
         """
         )
 
-        # Container for template cards
+        # Container for template cards - Match Home tab style
         scroll_content = QWidget()
         scroll_content.setStyleSheet("background-color: transparent;")
         self.grid_layout = QGridLayout(scroll_content)
-        self.grid_layout.setSpacing(16)  # Increased spacing
-        self.grid_layout.setContentsMargins(0, 0, 0, 0)
+        self.grid_layout.setSpacing(16)  # Consistent spacing
+        self.grid_layout.setContentsMargins(0, 0, 16, 0)  # Add right margin for scrollbar
 
         # Add template categories
         self.create_template_cards()
@@ -390,9 +394,9 @@ class NodeTemplateWidget(QWidget):
         self.grid_layout.setRowStretch(row + 1, 1)
 
     def create_template_card(self, template_data):
-        """Create a template card with Feather icon"""
+        """Create a template card with Feather icon - Match Home tab card style"""
         card = QFrame()
-        card.setFixedHeight(180)  # Slightly taller
+        card.setFixedHeight(200)  # Increased height for better spacing
         card.setStyleSheet(
             """
             QFrame {
@@ -402,70 +406,72 @@ class NodeTemplateWidget(QWidget):
             }
             QFrame:hover {
                 border: 1px solid #007acc;
-                background-color: #2a2a2a;
+                background-color: #252526;
             }
         """
         )
 
         layout = QVBoxLayout()
-        layout.setSpacing(10)  # More spacing
-        layout.setContentsMargins(16, 14, 16, 14)  # More padding
+        layout.setSpacing(12)  # Match Home tab spacing
+        layout.setContentsMargins(20, 18, 20, 18)  # Match Home tab padding
 
-        # Icon and title row
+        # Icon and title row - Match Home tab style
         title_row = QHBoxLayout()
-        title_row.setSpacing(10)
+        title_row.setSpacing(12)
 
         # Icon label with actual icon
         icon_label = QLabel()
         icon = self.get_icon(template_data["icon"])
         if not icon.isNull():
-            icon_label.setPixmap(icon.pixmap(28, 28))  # Larger icon
+            icon_label.setPixmap(icon.pixmap(32, 32))  # Larger icon for better visibility
         title_row.addWidget(icon_label)
 
         title_label = QLabel(template_data["title"])
-        title_label.setFont(QFont("Segoe UI", 13, QFont.Weight.Bold))  # Larger font
+        title_label.setFont(QFont("Segoe UI", 14, QFont.Weight.Bold))  # Match Home tab font size
         title_label.setStyleSheet("color: #ffffff;")
         title_row.addWidget(title_label)
         title_row.addStretch()
 
         layout.addLayout(title_row)
 
-        # Description
+        # Description - Match Home tab typography
         desc_label = QLabel(template_data["description"])
-        desc_label.setFont(QFont("Segoe UI", 10))  # Larger font
+        desc_label.setFont(QFont("Segoe UI", 11))  # Match Home tab font size
         desc_label.setStyleSheet("color: #a0a0a0;")
         desc_label.setWordWrap(True)
         layout.addWidget(desc_label)
 
-        # Node count badge
+        # Node count badge - Better styling
         count_label = QLabel(f"{template_data['count']} nodes available")
-        count_label.setFont(QFont("Segoe UI", 8))
+        count_label.setFont(QFont("Segoe UI", 9))
         count_label.setStyleSheet(
             """
             color: #007acc;
-            background-color: #0e639c20;
-            padding: 4px 8px;
-            border-radius: 3px;
+            background-color: rgba(14, 99, 156, 0.15);
+            padding: 6px 10px;
+            border-radius: 4px;
         """
         )
         layout.addWidget(count_label)
 
         layout.addStretch()
 
-        # Explore button
-        explore_button = QPushButton("View Nodes")
-        explore_button.setFont(QFont("Segoe UI", 9))
-        explore_button.setFixedHeight(32)  # Taller button
+        # Explore button - Match Home tab button style
+        explore_button = QPushButton("  View Nodes")
+        explore_button.setIcon(self.get_icon("package"))
+        explore_button.setFont(QFont("Segoe UI", 10))
+        explore_button.setMinimumHeight(36)  # Match Home tab button height
         explore_button.setCursor(Qt.CursorShape.PointingHandCursor)
         explore_button.setStyleSheet(
             """
             QPushButton {
-                padding: 6px 12px;
+                padding: 8px 16px;
                 background-color: #0e639c;
                 color: white;
                 border: none;
-                border-radius: 4px;
+                border-radius: 6px;
                 font-weight: 600;
+                text-align: left;
             }
             QPushButton:hover {
                 background-color: #1177bb;
