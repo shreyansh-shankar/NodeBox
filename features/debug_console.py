@@ -144,10 +144,6 @@ class DebugConsole(QWidget):
         widget.setLayout(layout)
         return widget
 
-    def setup_logging(self):
-        """Setup logging capture"""
-        # This would integrate with Python's logging module
-
     def add_log(self, level, message, node_id=None, node_name=None):
         """Optimized log entry addition"""
         level = level.upper()  # Normalize log level to uppercase
