@@ -2,6 +2,8 @@
 
 **NodeBox** is a visual automation platform inspired by [n8n], built for people who want to automate *anything* with the power of Python.
 
+## Join Our Community : [![Discord](https://img.shields.io/badge/Discord-Join%20us-blue)](https://discord.gg/tEUUmFNGcw)
+
 <p align="center">
   <img src="https://img.shields.io/badge/Built%20With-Python-blue?style=for-the-badge" />
   <img src="https://img.shields.io/badge/Desktop-Application-orange?style=for-the-badge" />
@@ -50,6 +52,23 @@ Everything runs **locally, offline, and under your control**.
 
 ---
 
+## 🗓️ Weekly Community Meeting
+
+We host **Weekly NodeBox Community Meetings** to discuss updates, ideas, and future plans together.
+Everyone is welcome to join, share suggestions, and contribute to the growth of NodeBox!
+
+* **🕘 Time:** Every **Saturday, 9:00 PM – 10:00 PM IST**
+* **📍 Location:** [Join on Discord](https://discord.gg/tEUUmFNGcw)
+
+### 📋 Meeting Agenda:
+
+1. **Community Updates:** Progress and highlights from the week.
+2. **Feature Discussions:** New ideas and suggestions to improve NodeBox.
+3. **Open Forum:** Share your automation ideas or projects.
+4. **Q&A Session:** Get help, ask questions, and learn from others.
+5. **Next Week Planning:** Define focus areas and contributors for upcoming work.
+
+---
 ## Installation Guide
 
 Follow these steps to set up the application from source:
