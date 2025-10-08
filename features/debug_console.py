@@ -1,5 +1,5 @@
 """
-Optimized and restyled Debug Console with incremental updates
+Optimized and restyled Debug Console to match the main application theme.
 """
 import datetime
 import json
@@ -99,13 +99,13 @@ class DebugConsole(QWidget):
 
         self.level_combo = QComboBox()
         self.level_combo.addItems(["All", "ERROR", "WARNING", "INFO", "DEBUG"])
-        self.level_combo.currentTextChanged.connect(self.filter_logs)
+        self.level_combo.currentTextChanged.connect(self.on_filter_changed)
         self.controls_layout.addWidget(QLabel("Level:"))
         self.controls_layout.addWidget(self.level_combo)
 
         self.node_combo = QComboBox()
         self.node_combo.addItem("All")
-        self.node_combo.currentTextChanged.connect(self.filter_logs)
+        self.node_combo.currentTextChanged.connect(self.on_filter_changed)
         self.controls_layout.addWidget(QLabel("Node:"))
         self.controls_layout.addWidget(self.node_combo)
 
@@ -291,6 +291,7 @@ class DebugConsole(QWidget):
         self.log_display.clear()
         self._node_names.clear()
         self._cached_metrics.clear()
+        self._displayed_log_count = 0
         self.node_combo.clear()
         self.node_combo.addItem("All")
         self.update_metrics()
@@ -344,7 +345,9 @@ class DebugConsole(QWidget):
             self.metrics_table.setRowCount(len(current_metrics))
             for i, metric_name in enumerate(current_metrics.keys()):
                 self.metrics_table.setItem(i, 0, QTableWidgetItem(metric_name))
-                self.metrics_table.setItem(i, 1, QTableWidgetItem(current_metrics[metric_name]))
+                self.metrics_table.setItem(
+                    i, 1, QTableWidgetItem(current_metrics[metric_name])
+                )
             self._cached_metrics = current_metrics.copy()
             return
 
