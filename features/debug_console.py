@@ -1,5 +1,5 @@
 """
-Optimized and restyled Debug Console to match the main application theme.
+Optimized and restyled Debug Console with incremental updates
 """
 import datetime
 import json
@@ -64,10 +64,9 @@ class DebugConsole(QWidget):
         self._update_timer.timeout.connect(self.update_metrics)
         self._update_timer.start(5000)
         
-        # Cache for optimized filtering
-        self._current_filter_level = "All"
-        self._current_filter_node = "All"
-        self._displayed_log_count = 0  # Track how many logs are currently displayed
+        # Cache current filter state for optimization
+        self._current_level_filter = "All"
+        self._current_node_filter = "All"
         
         self.init_ui()
         self.apply_styles()
@@ -99,13 +98,13 @@ class DebugConsole(QWidget):
 
         self.level_combo = QComboBox()
         self.level_combo.addItems(["All", "ERROR", "WARNING", "INFO", "DEBUG"])
-        self.level_combo.currentTextChanged.connect(self.on_filter_changed)
+        self.level_combo.currentTextChanged.connect(self.filter_logs)
         self.controls_layout.addWidget(QLabel("Level:"))
         self.controls_layout.addWidget(self.level_combo)
 
         self.node_combo = QComboBox()
         self.node_combo.addItem("All")
-        self.node_combo.currentTextChanged.connect(self.on_filter_changed)
+        self.node_combo.currentTextChanged.connect(self.filter_logs)
         self.controls_layout.addWidget(QLabel("Node:"))
         self.controls_layout.addWidget(self.node_combo)
 
@@ -219,70 +218,65 @@ class DebugConsole(QWidget):
         """
         )
 
-    def log_matches_filter(self, log):
-        """Check if a log entry matches current filters"""
+    def _log_matches_filter(self, log_entry):
+        """Check if log entry matches current filters"""
         level_match = (
-            self._current_filter_level == "All"
-            or log.level == self._current_filter_level
+            self._current_level_filter == "All"
+            or log_entry.level == self._current_level_filter
         )
         node_match = (
-            self._current_filter_node == "All" or log.node_name == self._current_filter_node
+            self._current_node_filter == "All"
+            or log_entry.node_name == self._current_node_filter
         )
         return level_match and node_match
 
     def add_log(self, level, message, node_id=None, node_name=None):
-        """Optimized log addition with incremental update"""
+        """Optimized: Only append new log if it matches current filters"""
         level = level.upper()
         log_entry = LogEntry(datetime.datetime.now(), level, message, node_id, node_name)
         self.logs.append(log_entry)
 
-        # Update node combo if new node
         if node_name and node_name not in self._node_names:
             self._node_names.add(node_name)
             self.node_combo.addItem(node_name)
 
         self.log_added.emit(log_entry)
 
-        # ✅ OPTIMIZED: Only append if log matches current filters
-        if self.log_matches_filter(log_entry):
-            self.append_log_to_display(log_entry)
+        #  OPTIMIZATION: Only append if log matches current filters
+        if self._log_matches_filter(log_entry):
+            self._append_single_log(log_entry)
 
-    def append_log_to_display(self, log_entry):
-        """Incrementally append a single log entry to the display"""
+    def _append_single_log(self, log_entry):
+        """Incrementally append a single log entry without rebuilding"""
         cursor = self.log_display.textCursor()
         cursor.movePosition(QTextCursor.MoveOperation.End)
-        
+
         # Add newline if not first entry
-        if self._displayed_log_count > 0:
+        if not self.log_display.toPlainText().strip() == "":
             cursor.insertText("\n")
-        
+
         cursor.insertText(self._format_log_entry(log_entry))
-        self._displayed_log_count += 1
         
         # Auto-scroll to bottom
         self.log_display.moveCursor(QTextCursor.MoveOperation.End)
 
-    def on_filter_changed(self):
-        """Handle filter changes - requires full rebuild"""
-        self._current_filter_level = self.level_combo.currentText()
-        self._current_filter_node = self.node_combo.currentText()
-        self.rebuild_log_display()
-
-    def rebuild_log_display(self):
-        """Rebuild entire log display - only called when filters change"""
+    def update_log_display(self):
+        """Full rebuild - only called when filters change"""
         self.log_display.clear()
-        self._displayed_log_count = 0
+        level_filter = self.level_combo.currentText()
+        node_filter = self.node_combo.currentText()
 
-        # Filter logs
-        filtered_logs = [log for log in self.logs if self.log_matches_filter(log)]
+        filtered_logs = [
+            log
+            for log in self.logs
+            if (level_filter == "All" or log.level == level_filter)
+            and (node_filter == "All" or log.node_name == node_filter)
+        ]
 
-        # Build display text efficiently
         if filtered_logs:
             log_text = "\n".join(self._format_log_entry(log) for log in filtered_logs)
             self.log_display.setPlainText(log_text)
-            self._displayed_log_count = len(filtered_logs)
 
-        # Auto-scroll to bottom
         self.log_display.moveCursor(QTextCursor.MoveOperation.End)
 
     def _format_log_entry(self, log):
@@ -291,19 +285,27 @@ class DebugConsole(QWidget):
         node_info = f" [{log.node_name}]" if log.node_name else ""
         return f"[{timestamp_str}] {log.level}{node_info}: {log.message}"
 
+    def filter_logs(self):
+        """Called when filter combo boxes change"""
+        # Update cached filter state
+        self._current_level_filter = self.level_combo.currentText()
+        self._current_node_filter = self.node_combo.currentText()
+        
+        # Rebuild display with new filters
+        self.update_log_display()
+
     def clear_logs(self):
         """Clear all logs efficiently"""
         self.logs.clear()
         self.log_display.clear()
         self._node_names.clear()
         self._cached_metrics.clear()
-        self._displayed_log_count = 0
         self.node_combo.clear()
         self.node_combo.addItem("All")
         self.update_metrics()
 
     def export_logs(self):
-        """Optimized log export"""
+        """Export logs to JSON file"""
         try:
             timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
             filename = f"nodebox_logs_{timestamp}.json"
@@ -336,11 +338,11 @@ class DebugConsole(QWidget):
             self.add_log("ERROR", f"Export failed: {str(e)}")
 
     def update_metrics(self):
-        """Update performance metrics - optimized to only update changed values"""
+        """Update performance metrics - only updates changed cells"""
         total_logs = len(self.logs)
         error_count = sum(1 for log in self.logs if log.level == "ERROR")
         warning_count = sum(1 for log in self.logs if log.level == "WARNING")
-
+        
         current_metrics = {
             "Total Logs": str(total_logs),
             "Errors": str(error_count),
@@ -351,18 +353,14 @@ class DebugConsole(QWidget):
             "Last Update": datetime.datetime.now().strftime("%H:%M:%S"),
         }
 
-        # Initialize table if empty
         if self.metrics_table.rowCount() == 0:
             self.metrics_table.setRowCount(len(current_metrics))
             for i, metric_name in enumerate(current_metrics.keys()):
                 self.metrics_table.setItem(i, 0, QTableWidgetItem(metric_name))
-                self.metrics_table.setItem(
-                    i, 1, QTableWidgetItem(current_metrics[metric_name])
-                )
+                self.metrics_table.setItem(i, 1, QTableWidgetItem(current_metrics[metric_name]))
             self._cached_metrics = current_metrics.copy()
             return
 
-        # Update only changed cells
         for i, (metric_name, new_value) in enumerate(current_metrics.items()):
             if self._cached_metrics.get(metric_name) != new_value:
                 self.metrics_table.setItem(i, 1, QTableWidgetItem(new_value))

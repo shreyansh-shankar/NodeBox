@@ -73,6 +73,22 @@ Everyone is welcome to join, share suggestions, and contribute to the growth of 
 
 Follow these steps to set up the application from source:
 
+### 🪟 Windows Users - Detailed Setup Guide
+
+**Are you on Windows?** We have a comprehensive, step-by-step guide specifically for Windows users!
+
+👉 **[Complete Windows Installation & Configuration Guide →](WINDOWS_SETUP.md)**
+
+This guide includes:
+-  Python & Git installation with PATH configuration
+-  Virtual environment setup with PowerShell execution policy fixes
+-  Comprehensive Ollama installation and configuration
+-  Building standalone `.exe` files with PyInstaller
+-  Troubleshooting common Windows-specific issues
+-  Quick reference commands
+
+**Recommended for first-time Windows users or anyone encountering setup issues!**
+
 ### 1. Prerequisites
 
 Before installing, make sure you have the following installed on your system:
