@@ -1,6 +1,7 @@
 """
 Optimized and restyled Debug Console to match the main application theme.
 """
+
 import datetime
 import json
 from collections import deque
@@ -63,12 +64,12 @@ class DebugConsole(QWidget):
         self._update_timer = QTimer()
         self._update_timer.timeout.connect(self.update_metrics)
         self._update_timer.start(5000)
-        
+
         # Cache for optimized filtering
         self._current_filter_level = "All"
         self._current_filter_node = "All"
         self._displayed_log_count = 0  # Track how many logs are currently displayed
-        
+
         self.init_ui()
         self.apply_styles()
 
@@ -226,14 +227,17 @@ class DebugConsole(QWidget):
             or log.level == self._current_filter_level
         )
         node_match = (
-            self._current_filter_node == "All" or log.node_name == self._current_filter_node
+            self._current_filter_node == "All"
+            or log.node_name == self._current_filter_node
         )
         return level_match and node_match
 
     def add_log(self, level, message, node_id=None, node_name=None):
         """Optimized log addition with incremental update"""
         level = level.upper()
-        log_entry = LogEntry(datetime.datetime.now(), level, message, node_id, node_name)
+        log_entry = LogEntry(
+            datetime.datetime.now(), level, message, node_id, node_name
+        )
         self.logs.append(log_entry)
 
         # Update node combo if new node
@@ -251,14 +255,14 @@ class DebugConsole(QWidget):
         """Incrementally append a single log entry to the display"""
         cursor = self.log_display.textCursor()
         cursor.movePosition(QTextCursor.MoveOperation.End)
-        
+
         # Add newline if not first entry
         if self._displayed_log_count > 0:
             cursor.insertText("\n")
-        
+
         cursor.insertText(self._format_log_entry(log_entry))
         self._displayed_log_count += 1
-        
+
         # Auto-scroll to bottom
         self.log_display.moveCursor(QTextCursor.MoveOperation.End)
 
@@ -345,9 +349,9 @@ class DebugConsole(QWidget):
             "Total Logs": str(total_logs),
             "Errors": str(error_count),
             "Warnings": str(warning_count),
-            "Error Rate": f"{(error_count / total_logs * 100):.1f}%"
-            if total_logs > 0
-            else "0%",
+            "Error Rate": (
+                f"{(error_count / total_logs * 100):.1f}%" if total_logs > 0 else "0%"
+            ),
             "Last Update": datetime.datetime.now().strftime("%H:%M:%S"),
         }
 
@@ -377,7 +381,9 @@ class DebugConsole(QWidget):
                 node_name=node_name,
             )
         else:
-            self.add_log("ERROR", f"Node '{node_name}' failed: {error}", node_name=node_name)
+            self.add_log(
+                "ERROR", f"Node '{node_name}' failed: {error}", node_name=node_name
+            )
 
     def log_workflow_start(self, workflow_name):
         """Log workflow start"""

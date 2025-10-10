@@ -1,6 +1,7 @@
 """
 Node Templates Widget - Professionally styled with Feather icons and detailed node dialog
 """
+
 import os
 
 from PyQt6.QtCore import Qt
@@ -213,7 +214,9 @@ class NodeTemplateWidget(QWidget):
         scroll_content.setStyleSheet("background-color: transparent;")
         self.grid_layout = QGridLayout(scroll_content)
         self.grid_layout.setSpacing(16)  # Consistent spacing
-        self.grid_layout.setContentsMargins(0, 0, 16, 0)  # Add right margin for scrollbar
+        self.grid_layout.setContentsMargins(
+            0, 0, 16, 0
+        )  # Add right margin for scrollbar
 
         # Add template categories
         self.create_template_cards()
@@ -423,11 +426,15 @@ class NodeTemplateWidget(QWidget):
         icon_label = QLabel()
         icon = self.get_icon(template_data["icon"])
         if not icon.isNull():
-            icon_label.setPixmap(icon.pixmap(32, 32))  # Larger icon for better visibility
+            icon_label.setPixmap(
+                icon.pixmap(32, 32)
+            )  # Larger icon for better visibility
         title_row.addWidget(icon_label)
 
         title_label = QLabel(template_data["title"])
-        title_label.setFont(QFont("Segoe UI", 14, QFont.Weight.Bold))  # Match Home tab font size
+        title_label.setFont(
+            QFont("Segoe UI", 14, QFont.Weight.Bold)
+        )  # Match Home tab font size
         title_label.setStyleSheet("color: #ffffff;")
         title_row.addWidget(title_label)
         title_row.addStretch()

@@ -1,6 +1,7 @@
 """
 Optimized Enhanced Main Window - Professional UI with white Feather icons
 """
+
 import json
 import os
 

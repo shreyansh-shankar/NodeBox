@@ -1,6 +1,7 @@
 """
 Model Manager - View and manage local Ollama models
 """
+
 import subprocess
 
 from PyQt6.QtCore import Qt
@@ -199,9 +200,9 @@ class ModelManagerWidget(QWidget):
                             {
                                 "name": parts[0],
                                 "size": parts[2] if len(parts) > 2 else "Unknown",
-                                "modified": " ".join(parts[3:])
-                                if len(parts) > 3
-                                else "Unknown",
+                                "modified": (
+                                    " ".join(parts[3:]) if len(parts) > 3 else "Unknown"
+                                ),
                             }
                         )
 

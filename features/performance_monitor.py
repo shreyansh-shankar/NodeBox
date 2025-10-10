@@ -1,6 +1,7 @@
 """
 Optimized Performance Monitor - Minimal resource usage
 """
+
 import json
 from collections import deque
 from datetime import datetime
