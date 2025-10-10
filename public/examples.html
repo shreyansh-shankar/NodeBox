@@ -58,7 +58,7 @@
 
             <h1><i class="fas fa-code"></i> NodeBox Examples</h1>
             <p>
-                Learn NodeBox by exploring real-world examples! Each example demonstrates key features 
+                Learn NodeBox by exploring real-world examples! Each example demonstrates key features
                 and workflows to help you build powerful automations.
             </p>
 
@@ -66,7 +66,7 @@
             <section class="example-section">
                 <h2><i class="fas fa-circle-nodes"></i> Example 1: Basic Node Connection</h2>
                 <p class="example-description">
-                    This example shows how to create a simple automation with two nodes: a text input node 
+                    This example shows how to create a simple automation with two nodes: a text input node
                     that outputs data, and a display node that receives and processes that data.
                 </p>
 
@@ -116,7 +116,7 @@ Received: Hello from NodeBox!</pre>
             <section class="example-section">
                 <h2><i class="fas fa-file-alt"></i> Example 2: File Handling with File Reader Node</h2>
                 <p class="example-description">
-                    This example demonstrates how to use the built-in File Reader node to read 
+                    This example demonstrates how to use the built-in File Reader node to read
                     a text file and process its contents.
                 </p>
 
@@ -236,7 +236,7 @@ Result of pipeline: [4, 16, 36, 64, 100] → Sum = 220</pre>
             <section class="example-section">
                 <h2><i class="fas fa-robot"></i> Example 4: AI Integration with Ollama</h2>
                 <p class="example-description">
-                    Integrate local AI models using Ollama. This example shows how to send a prompt 
+                    Integrate local AI models using Ollama. This example shows how to send a prompt
                     to an AI model and process the response.
                 </p>
 
@@ -271,7 +271,7 @@ try:
             'stream': False
         }
     )
-    
+
     if response.status_code == 200:
         result = response.json()
         ai_response = result.get('response', '')
@@ -280,14 +280,14 @@ try:
     else:
         outputs['ai_response'] = f"Error: {response.status_code}"
         print(f"API Error: {response.status_code}")
-        
+
 except Exception as e:
     outputs['ai_response'] = f"Exception: {str(e)}"
     print(f"Error calling Ollama: {str(e)}")</code></pre>
                 </div>
 
                 <div class="example-note">
-                    <strong>Note:</strong> Make sure Ollama is running with <code>ollama serve</code> 
+                    <strong>Note:</strong> Make sure Ollama is running with <code>ollama serve</code>
                     before executing this automation.
                 </div>
             </section>
@@ -296,7 +296,7 @@ except Exception as e:
             <section class="example-section">
                 <h2><i class="fas fa-clock"></i> Example 5: Scheduled Automation</h2>
                 <p class="example-description">
-                    Learn how to schedule automations to run at specific times or intervals 
+                    Learn how to schedule automations to run at specific times or intervals
                     using NodeBox's built-in scheduler.
                 </p>
 
@@ -334,7 +334,7 @@ with open('automation_log.txt', 'a') as f:
                 </div>
 
                 <div class="example-tip">
-                    <strong>Tip:</strong> You can view and manage all scheduled automations 
+                    <strong>Tip:</strong> You can view and manage all scheduled automations
                     from the Scheduler tab. Use the toggle to enable/disable schedules without deleting them.
                 </div>
             </section>
@@ -342,40 +342,40 @@ with open('automation_log.txt', 'a') as f:
             <!-- Tips and Best Practices -->
             <section class="tips-section">
                 <h2><i class="fas fa-lightbulb"></i> Tips & Best Practices</h2>
-                
+
                 <div class="tip-card">
                     <h3><i class="fas fa-save"></i> Save Often</h3>
-                    <p>Always save your automations before running them. Use descriptive names 
+                    <p>Always save your automations before running them. Use descriptive names
                     to easily identify workflows later.</p>
                 </div>
 
                 <div class="tip-card">
                     <h3><i class="fas fa-bug"></i> Debugging Nodes</h3>
-                    <p>Use <code>print()</code> statements liberally in your node code. 
+                    <p>Use <code>print()</code> statements liberally in your node code.
                     The output will appear in the console and help you trace data flow.</p>
                 </div>
 
                 <div class="tip-card">
                     <h3><i class="fas fa-plug"></i> Port Naming</h3>
-                    <p>Give your input and output ports meaningful names. This makes it easier 
+                    <p>Give your input and output ports meaningful names. This makes it easier
                     to understand connections when workflows get complex.</p>
                 </div>
 
                 <div class="tip-card">
                     <h3><i class="fas fa-layer-group"></i> Modular Design</h3>
-                    <p>Break complex tasks into smaller, reusable nodes. This makes debugging 
+                    <p>Break complex tasks into smaller, reusable nodes. This makes debugging
                     easier and allows you to reuse nodes across different automations.</p>
                 </div>
 
                 <div class="tip-card">
                     <h3><i class="fas fa-exclamation-triangle"></i> Error Handling</h3>
-                    <p>Always include try-except blocks when working with external resources 
+                    <p>Always include try-except blocks when working with external resources
                     (files, APIs, etc.) to handle errors gracefully.</p>
                 </div>
 
                 <div class="tip-card">
                     <h3><i class="fas fa-folder"></i> File Paths</h3>
-                    <p>Use absolute paths for file operations to avoid confusion. 
+                    <p>Use absolute paths for file operations to avoid confusion.
                     Supported formats: .txt, .json, .csv, and more.</p>
                 </div>
             </section>
@@ -383,7 +383,7 @@ with open('automation_log.txt', 'a') as f:
             <!-- Common Patterns -->
             <section class="patterns-section">
                 <h2><i class="fas fa-diagram-project"></i> Common Automation Patterns</h2>
-                
+
                 <div class="pattern-grid">
                     <div class="pattern-card">
                         <h3>ETL Pattern</h3>
