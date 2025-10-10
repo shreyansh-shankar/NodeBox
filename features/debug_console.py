@@ -68,6 +68,10 @@ class DebugConsole(QWidget):
         # Cache current filter state for optimization
         self._current_level_filter = "All"
         self._current_node_filter = "All"
+        # Cache for optimized filtering
+        self._current_filter_level = "All"
+        self._current_filter_node = "All"
+        self._displayed_log_count = 0  # Track how many logs are currently displayed
 
         self.init_ui()
         self.apply_styles()
@@ -228,6 +232,8 @@ class DebugConsole(QWidget):
         node_match = (
             self._current_node_filter == "All"
             or log_entry.node_name == self._current_node_filter
+            self._current_filter_node == "All"
+            or log.node_name == self._current_filter_node
         )
         return level_match and node_match
 
@@ -259,6 +265,7 @@ class DebugConsole(QWidget):
             cursor.insertText("\n")
 
         cursor.insertText(self._format_log_entry(log_entry))
+        self._displayed_log_count += 1
 
         # Auto-scroll to bottom
         self.log_display.moveCursor(QTextCursor.MoveOperation.End)
