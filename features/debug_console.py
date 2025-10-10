@@ -1,6 +1,7 @@
 """
 Optimized and restyled Debug Console to match the main application theme.
 """
+
 import datetime
 import json
 from collections import deque
@@ -63,11 +64,11 @@ class DebugConsole(QWidget):
         self._update_timer = QTimer()
         self._update_timer.timeout.connect(self.update_metrics)
         self._update_timer.start(5000)
-        
+
         # Cache current filter state for optimization
         self._current_level_filter = "All"
         self._current_node_filter = "All"
-        
+
         self.init_ui()
         self.apply_styles()
 
@@ -233,7 +234,9 @@ class DebugConsole(QWidget):
     def add_log(self, level, message, node_id=None, node_name=None):
         """Optimized: Only append new log if it matches current filters"""
         level = level.upper()
-        log_entry = LogEntry(datetime.datetime.now(), level, message, node_id, node_name)
+        log_entry = LogEntry(
+            datetime.datetime.now(), level, message, node_id, node_name
+        )
         self.logs.append(log_entry)
 
         if node_name and node_name not in self._node_names:
@@ -256,7 +259,7 @@ class DebugConsole(QWidget):
             cursor.insertText("\n")
 
         cursor.insertText(self._format_log_entry(log_entry))
-        
+
         # Auto-scroll to bottom
         self.log_display.moveCursor(QTextCursor.MoveOperation.End)
 
@@ -290,7 +293,7 @@ class DebugConsole(QWidget):
         # Update cached filter state
         self._current_level_filter = self.level_combo.currentText()
         self._current_node_filter = self.node_combo.currentText()
-        
+
         # Rebuild display with new filters
         self.update_log_display()
 
@@ -343,14 +346,14 @@ class DebugConsole(QWidget):
         total_logs = len(self.logs)
         error_count = sum(1 for log in self.logs if log.level == "ERROR")
         warning_count = sum(1 for log in self.logs if log.level == "WARNING")
-        
+
         current_metrics = {
             "Total Logs": str(total_logs),
             "Errors": str(error_count),
             "Warnings": str(warning_count),
-            "Error Rate": f"{(error_count / total_logs * 100):.1f}%"
-            if total_logs > 0
-            else "0%",
+            "Error Rate": (
+                f"{(error_count / total_logs * 100):.1f}%" if total_logs > 0 else "0%"
+            ),
             "Last Update": datetime.datetime.now().strftime("%H:%M:%S"),
         }
 
@@ -378,7 +381,9 @@ class DebugConsole(QWidget):
                 node_name=node_name,
             )
         else:
-            self.add_log("ERROR", f"Node '{node_name}' failed: {error}", node_name=node_name)
+            self.add_log(
+                "ERROR", f"Node '{node_name}' failed: {error}", node_name=node_name
+            )
 
     def log_workflow_start(self, workflow_name):
         """Log workflow start"""

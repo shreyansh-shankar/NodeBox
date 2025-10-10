@@ -8,9 +8,7 @@ from PyQt6.QtCore import Qt, QThread, pyqtSignal
 from PyQt6.QtGui import QFont
 from PyQt6.QtWidgets import (
     QCheckBox,
-    QDialog,
     QFileDialog,
-    QFormLayout,
     QGroupBox,
     QHBoxLayout,
     QLabel,
@@ -20,7 +18,6 @@ from PyQt6.QtWidgets import (
     QMessageBox,
     QProgressBar,
     QPushButton,
-    QTextEdit,
     QVBoxLayout,
     QWidget,
 )
@@ -31,7 +28,9 @@ class ExportWorker(QThread):
     finished = pyqtSignal(str)
     error = pyqtSignal(str)
 
-    def __init__(self, workflows, export_path, include_models=False, include_data=False):
+    def __init__(
+        self, workflows, export_path, include_models=False, include_data=False
+    ):
         super().__init__()
         self.workflows = workflows
         self.export_path = export_path
@@ -50,7 +49,9 @@ class ExportWorker(QThread):
 
     def export_workflows(self):
         os.makedirs(self._workflows_dir, exist_ok=True)
-        with zipfile.ZipFile(self.export_path, "w", zipfile.ZIP_DEFLATED, compresslevel=6) as zipf:
+        with zipfile.ZipFile(
+            self.export_path, "w", zipfile.ZIP_DEFLATED, compresslevel=6
+        ) as zipf:
             total_items = len(self.workflows)
             if self.include_models and self._models_dir.exists():
                 total_items += len(list(self._models_dir.rglob("*")))
@@ -226,7 +227,9 @@ class ExportImportManager(QWidget):
     def export_workflows(self):
         selected_items = self.workflow_list.selectedItems()
         if not selected_items:
-            QMessageBox.warning(self, "No Selection", "Please select workflows to export.")
+            QMessageBox.warning(
+                self, "No Selection", "Please select workflows to export."
+            )
             return
 
         workflows = [item.text() for item in selected_items]
@@ -257,21 +260,29 @@ class ExportImportManager(QWidget):
 
     def export_finished(self, file_path):
         self.progress_bar.setVisible(False)
-        QMessageBox.information(self, "Export Complete", f"Workflows exported to:\n{file_path}")
+        QMessageBox.information(
+            self, "Export Complete", f"Workflows exported to:\n{file_path}"
+        )
 
     def export_error(self, error_message):
         self.progress_bar.setVisible(False)
-        QMessageBox.critical(self, "Export Error", f"Failed to export workflows:\n{error_message}")
+        QMessageBox.critical(
+            self, "Export Error", f"Failed to export workflows:\n{error_message}"
+        )
 
     def browse_import_file(self):
-        file_path, _ = QFileDialog.getOpenFileName(self, "Import Workflows", "", "NodeBox Files (*.nodebox)")
+        file_path, _ = QFileDialog.getOpenFileName(
+            self, "Import Workflows", "", "NodeBox Files (*.nodebox)"
+        )
         if file_path:
             self.import_file_edit.setText(file_path)
 
     def import_workflows(self):
         file_path = self.import_file_edit.text()
         if not file_path or not os.path.exists(file_path):
-            QMessageBox.warning(self, "Invalid File", "Please select a valid .nodebox file.")
+            QMessageBox.warning(
+                self, "Invalid File", "Please select a valid .nodebox file."
+            )
             return
 
         self.progress_bar.setVisible(True)
@@ -289,17 +300,21 @@ class ExportImportManager(QWidget):
         QMessageBox.information(
             self,
             "Import Complete",
-            f"Successfully imported {len(imported_workflows)} workflows:\n" + "\n".join(imported_workflows),
+            f"Successfully imported {len(imported_workflows)} workflows:\n"
+            + "\n".join(imported_workflows),
         )
 
     def import_error(self, error_message):
         self.progress_bar.setVisible(False)
-        QMessageBox.critical(self, "Import Error", f"Failed to import workflows:\n{error_message}")
+        QMessageBox.critical(
+            self, "Import Error", f"Failed to import workflows:\n{error_message}"
+        )
 
 
 # --------------------- MAIN BLOCK ---------------------
 if __name__ == "__main__":
     import sys
+
     from PyQt6.QtWidgets import QApplication
 
     app = QApplication(sys.argv)
