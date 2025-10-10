@@ -99,13 +99,13 @@ class DebugConsole(QWidget):
 
         self.level_combo = QComboBox()
         self.level_combo.addItems(["All", "ERROR", "WARNING", "INFO", "DEBUG"])
-        self.level_combo.currentTextChanged.connect(self.on_filter_changed)
+        self.level_combo.currentTextChanged.connect(self.filter_logs)
         self.controls_layout.addWidget(QLabel("Level:"))
         self.controls_layout.addWidget(self.level_combo)
 
         self.node_combo = QComboBox()
         self.node_combo.addItem("All")
-        self.node_combo.currentTextChanged.connect(self.on_filter_changed)
+        self.node_combo.currentTextChanged.connect(self.filter_logs)
         self.controls_layout.addWidget(QLabel("Node:"))
         self.controls_layout.addWidget(self.node_combo)
 
@@ -245,7 +245,7 @@ class DebugConsole(QWidget):
 
         self.log_added.emit(log_entry)
 
-        #  OPTIMIZATION: Only append if log matches current filters
+        # OPTIMIZATION: Only append if log matches current filters
         if self._log_matches_filter(log_entry):
             self._append_single_log(log_entry)
 
@@ -303,7 +303,6 @@ class DebugConsole(QWidget):
         self.log_display.clear()
         self._node_names.clear()
         self._cached_metrics.clear()
-        self._displayed_log_count = 0
         self.node_combo.clear()
         self.node_combo.addItem("All")
         self.update_metrics()
