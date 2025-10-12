@@ -7,21 +7,7 @@ import os
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QAction, QFont, QIcon
-from PyQt6.QtWidgets import (
-    QHBoxLayout,
-    QInputDialog,
-    QLabel,
-    QListWidget,
-    QListWidgetItem,
-    QMenu,
-    QMenuBar,
-    QMessageBox,
-    QPushButton,
-    QStatusBar,
-    QTabWidget,
-    QVBoxLayout,
-    QWidget,
-)
+from PyQt6.QtWidgets import QHBoxLayout, QInputDialog, QLabel, QListWidget, QListWidgetItem, QMenu, QMenuBar, QMessageBox, QPushButton, QStatusBar, QTabWidget, QVBoxLayout, QWidget
 
 from browsemodels_manager.browsemodel_window import BrowseModelsWindow
 from ui.newautomation_window import NewAutomationWindow
