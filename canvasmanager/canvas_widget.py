@@ -1,5 +1,5 @@
-from PyQt6.QtCore import QPointF, Qt, QTimer  # type: ignore
-from PyQt6.QtGui import (  # type: ignore
+from PyQt6.QtCore import QPointF, Qt, QTimer
+from PyQt6.QtGui import (
     QColor,
     QFont,
     QKeyEvent,
@@ -8,7 +8,7 @@ from PyQt6.QtGui import (  # type: ignore
     QPen,
     QWheelEvent,
 )
-from PyQt6.QtWidgets import QInputDialog, QWidget  # type: ignore
+from PyQt6.QtWidgets import QInputDialog, QWidget
 
 from automation_manager.node import NodeWidget
 from predefined.registry import PredefinedNodeRegistry
@@ -252,8 +252,17 @@ class CanvasWidget(QWidget):
         self.save_canvas_state()
         event.acceptProposedAction()
 
+    def reset_all_node_statuses(self):
+        """Reset execution status of all nodes to idle"""
+        for node in self.nodes.values():
+            if hasattr(node, 'reset_execution_status'):
+                node.reset_execution_status()
+
     def run_all_nodes(self, *args):
         print("Running all nodes...")
+
+        # Reset all node statuses before running
+        self.reset_all_node_statuses()
 
         bus = get_performance_bus()
 

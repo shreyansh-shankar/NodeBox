@@ -162,6 +162,11 @@ def execute_all_nodes(nodes, connections, on_error=None, on_node_executed=None):
     Shows busy cursor during execution.
     """
 
+    # Reset all nodes to idle status before starting
+    for node in nodes:
+        if hasattr(node, 'reset_execution_status'):
+            node.reset_execution_status()
+
     # Set busy cursor at the start
     QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
 
@@ -210,6 +215,11 @@ def execute_all_nodes(nodes, connections, on_error=None, on_node_executed=None):
         while ready_queue:
             node = ready_queue.popleft()
 
+            # Set node status to running
+            if hasattr(node, 'set_execution_status'):
+                from automation_manager.node import ExecutionStatus
+                node.set_execution_status(ExecutionStatus.RUNNING)
+
             # Inject upstream outputs
             local_vars = {}
             for conn in connections:
@@ -227,6 +237,12 @@ def execute_all_nodes(nodes, connections, on_error=None, on_node_executed=None):
                 # Fallback error
                 print(f"❌ Error executing node {node.title}: {e}")
                 error_count += 1
+
+                # Set node status to failed
+                if hasattr(node, 'set_execution_status'):
+                    from automation_manager.node import ExecutionStatus
+                    node.set_execution_status(ExecutionStatus.FAILED, str(e))
+
                 if on_error:
                     try:
                         on_error(node=node, error=e)
@@ -239,6 +255,12 @@ def execute_all_nodes(nodes, connections, on_error=None, on_node_executed=None):
                 err_text = result.get("stderr") or result.get("error") or "Unknown error"
                 print(f"❌ Error executing node {node.title}: {err_text}")
                 error_count += 1
+
+                # Set node status to failed
+                if hasattr(node, 'set_execution_status'):
+                    from automation_manager.node import ExecutionStatus
+                    node.set_execution_status(ExecutionStatus.FAILED, err_text)
+
                 if on_error:
                     try:
                         # Pass the stderr and returncode as part of the error object (string)
@@ -246,6 +268,12 @@ def execute_all_nodes(nodes, connections, on_error=None, on_node_executed=None):
                     except Exception:
                         pass
                 # Still try to collect outputs if present (non-crashing user code could set outputs)
+            else:
+                # Set node status to completed on success
+                if hasattr(node, 'set_execution_status'):
+                    from automation_manager.node import ExecutionStatus
+                    node.set_execution_status(ExecutionStatus.COMPLETED)
+
             # Collect outputs
             node_outputs[node] = result.get("outputs", {})
             node.outputs = node_outputs[node]
