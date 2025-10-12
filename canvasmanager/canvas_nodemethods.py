@@ -35,7 +35,6 @@ def open_node(self, node):
     if dlg.exec() == QDialog.accepted:
         data = dlg.result_data
         # Apply changes to node:
-        node.title = data["title"]
         node.code = data["code"]
         node.output_vars = data["outputs"]
         node.update()  # repaint
