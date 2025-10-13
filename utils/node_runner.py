@@ -15,17 +15,14 @@ def execute_all_nodes(nodes, connections, on_error=None, on_node_executed=None):
     QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
 
     try:
-        print("List of all nodes:")
-        print("\n")
+        print("List of all nodes:\n")
         for node in nodes:
             print(f"Node {node.title}")
             print("-------------------------------------------------------------------")
             print(f"{node.code}")
             print("-------------------------------------------------------------------")
 
-        print("\n")
-        print("List of all connections:")
-        print("\n")
+        print("\nList of all connections:\n")
         for conn in connections:
             print(f"Connection: {conn}")
             print(
@@ -60,18 +57,17 @@ def execute_all_nodes(nodes, connections, on_error=None, on_node_executed=None):
             node = ready_queue.popleft()
 
             # Inject upstream outputs
-            local_vars = {}
+            exec_env = {}
             for conn in connections:
                 if conn.end_port.node == node:
                     src_node = conn.start_port.node
                     if src_node in node_outputs:
-                        # merge outputs into local_vars
-                        local_vars.update(node_outputs[src_node])
+                        exec_env.update(node_outputs[src_node])
 
-            # Execute the node's code with injected inputs
+            # Execute node code safely
             node_start = perf_counter()
             try:
-                exec(node.code, {}, local_vars)
+                exec(node.code, exec_env)
             except Exception as e:
                 print(f"❌ Error executing node {node.title}: {e}")
                 error_count += 1
@@ -83,7 +79,7 @@ def execute_all_nodes(nodes, connections, on_error=None, on_node_executed=None):
                 continue
 
             # Collect outputs
-            node_outputs[node] = local_vars.get("outputs", {})
+            node_outputs[node] = exec_env.get("outputs", {})
             node.outputs = node_outputs[node]
 
             executed_count += 1
