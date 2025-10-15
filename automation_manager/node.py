@@ -1,10 +1,19 @@
 import uuid
+from enum import Enum
 
-from PyQt6.QtCore import QPointF, QRectF, Qt
+from PyQt6.QtCore import QPointF, QRectF, Qt, QTimer
 from PyQt6.QtGui import QColor, QFont, QFontMetrics, QPainter, QPen
-from PyQt6.QtWidgets import QLineEdit, QMessageBox, QMenu, QPushButton, QWidget
+from PyQt6.QtWidgets import QLineEdit, QMenu, QMessageBox, QPushButton, QWidget
 
 from automation_manager.ports import PortWidget
+
+
+class ExecutionStatus(Enum):
+    """Execution status for nodes during workflow runs"""
+    IDLE = "idle"         # Waiting for dependencies
+    RUNNING = "running"   # Currently executing
+    COMPLETED = "completed"  # Executed successfully
+    FAILED = "failed"     # Execution failed
 
 
 class NodeWidget(QWidget):
@@ -37,7 +46,19 @@ class NodeWidget(QWidget):
         self.is_editing = False
         self.title_editor = None
 
+        # execution status tracking
+        self.execution_status = ExecutionStatus.IDLE
+        self.execution_start_time = None
+        self.execution_duration = None
+        self.execution_error = None
+
+        # Animation timer for running nodes
+        self.animation_timer = None
+        self.animation_counter = 0
+
         self.setMouseTracking(True)
+        # Ensure tooltips work
+        self.setAttribute(Qt.WidgetAttribute.WA_Hover, True)
 
         # Create input and output ports as siblings (parent is canvas, not self)
         self.input_port = PortWidget(parent=canvas, node=self, type="input")
@@ -187,8 +208,118 @@ class NodeWidget(QWidget):
         text_rect.setHeight(text_height)
         return text_rect.toRect()
 
+    def get_execution_status_colors(self):
+        """Get colors and visual properties based on execution status"""
+        if self.execution_status == ExecutionStatus.RUNNING:
+            return {
+                'border': QColor(0, 123, 255),  # Blue
+                'background': QColor(0, 50, 100),  # Dark blue
+                'pulse': True
+            }
+        elif self.execution_status == ExecutionStatus.COMPLETED:
+            return {
+                'border': QColor(40, 167, 69),  # Green
+                'background': QColor(34, 34, 34),  # Normal background
+                'pulse': False
+            }
+        elif self.execution_status == ExecutionStatus.FAILED:
+            return {
+                'border': QColor(220, 53, 69),  # Red
+                'background': QColor(80, 20, 20),  # Dark red tint
+                'pulse': False
+            }
+        else:  # IDLE
+            return {
+                'border': QColor(136, 136, 136),  # Default gray
+                'background': QColor(34, 34, 34),  # Normal background
+                'pulse': False
+            }
+
+    def get_execution_tooltip(self):
+        """Get tooltip text showing execution details"""
+        if self.execution_status == ExecutionStatus.IDLE:
+            return f"{self.title}\nStatus: Idle"
+        elif self.execution_status == ExecutionStatus.RUNNING:
+            duration = "Running..."
+            if self.execution_start_time:
+                import time
+                elapsed = time.time() - self.execution_start_time
+                duration = f"Running... ({elapsed:.1f}s)"
+            return f"{self.title}\nStatus: {duration}"
+        elif self.execution_status == ExecutionStatus.COMPLETED:
+            duration_text = ""
+            if self.execution_duration:
+                duration_text = f" in {self.execution_duration:.2f}s"
+            return f"{self.title}\nStatus: Completed{duration_text}"
+        elif self.execution_status == ExecutionStatus.FAILED:
+            error_text = ""
+            if self.execution_error:
+                error_text = f"\nError: {self.execution_error[:50]}..."
+            return f"{self.title}\nStatus: Failed{error_text}"
+        return f"{self.title}\nStatus: {self.execution_status.value}"
+
+    def set_execution_status(self, status, error=None):
+        """Update execution status and related properties"""
+        self.execution_status = status
+        if status == ExecutionStatus.RUNNING:
+            import time
+            self.execution_start_time = time.time()
+            self.execution_duration = None
+            self.execution_error = None
+            self.animation_counter = 0
+            # Start animation timer for pulsing effect
+            if self.animation_timer is None:
+                self.animation_timer = QTimer(self)
+                self.animation_timer.timeout.connect(self._on_animation_tick)  # Update counter and repaint
+                self.animation_timer.start(50)  # 20 FPS animation
+        elif status == ExecutionStatus.COMPLETED:
+            if self.execution_start_time:
+                import time
+                self.execution_duration = time.time() - self.execution_start_time
+            self.execution_error = None
+            # Stop animation timer
+            if self.animation_timer:
+                self.animation_timer.stop()
+                self.animation_timer = None
+        elif status == ExecutionStatus.FAILED:
+            if self.execution_start_time:
+                import time
+                self.execution_duration = time.time() - self.execution_start_time
+            self.execution_error = error
+            # Stop animation timer
+            if self.animation_timer:
+                self.animation_timer.stop()
+                self.animation_timer = None
+        elif status == ExecutionStatus.IDLE:
+            self.execution_start_time = None
+            self.execution_duration = None
+            self.execution_error = None
+            # Stop animation timer
+            if self.animation_timer:
+                self.animation_timer.stop()
+                self.animation_timer = None
+
+        # Force UI update after status change
+        self.update()
+        # Also trigger canvas repaint to ensure visual updates are visible
+        if hasattr(self, 'canvas') and self.canvas and hasattr(self.canvas, 'update'):
+            self.canvas.update()
+
+    def _on_animation_tick(self):
+        """Called by animation timer to update animation counter and trigger repaint"""
+        self.animation_counter += 1
+        self.update()
+        # Also trigger canvas repaint for smooth animation
+        if hasattr(self.canvas, 'update'):
+            self.canvas.update()
+
+    def reset_execution_status(self):
+        """Reset node to idle status"""
+        self.set_execution_status(ExecutionStatus.IDLE)
+
     # on mouse enter or leave it updates visual feedback
     def enterEvent(self, event):
+        self.setToolTip(self.get_execution_tooltip())
         self.update()
 
     def leaveEvent(self, event):
@@ -276,14 +407,28 @@ class NodeWidget(QWidget):
         # static ui rendering of the node
         rect = self.rect().adjusted(1, 1, -1, -1)
 
-        if self.selected:
-            border_color = QColor(255, 215, 0)
-        else:
-            border_color = QColor(136, 136, 136)
+        # Get execution status colors
+        status_colors = self.get_execution_status_colors()
 
-        painter.setBrush(QColor(34, 34, 34))
+        # Priority: Selected > Execution Status
+        if self.selected:
+            border_color = QColor(255, 215, 0)  # Yellow for selected
+        else:
+            border_color = status_colors['border']
+
+        # Set background based on execution status
+        painter.setBrush(status_colors['background'])
         painter.setPen(QPen(border_color, 2))
         painter.drawRoundedRect(rect, 10, 10)
+
+        # Add pulsing effect for running nodes
+        if status_colors['pulse'] and self.execution_status == ExecutionStatus.RUNNING:
+            # Smooth pulsing animation using sine wave
+            import math
+            pulse_intensity = int(80 * (0.5 + 0.5 * math.sin(self.animation_counter * 0.3)))
+            pulse_color = QColor(0, 123 + pulse_intensity, 255)
+            painter.setPen(QPen(pulse_color, 3))  # Thicker border for visibility
+            painter.drawRoundedRect(rect.adjusted(-2, -2, 2, 2), 10, 10)  # Larger outline
 
         painter.setPen(QColor("white"))
         font = QFont("Arial", 15)
