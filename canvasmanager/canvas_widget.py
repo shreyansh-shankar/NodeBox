@@ -1,18 +1,11 @@
 from PyQt6.QtCore import QPointF, Qt, QTimer
-from PyQt6.QtGui import (
-    QColor,
-    QFont,
-    QKeyEvent,
-    QMouseEvent,
-    QPainter,
-    QPen,
-    QWheelEvent,
-)
+from PyQt6.QtGui import (QColor, QFont, QKeyEvent, QMouseEvent, QPainter, QPen,
+                         QWheelEvent)
 from PyQt6.QtWidgets import QInputDialog, QWidget
 
 from automation_manager.node import NodeWidget
 from predefined.registry import PredefinedNodeRegistry
-from utils.node_runner import execute_all_nodes
+from utils.node_runner import ExecutionSignals, execute_all_nodes
 from utils.performance_bus import get_performance_bus
 
 
@@ -49,6 +42,9 @@ class CanvasWidget(QWidget):
         self.connection_start_port = None
 
         self.connections = []
+
+        # Keep reference to execution signals to prevent garbage collection
+        self.current_execution_signals = None
 
         self.load_canvas_state()
 
@@ -259,7 +255,12 @@ class CanvasWidget(QWidget):
                 node.reset_execution_status()
 
     def run_all_nodes(self, *args):
-        print("Running all nodes...")
+        print("Running all nodes asynchronously...")
+
+        # Check if execution is already in progress
+        if self.current_execution_signals is not None:
+            print("Execution already in progress, ignoring request")
+            return
 
         # Reset all node statuses before running
         self.reset_all_node_statuses()
@@ -275,23 +276,41 @@ class CanvasWidget(QWidget):
         def _on_node_executed(node, duration_s):
             node_exec_times[getattr(node, "title", str(id(node)))] = duration_s
 
-        result = execute_all_nodes(
+        # Create execution signals for asynchronous completion
+        execution_signals = ExecutionSignals()
+        # Store reference to prevent garbage collection
+        self.current_execution_signals = execution_signals
+
+        # Connect to completion signal
+        def on_execution_completed(result):
+            try:
+                self.save_canvas_state()
+
+                # Clear the signals reference after completion
+                self.current_execution_signals = None
+
+                # Emit app metrics to performance tab
+                metrics = {
+                    "active_nodes": len(self.nodes),
+                    "total_nodes": result.get("total_nodes", len(self.nodes)),
+                    "workflows_running": 0,  # single-run mode for now
+                    "execution_time": result.get("total_duration_s", 0.0),
+                    "error_count": result.get("error_count", 0),
+                    "node_exec_times": node_exec_times,
+                }
+                bus.metrics_signal.emit(metrics)
+            except Exception as e:
+                print(f"Error in execution completion handler: {e}")
+                import traceback
+                traceback.print_exc()
+
+        execution_signals.execution_completed.connect(on_execution_completed)
+
+        # Start asynchronous execution
+        execute_all_nodes(
             self.nodes.values(),
             self.connections,
             on_error=_on_error,
             on_node_executed=_on_node_executed,
+            signals=execution_signals,
         )
-
-        print(result)
-        self.save_canvas_state()
-
-        # Emit app metrics to performance tab
-        metrics = {
-            "active_nodes": len(self.nodes),
-            "total_nodes": result.get("total_nodes", len(self.nodes)),
-            "workflows_running": 0,  # single-run mode for now
-            "execution_time": result.get("total_duration_s", 0.0),
-            "error_count": result.get("error_count", 0),
-            "node_exec_times": node_exec_times,
-        }
-        bus.metrics_signal.emit(metrics)

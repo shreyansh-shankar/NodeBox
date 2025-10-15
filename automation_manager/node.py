@@ -298,9 +298,11 @@ class NodeWidget(QWidget):
             if self.animation_timer:
                 self.animation_timer.stop()
                 self.animation_timer = None
-        self.update()  # Trigger repaint
+
+        # Force UI update after status change
+        self.update()
         # Also trigger canvas repaint to ensure visual updates are visible
-        if hasattr(self.canvas, 'update'):
+        if hasattr(self, 'canvas') and self.canvas and hasattr(self.canvas, 'update'):
             self.canvas.update()
 
     def _on_animation_tick(self):
