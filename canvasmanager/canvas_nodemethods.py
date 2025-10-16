@@ -35,11 +35,13 @@ def open_node(self, node):
     if dlg.exec() == QDialog.accepted:
         data = dlg.result_data
         # Apply changes to node:
-        node.code = data["code"]
-        node.output_vars = data["outputs"]
+        node.code = data.get("code", "")
+        node.output_vars = data.get("outputs", [])
         node.update()  # repaint
-        node.update_position()  # reposition ports if needed
-        self.save_canvas_state()
+        with contextlib.suppress(Exception):
+            node.update_position()  # reposition ports if needed
+        with contextlib.suppress(Exception):
+            self.save_canvas_state()
 
 
 def delete_node(self, node):
