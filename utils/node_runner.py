@@ -230,7 +230,7 @@ def execute_all_nodes(nodes, connections, on_error=None, on_node_executed=None, 
                 # Try subprocess execution
                 try:
                     result = _run_node_code_subprocess(node.code, exec_env)
-                except Exception as sub_e:
+                except Exception:
                     # fallback to in-process exec
                     try:
                         local_exec_env = dict(exec_env)
@@ -325,7 +325,6 @@ def execute_all_nodes(nodes, connections, on_error=None, on_node_executed=None, 
             stderr_text = result.get("stderr", "") or ""
             if rc != 0 or stderr_text.strip():
                 err_text = stderr_text or result.get("error") or "Unknown error"
-                error_count_local = 1
                 # try call on_error
                 if on_error:
                     with suppress(Exception):
