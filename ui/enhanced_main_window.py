@@ -565,10 +565,7 @@ class EnhancedMainWindow(QWidget):
         # Check for duplicate names
         existing_automations = self.fetch_automations()
         if new_name in existing_automations:
-            QMessageBox.warning(
-                self, "Duplicate Name",
-                f"An automation named '{new_name}' already exists."
-            )
+            QMessageBox.warning(self, "Duplicate Name", f"An automation named '{new_name}' already exists.")
             return
 
         # Perform the rename
@@ -577,10 +574,7 @@ class EnhancedMainWindow(QWidget):
             self.status_bar.showMessage(f"Renamed '{current_name}' to '{new_name}'")
             self.load_automations()
         except Exception as e:
-            QMessageBox.critical(
-                self, "Rename Failed",
-                f"Failed to rename automation:\n{str(e)}"
-            )
+            QMessageBox.critical(self, "Rename Failed", f"Failed to rename automation:\n{str(e)}")
 
     def delete_automation(self, automation_name):
         """Delete an automation with confirmation."""
@@ -601,10 +595,7 @@ class EnhancedMainWindow(QWidget):
             self.status_bar.showMessage(f"Deleted automation '{automation_name}'")
             self.load_automations()
         except Exception as e:
-            QMessageBox.critical(
-                self, "Delete Failed",
-                f"Failed to delete automation:\n{str(e)}"
-            )
+            QMessageBox.critical(self, "Delete Failed", f"Failed to delete automation:\n{str(e)}")
 
     def _rename_automation_file(self, old_name, new_name):
         """Rename automation file on disk and update internal name."""
@@ -662,10 +653,7 @@ class EnhancedMainWindow(QWidget):
 
         # Check for duplicate names again (in case user changed it)
         if new_name in existing_automations:
-            QMessageBox.warning(
-                self, "Duplicate Name",
-                f"An automation named '{new_name}' already exists."
-            )
+            QMessageBox.warning(self, "Duplicate Name", f"An automation named '{new_name}' already exists.")
             return
 
         # Perform the duplication
@@ -674,10 +662,7 @@ class EnhancedMainWindow(QWidget):
             self.status_bar.showMessage(f"Duplicated '{automation_name}' as '{new_name}'")
             self.load_automations()
         except Exception as e:
-            QMessageBox.critical(
-                self, "Duplicate Failed",
-                f"Failed to duplicate automation:\n{str(e)}"
-            )
+            QMessageBox.critical(self, "Duplicate Failed", f"Failed to duplicate automation:\n{str(e)}")
 
     def _duplicate_automation_file(self, source_name, target_name):
         """Duplicate automation file with new name."""

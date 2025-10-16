@@ -28,7 +28,6 @@ class ResizeHandle(QWidget):
         self._dragging = False
         self._start_y = 0
         self.setCursor(Qt.CursorShape.SizeVerCursor)
-        # keep it visually subtle
         self.setStyleSheet("background: transparent;")
         self.setFixedHeight(6)
 
@@ -45,7 +44,7 @@ class ResizeHandle(QWidget):
             dy = int(event.globalPosition().y() - self._start_y)
             parent = self.parent()
             if parent and hasattr(parent, "adjust_console_height"):
-                parent.adjust_console_height(-dy)  # negative because dragging up should increase height
+                parent.adjust_console_height(-dy)
             self._start_y = event.globalPosition().y()
             event.accept()
         else:
@@ -87,24 +86,20 @@ class CanvasWidget(QWidget):
         self.setMouseTracking(True)
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
 
-        # --- Output console (child) ---
-        # Create console but keep it hidden until run
+        # --- Output console ---
         self.output_console = OutputConsole(self)
         self.console_visible = False
-        self.console_height = 180  # default height in px
+        self.console_height = 180
         self.output_console.hide()
 
-        # Resize handle sits above the console and allows resizing by dragging
+        # Resize handle
         self.console_handle = ResizeHandle(self)
         self.console_handle.hide()
-
-        # Ensure console can expand a bit
         self.output_console.setMinimumHeight(80)
 
-        # Use a simple layout for the main widget (canvas itself paints directly)
+        # Layout (canvas paints directly)
         self.main_layout = QVBoxLayout(self)
         self.main_layout.setContentsMargins(0, 0, 0, 0)
-        # No widgets are added to this layout because CanvasWidget handles its painting.
         self.setLayout(self.main_layout)
 
         self.load_canvas_state()
@@ -124,7 +119,7 @@ class CanvasWidget(QWidget):
             self.console_visible = False
             self.output_console.hide()
             self.console_handle.hide()
-            self.update()  # redraw without console
+            self.update()
 
     def toggle_console(self):
         if self.console_visible:
@@ -133,41 +128,27 @@ class CanvasWidget(QWidget):
             self.show_console()
 
     def position_console_widgets(self):
-        """
-        Place the console and handle at the bottom of the CanvasWidget.
-        Call this from resizeEvent or whenever console_height changes.
-        """
         if not self.console_visible:
             return
 
         w = self.width()
-        ch = max(80, min(self.console_height, int(self.height() * 0.8)))  # clamp
+        ch = max(80, min(self.console_height, int(self.height() * 0.8)))
         handle_h = self.console_handle.height()
-        # Console sits at bottom
         self.output_console.setGeometry(0, self.height() - ch, w, ch)
-        # Handle sits just above it
         self.console_handle.setGeometry(0, self.height() - ch - handle_h, w, handle_h)
-        # Ensure console is on top
         self.output_console.raise_()
         self.console_handle.raise_()
 
     def adjust_console_height(self, delta_px):
-        """
-        Increase/decrease console height by delta_px (positive increases height).
-        Called by ResizeHandle.
-        """
         self.console_height = max(80, min(self.height() - 40, self.console_height + delta_px))
         self.position_console_widgets()
 
     # -------------------------
     # Drawing and interaction
     # -------------------------
-
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.fillRect(self.rect(), self.bg_color)
-
-        # Setup zoom and pan (canvas painting)
         painter.translate(self.offset)
         painter.scale(self.scale, self.scale)
 
@@ -192,7 +173,6 @@ class CanvasWidget(QWidget):
         painter.resetTransform()
         self.draw_coordinates(painter)
 
-        # Draw connections and pending connection
         for connection in self.connections:
             connection.draw(painter)
 
@@ -207,21 +187,14 @@ class CanvasWidget(QWidget):
             (canvas_pos.x() - self.offset.x()) / self.scale,
             -(canvas_pos.y() - self.offset.y()) / self.scale,
         )
-        text = f"X: {int(logical_pos.x())}  Y: {int(logical_pos.y())}"
-        painter.drawText(10, self.height() - 10, text)
+        painter.drawText(10, self.height() - 10, f"X: {int(logical_pos.x())}  Y: {int(logical_pos.y())}")
 
     # -------------------------
     # Execution & logging
     # -------------------------
-
     def run_all_nodes(self, *args):
-        print("Running all nodes...")
-
-        # --- Show and prepare console ---
         self.show_console()
-        # clear console contents using the public method on OutputConsole
         try:
-            # prefer a clear method if available
             if hasattr(self.output_console, "clear_output"):
                 self.output_console.clear_output()
             else:
@@ -229,11 +202,9 @@ class CanvasWidget(QWidget):
         except Exception:
             self.output_console.clear()
 
-        # Log start
         if hasattr(self.output_console, "log_signal"):
             self.output_console.log_signal.emit("▶ Starting automation run...", "info")
         else:
-            # fallback: append raw text
             self.output_console.appendPlainText("▶ Starting automation run...")
 
         bus = get_performance_bus()
@@ -255,7 +226,6 @@ class CanvasWidget(QWidget):
             else:
                 self.output_console.appendPlainText(msg)
 
-        # If your execute_all_nodes supports an on_log hook, use it; otherwise we just use the on_node_executed/on_error hooks.
         def _on_log(line, stream_type):
             if stream_type == "stderr":
                 if hasattr(self.output_console, "log_signal"):
@@ -268,8 +238,6 @@ class CanvasWidget(QWidget):
                 else:
                     self.output_console.appendPlainText(line)
 
-        # Execute nodes (note: execute_all_nodes signature may or may not accept on_log)
-        # Try to pass on_log if supported, else call without it.
         try:
             result = execute_all_nodes(
                 self.nodes.values(),
@@ -279,7 +247,6 @@ class CanvasWidget(QWidget):
                 on_log=_on_log,
             )
         except TypeError:
-            # older signature without on_log
             result = execute_all_nodes(
                 self.nodes.values(),
                 self.connections,
@@ -287,7 +254,6 @@ class CanvasWidget(QWidget):
                 on_node_executed=_on_node_executed,
             )
 
-        # --- Display summary ---
         if hasattr(self.output_console, "log_signal"):
             self.output_console.log_signal.emit("✔ Automation completed.", "info")
             self.output_console.log_signal.emit(f"Summary: {result}", "info")
@@ -298,7 +264,6 @@ class CanvasWidget(QWidget):
         self.position_console_widgets()
         self.save_canvas_state()
 
-        # Emit app metrics to performance tab
         metrics = {
             "active_nodes": len(self.nodes),
             "total_nodes": result.get("total_nodes", len(self.nodes)),
@@ -312,7 +277,6 @@ class CanvasWidget(QWidget):
     # -------------------------
     # Interaction events
     # -------------------------
-
     def mousePressEvent(self, event: QMouseEvent):
         if event.button() == Qt.MouseButton.LeftButton:
             clicked_on_node = any(
@@ -323,12 +287,17 @@ class CanvasWidget(QWidget):
                 self.selected_node.selected = False
                 self.selected_node.update()
                 self.selected_node = None
+
         if event.button() == Qt.MouseButton.LeftButton and self.space_held:
             self.drag_start = event.pos()
+
         if event.button() == Qt.MouseButton.RightButton:
             name, ok = QInputDialog.getText(self, "Create Node", "Enter node name:")
             if ok and name:
                 node = NodeWidget(name, self)
+                if not hasattr(node, "id") or node.id is None:
+                    import uuid
+                    node.id = str(uuid.uuid4())
                 canvas_pos = (event.position() - self.offset) / self.scale
                 node.logical_pos = canvas_pos
                 node.update_position()
@@ -343,7 +312,7 @@ class CanvasWidget(QWidget):
             if self.pending_connection:
                 self.cancel_connection()
 
-        self.update()  # Trigger repaint
+        self.update()
 
     def mouseMoveEvent(self, event: QMouseEvent):
         self.last_mouse_pos = event.position()
@@ -358,7 +327,7 @@ class CanvasWidget(QWidget):
             and self.drag_start
         ):
             delta = QPointF(event.pos() - self.drag_start)
-            self.offset += delta  # Invert to drag canvas
+            self.offset += delta
             self.drag_start = event.pos()
             for node in self.nodes.values():
                 node.update_position()
@@ -379,28 +348,20 @@ class CanvasWidget(QWidget):
             self.setCursor(Qt.CursorShape.ArrowCursor)
 
     def wheelEvent(self, event: QWheelEvent):
-        # Zooming centered at cursor
         angle = event.angleDelta().y()
         zoom_in_factor = 1.1
         zoom_out_factor = 1 / zoom_in_factor
 
         old_scale = self.scale
-        if angle > 0:
-            self.scale *= zoom_in_factor
-        else:
-            self.scale *= zoom_out_factor
-
-        # Prevent zooming too far
+        self.scale *= zoom_in_factor if angle > 0 else zoom_out_factor
         self.scale = max(0.1, min(self.scale, 10.0))
 
-        # Adjust offset to keep zoom centered at mouse
         mouse_pos = event.position()
         before_scale = (mouse_pos - self.offset) / old_scale
         after_scale = (mouse_pos - self.offset) / self.scale
         self.offset = QPointF(self.offset) + (after_scale - before_scale) * self.scale
 
         self.update()
-
         for node in self.nodes.values():
             node.update_position()
 
@@ -411,11 +372,95 @@ class CanvasWidget(QWidget):
             self.update()
 
     # -------------------------
-    # Basic utilities
+    # Utilities
     # -------------------------
+    def select_node(self, node):
+        try:
+            if getattr(self, "selected_node", None) and self.selected_node is not node:
+                try:
+                    self.selected_node.selected = False
+                    self.selected_node.update()
+                except Exception:
+                    pass
 
+            self.selected_node = node
+            if node is not None:
+                try:
+                    node.selected = True
+                    node.update()
+                    if hasattr(node, "update_position"):
+                        node.update_position()
+                except Exception:
+                    pass
+            self.update()
+        except Exception as e:
+            print(f"[CanvasWidget.select_node] Error selecting node: {e}")
+
+    def cancel_connection(self):
+        try:
+            self.pending_connection = None
+            self.update()
+        except Exception:
+            pass
+
+    def get_port_at(self, pos):
+        try:
+            if hasattr(pos, "toPoint"):
+                qpos = pos.toPoint()
+            else:
+                qpos = pos
+            w = self.childAt(qpos)
+            if w is None:
+                return None
+            if hasattr(w, "node") and hasattr(w, "type"):
+                return w
+            return None
+        except Exception:
+            return None
+
+    def handle_port_click(self, port_widget):
+        try:
+            from automation_manager.ports_handler import start_connection, complete_connection
+            port_type = getattr(port_widget, "type", "")
+            if self.pending_connection is None and port_type == "output":
+                start_connection(self, port_widget)
+            elif self.pending_connection is not None and port_type == "input":
+                complete_connection(self, port_widget)
+            elif self.pending_connection is not None and port_type == "output":
+                self.pending_connection.start_port = port_widget
+                self.update()
+        except Exception:
+            self.pending_connection = None
+
+    def update_node_position(self, node_id, logical_pos):
+        try:
+            node = self.nodes.get(node_id)
+            if node is None:
+                return
+            node.logical_pos = logical_pos
+            if hasattr(node, "update_position"):
+                node.update_position()
+        except Exception as e:
+            print(f"[CanvasWidget.update_node_position] Error: {e}")
+
+    def save_canvas_state(self):
+        try:
+            from canvasmanager.saveload_methods import save_canvas_state as _save
+            _save(self)
+        except Exception:
+            return
+
+    def load_canvas_state(self):
+        try:
+            from canvasmanager.saveload_methods import load_canvas_state as _load
+            _load(self)
+        except Exception:
+            return
+
+    # -------------------------
+    # Resize
+    # -------------------------
     def resizeEvent(self, event):
         super().resizeEvent(event)
-        # Reposition console and handle if necessary
         if self.console_visible:
             self.position_console_widgets()
