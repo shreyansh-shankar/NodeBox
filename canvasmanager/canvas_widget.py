@@ -1,4 +1,4 @@
-from PyQt6.QtCore import QPointF, Qt, QTimer, QObject, pyqtSignal
+from PyQt6.QtCore import QPointF, Qt, QTimer
 from PyQt6.QtGui import (
     QColor,
     QFont,
@@ -8,17 +8,18 @@ from PyQt6.QtGui import (
     QPen,
     QWheelEvent,
 )
-from PyQt6.QtWidgets import QInputDialog, QWidget, QVBoxLayout
+from PyQt6.QtWidgets import QInputDialog, QVBoxLayout, QWidget
 
 from automation_manager.node import NodeWidget
+from canvasmanager.output_console import OutputConsole
 from predefined.registry import PredefinedNodeRegistry
 from utils.node_runner import ExecutionSignals, execute_all_nodes
 from utils.performance_bus import get_performance_bus
-from canvasmanager.output_console import OutputConsole
 
 
 class ResizeHandle(QWidget):
     """Small draggable handle placed above the OutputConsole."""
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self._dragging = False
@@ -131,7 +132,9 @@ class CanvasWidget(QWidget):
         self.console_handle.raise_()
 
     def adjust_console_height(self, delta_px):
-        self.console_height = max(80, min(self.height() - 40, self.console_height + delta_px))
+        self.console_height = max(
+            80, min(self.height() - 40, self.console_height + delta_px)
+        )
         self.position_console_widgets()
 
     # ---------------- Drawing ----------------
@@ -174,7 +177,11 @@ class CanvasWidget(QWidget):
             (canvas_pos.x() - self.offset.x()) / self.scale,
             -(canvas_pos.y() - self.offset.y()) / self.scale,
         )
-        painter.drawText(10, self.height() - 10, f"X: {int(logical_pos.x())}  Y: {int(logical_pos.y())}")
+        painter.drawText(
+            10,
+            self.height() - 10,
+            f"X: {int(logical_pos.x())}  Y: {int(logical_pos.y())}",
+        )
 
     # ---------------- Run All Nodes ----------------
     def reset_all_node_statuses(self):
@@ -186,7 +193,11 @@ class CanvasWidget(QWidget):
         """Unified version combining console logging + async execution."""
         self.show_console()
         try:
-            self.output_console.clear_output() if hasattr(self.output_console, "clear_output") else self.output_console.clear()
+            (
+                self.output_console.clear_output()
+                if hasattr(self.output_console, "clear_output")
+                else self.output_console.clear()
+            )
         except Exception:
             self.output_console.clear()
 
@@ -262,6 +273,7 @@ class CanvasWidget(QWidget):
             if ok and name:
                 node = NodeWidget(name, self)
                 import uuid
+
                 node.id = getattr(node, "id", str(uuid.uuid4()))
                 canvas_pos = (event.position() - self.offset) / self.scale
                 node.logical_pos = canvas_pos
@@ -285,7 +297,11 @@ class CanvasWidget(QWidget):
             self.update()
         super().mouseMoveEvent(event)
 
-        if event.buttons() & Qt.MouseButton.LeftButton and self.space_held and self.drag_start:
+        if (
+            event.buttons() & Qt.MouseButton.LeftButton
+            and self.space_held
+            and self.drag_start
+        ):
             delta = QPointF(event.pos() - self.drag_start)
             self.offset += delta
             self.drag_start = event.pos()
@@ -374,7 +390,11 @@ class CanvasWidget(QWidget):
 
     def handle_port_click(self, port_widget):
         try:
-            from automation_manager.ports_handler import start_connection, complete_connection
+            from automation_manager.ports_handler import (
+                complete_connection,
+                start_connection,
+            )
+
             port_type = getattr(port_widget, "type", "")
             if self.pending_connection is None and port_type == "output":
                 start_connection(self, port_widget)
@@ -397,6 +417,7 @@ class CanvasWidget(QWidget):
     def save_canvas_state(self):
         try:
             from canvasmanager.saveload_methods import save_canvas_state as _save
+
             _save(self)
         except Exception:
             return
@@ -404,6 +425,7 @@ class CanvasWidget(QWidget):
     def load_canvas_state(self):
         try:
             from canvasmanager.saveload_methods import load_canvas_state as _load
+
             _load(self)
         except Exception:
             return

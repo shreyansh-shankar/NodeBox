@@ -6,15 +6,16 @@ import tempfile
 import threading
 import traceback
 from collections import defaultdict, deque
-from time import perf_counter
 from contextlib import suppress
+from time import perf_counter
 
-from PyQt6.QtCore import Qt, QObject, QThread, QTimer, pyqtSignal
+from PyQt6.QtCore import QObject, Qt, QThread, QTimer, pyqtSignal
 from PyQt6.QtWidgets import QApplication
 
 
 class ExecutionSignals(QObject):
     """Signals for asynchronous node execution completion"""
+
     execution_completed = pyqtSignal(dict)  # result dict
     execution_error = pyqtSignal(str)  # error message
 
@@ -24,6 +25,7 @@ NODE_TIMEOUT_SECONDS = 30
 
 class NodeExecutionWorker(QObject):
     """Worker class for executing nodes in a separate thread"""
+
     execution_finished = pyqtSignal(object, dict)  # node, result
     execution_error = pyqtSignal(object, str)  # node, error_message
 
@@ -42,7 +44,9 @@ class NodeExecutionWorker(QObject):
             self.execution_error.emit(self.node, str(e))
 
 
-def _run_node_code_subprocess(node_code: str, inputs: dict, timeout: int = NODE_TIMEOUT_SECONDS):
+def _run_node_code_subprocess(
+    node_code: str, inputs: dict, timeout: int = NODE_TIMEOUT_SECONDS
+):
     """
     Run node_code in a temporary Python file as a subprocess.
     - inputs: dict of variable names -> values to inject into globals().
@@ -53,7 +57,9 @@ def _run_node_code_subprocess(node_code: str, inputs: dict, timeout: int = NODE_
     marker = "___NODEBOX_OUTPUT_MARKER___"
 
     try:
-        temp_file = tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".py", encoding="utf-8")
+        temp_file = tempfile.NamedTemporaryFile(
+            mode="w", delete=False, suffix=".py", encoding="utf-8"
+        )
         temp_name = temp_file.name
 
         # Prepare safe JSON of inputs
@@ -116,7 +122,8 @@ except Exception:
         except subprocess.TimeoutExpired as te:
             return {
                 "stdout": te.stdout or "",
-                "stderr": (te.stderr or "") + f"\nNode execution timed out after {timeout} seconds.",
+                "stderr": (te.stderr or "")
+                + f"\nNode execution timed out after {timeout} seconds.",
                 "outputs": {},
                 "returncode": -1,
                 "error": "timeout",
@@ -162,7 +169,14 @@ except Exception:
 
     except Exception as e:
         tb = traceback.format_exc()
-        return {"stdout": "", "stderr": "", "outputs": {}, "returncode": -1, "error": str(e), "traceback": tb}
+        return {
+            "stdout": "",
+            "stderr": "",
+            "outputs": {},
+            "returncode": -1,
+            "error": str(e),
+            "traceback": tb,
+        }
 
     finally:
         if temp_file is not None:
@@ -172,7 +186,14 @@ except Exception:
                 pass
 
 
-def execute_all_nodes(nodes, connections, on_error=None, on_node_executed=None, signals: ExecutionSignals | None = None, on_log=None):
+def execute_all_nodes(
+    nodes,
+    connections,
+    on_error=None,
+    on_node_executed=None,
+    signals: ExecutionSignals | None = None,
+    on_log=None,
+):
     """
     Execute all nodes in the workflow.
 
@@ -331,8 +352,9 @@ def execute_all_nodes(nodes, connections, on_error=None, on_node_executed=None, 
                         on_error(node=node, error=err_text)
                 # set node status if API exists
                 try:
-                    if hasattr(node, 'set_execution_status'):
+                    if hasattr(node, "set_execution_status"):
                         from automation_manager.node import ExecutionStatus
+
                         node.set_execution_status(ExecutionStatus.FAILED, err_text)
                 except Exception:
                     pass
@@ -340,8 +362,9 @@ def execute_all_nodes(nodes, connections, on_error=None, on_node_executed=None, 
                 # (we'll increment shared error_count below)
             else:
                 try:
-                    if hasattr(node, 'set_execution_status'):
+                    if hasattr(node, "set_execution_status"):
                         from automation_manager.node import ExecutionStatus
+
                         node.set_execution_status(ExecutionStatus.COMPLETED)
                 except Exception:
                     pass
@@ -399,8 +422,9 @@ def execute_all_nodes(nodes, connections, on_error=None, on_node_executed=None, 
             """Start execution of a single node in a separate thread (using QThread)"""
             # set status running if available
             try:
-                if hasattr(node, 'set_execution_status'):
+                if hasattr(node, "set_execution_status"):
                     from automation_manager.node import ExecutionStatus
+
                     node.set_execution_status(ExecutionStatus.RUNNING)
             except Exception:
                 pass

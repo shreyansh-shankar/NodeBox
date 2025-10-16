@@ -1,6 +1,6 @@
+from PyQt6.QtCore import QDateTime, pyqtSignal
+from PyQt6.QtGui import QColor, QFont, QTextCharFormat, QTextCursor
 from PyQt6.QtWidgets import QTextEdit
-from PyQt6.QtCore import pyqtSignal, QDateTime, Qt
-from PyQt6.QtGui import QTextCursor, QColor, QTextCharFormat, QFont
 
 
 class OutputConsole(QTextEdit):
@@ -25,7 +25,9 @@ class OutputConsole(QTextEdit):
         timestamp = QDateTime.currentDateTime().toString("hh:mm:ss")
         cursor.insertText(f"[{timestamp}] ", fmt)
 
-        fmt.setForeground(QColor("#FFFFFF") if msg_type == "info" else QColor("#FF8888"))
+        fmt.setForeground(
+            QColor("#FFFFFF") if msg_type == "info" else QColor("#FF8888")
+        )
         cursor.insertText(message.strip() + "\n", fmt)
         self.setTextCursor(cursor)
         self.ensureCursorVisible()
