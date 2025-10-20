@@ -34,3 +34,25 @@ class OutputConsole(QTextEdit):
 
     def clear_output(self):
         self.clear()
+
+    # Backwards-compatible convenience methods used elsewhere in the codebase
+    def appendPlainText(self, text: str):
+        """Append informational text to the console (keeps timestamp and formatting)."""
+        try:
+            self.log_signal.emit(str(text), "info")
+        except Exception:
+            # Fallback to direct insert if signal fails
+            try:
+                self._append_log(str(text), "info")
+            except Exception:
+                pass
+
+    def appendError(self, text: str):
+        """Append an error message with error styling."""
+        try:
+            self.log_signal.emit(str(text), "error")
+        except Exception:
+            try:
+                self._append_log(str(text), "error")
+            except Exception:
+                pass

@@ -83,6 +83,10 @@ globals().update(_node_inputs)
 
 # --- Begin user code ---
 """
+        # Ensure `outputs` exists so user code can assign to outputs['...'] safely
+        wrapper = wrapper.replace(
+            "# --- Begin user code ---\n", "# --- Begin user code ---\noutputs = {}\n"
+        )
         temp_file.write(wrapper)
         temp_file.write("\n")
         temp_file.write(node_code)
@@ -186,6 +190,13 @@ except Exception:
                 pass
 
 
+def run_node_code(node_code: str, inputs: dict, timeout: int = NODE_TIMEOUT_SECONDS):
+    """Public wrapper to run node code (keeps implementation private).
+    Returns the same result dict as _run_node_code_subprocess.
+    """
+    return _run_node_code_subprocess(node_code, inputs, timeout=timeout)
+
+
 def execute_all_nodes(
     nodes,
     connections,
@@ -251,23 +262,17 @@ def execute_all_nodes(
                 # Try subprocess execution
                 try:
                     result = _run_node_code_subprocess(node.code, exec_env)
-                except Exception:
-                    # fallback to in-process exec
-                    try:
-                        local_exec_env = dict(exec_env)
-                        exec(node.code, local_exec_env)
-                        result = {
-                            "stdout": "",
-                            "stderr": "",
-                            "outputs": local_exec_env.get("outputs", {}),
-                            "returncode": 0,
-                        }
-                    except Exception as exec_e:
-                        error_count += 1
-                        if on_error:
-                            with suppress(Exception):
-                                on_error(node=node, error=exec_e)
-                        continue
+                except Exception as run_e:
+                    # do not attempt in-process exec fallback here; return structured error
+                    tb = traceback.format_exc()
+                    result = {
+                        "stdout": "",
+                        "stderr": str(run_e),
+                        "outputs": {},
+                        "returncode": -1,
+                        "error": "subprocess_failure",
+                        "traceback": tb,
+                    }
 
                 if result is None:
                     err_text = "No execution result produced"

@@ -207,8 +207,18 @@ class CanvasWidget(QWidget):
         node_exec_times = {}
 
         def _on_error(node, error):
-            msg = f"❌ Error in node {getattr(node, 'title', '?')}: {error}"
-            self.output_console.appendPlainText(msg)
+            # Show a short, user-friendly error message; full traceback is emitted via on_log (stderr)
+            msg = f"❌ Error in node {getattr(node, 'title', '?')}: see console for details"
+            try:
+                if hasattr(self.output_console, "appendError"):
+                    self.output_console.appendError(msg)
+                else:
+                    self.output_console.appendPlainText(msg)
+            except Exception:
+                try:
+                    self.output_console.appendPlainText(msg)
+                except Exception:
+                    pass
 
         def _on_node_executed(node, duration_s):
             node_exec_times[getattr(node, "title", str(id(node)))] = duration_s
@@ -216,7 +226,20 @@ class CanvasWidget(QWidget):
             self.output_console.appendPlainText(msg)
 
         def _on_log(line, stream_type):
-            self.output_console.appendPlainText(line)
+            try:
+                if stream_type and stream_type.lower() in ("stderr", "error"):
+                    if hasattr(self.output_console, "appendError"):
+                        self.output_console.appendError(line)
+                    else:
+                        self.output_console.appendPlainText(line)
+                else:
+                    # Default to info/stdout
+                    self.output_console.appendPlainText(line)
+            except Exception:
+                try:
+                    self.output_console.appendPlainText(line)
+                except Exception:
+                    pass
 
         # Signals for async run
         execution_signals = ExecutionSignals()
@@ -235,6 +258,17 @@ class CanvasWidget(QWidget):
                     "node_exec_times": node_exec_times,
                 }
                 bus.metrics_signal.emit(metrics)
+                # Append a clear completion message and a structured summary to the console
+                try:
+                    self.output_console.appendPlainText("✔ Automation completed.")
+                    self.output_console.appendPlainText(f"Summary: {result}")
+                except Exception:
+                    pass
+                # Reposition console after completion
+                try:
+                    self.position_console_widgets()
+                except Exception:
+                    pass
             except Exception as e:
                 print(f"Error in execution completion handler: {e}")
 
@@ -248,10 +282,17 @@ class CanvasWidget(QWidget):
             on_log=_on_log,
             signals=execution_signals,
         )
-
-        self.output_console.appendPlainText("✔ Automation completed.")
-        self.output_console.appendPlainText(f"Summary: {result}")
-        self.position_console_widgets()
+        # If the call returned a result (synchronous/blocking run), show completion now.
+        if result is not None:
+            try:
+                self.output_console.appendPlainText("✔ Automation completed.")
+                self.output_console.appendPlainText(f"Summary: {result}")
+            except Exception:
+                pass
+            try:
+                self.position_console_widgets()
+            except Exception:
+                pass
 
     # ---------------- Interaction ----------------
     def mousePressEvent(self, event: QMouseEvent):
@@ -390,7 +431,7 @@ class CanvasWidget(QWidget):
 
     def handle_port_click(self, port_widget):
         try:
-            from automation_manager.ports_handler import (
+            from canvasmanager.ports_handler import (
                 complete_connection,
                 start_connection,
             )
@@ -429,6 +470,94 @@ class CanvasWidget(QWidget):
             _load(self)
         except Exception:
             return
+
+    def center_initial_view(self):
+        """Center the canvas view after nodes are loaded.
+
+        If nodes exist, compute their logical bounding box and center the view
+        so the bounding-box centre maps to the widget centre. If no nodes,
+        place the origin near the centre of the widget. This method is
+        safe to call multiple times and sets `initial_centering_done`.
+        """
+        if getattr(self, "initial_centering_done", False):
+            return
+
+        try:
+            # If we have nodes, center on their logical bounding box centre
+            if self.nodes:
+                xs = [n.logical_pos.x() for n in self.nodes.values()]
+                ys = [n.logical_pos.y() for n in self.nodes.values()]
+                minx, maxx = min(xs), max(xs)
+                miny, maxy = min(ys), max(ys)
+                logical_center = QPointF((minx + maxx) / 2.0, (miny + maxy) / 2.0)
+
+                # Compute an offset so logical_center * scale + offset = screen_center
+                screen_cx = self.width() / 2.0
+                screen_cy = self.height() / 2.0
+                self.offset = (
+                    QPointF(screen_cx, screen_cy) - logical_center * self.scale
+                )
+            else:
+                # No nodes: position origin approximately at center
+                self.offset = QPointF(self.width() / 2.0, self.height() / 2.0)
+
+            # Update node widgets positions after changing offset/scale
+            for node in self.nodes.values():
+                try:
+                    node.update_position()
+                except Exception:
+                    pass
+
+            self.initial_centering_done = True
+            self.update()
+        except Exception as e:
+            # Defensive logging - do not raise during UI init
+            try:
+                print("[CanvasWidget] center_initial_view error:", e)
+            except Exception:
+                pass
+
+    def select_node(self, node):
+        """Select a node on the canvas.
+
+        Deselects any previously selected node, marks the provided node as
+        selected, updates its visuals and ports, and ensures it is raised
+        above other widgets so buttons are visible.
+        """
+        try:
+            # Deselect previous
+            if getattr(self, "selected_node", None) and self.selected_node != node:
+                try:
+                    self.selected_node.selected = False
+                    self.selected_node.update()
+                except Exception:
+                    pass
+
+            # Select new
+            self.selected_node = node
+            node.selected = True
+            node.update()
+
+            # Bring node and its ports to front
+            try:
+                node.raise_()
+            except Exception:
+                pass
+            try:
+                if hasattr(node, "input_port") and node.input_port:
+                    node.input_port.raise_()
+                if hasattr(node, "output_port") and node.output_port:
+                    node.output_port.raise_()
+            except Exception:
+                pass
+
+            # Trigger a repaint of the canvas
+            self.update()
+        except Exception as e:
+            try:
+                print("[CanvasWidget] select_node error:", e)
+            except Exception:
+                pass
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
