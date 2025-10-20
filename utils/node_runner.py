@@ -9,8 +9,50 @@ from collections import defaultdict, deque
 from contextlib import suppress
 from time import perf_counter
 
-from PyQt6.QtCore import QObject, Qt, QThread, QTimer, pyqtSignal
-from PyQt6.QtWidgets import QApplication
+try:
+    from PyQt6.QtCore import QObject, Qt, QThread, QTimer, pyqtSignal
+    from PyQt6.QtWidgets import QApplication
+
+    _PYQT_AVAILABLE = True
+except Exception:
+    # Allow running tests in environments without PyQt6 by providing lightweight stubs
+    _PYQT_AVAILABLE = False
+
+    class QObject:  # type: ignore
+        pass
+
+    class QThread:  # type: ignore
+        pass
+
+    class QTimer:  # type: ignore
+        @staticmethod
+        def singleShot(*args, **kwargs):
+            return None
+
+    def pyqtSignal(*_args, **_kwargs):  # type: ignore
+        # simple callable placeholder
+        class _Sig:
+            def connect(self, *a, **k):
+                return None
+
+            def emit(self, *a, **k):
+                return None
+
+        return _Sig()
+
+    # Minimal QApplication and Qt stubs used by execute_all_nodes
+    class Qt:  # type: ignore
+        class CursorShape:
+            WaitCursor = 0
+
+    class QApplication:  # type: ignore
+        @staticmethod
+        def setOverrideCursor(*_a, **_k):
+            return None
+
+        @staticmethod
+        def restoreOverrideCursor(*_a, **_k):
+            return None
 
 
 class ExecutionSignals(QObject):
