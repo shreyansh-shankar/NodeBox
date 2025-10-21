@@ -14,6 +14,8 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
 )
 
+from automation_manager.code_editor_widget import IntelliSenseCodeEditor
+
 # Starter template shown when code editor is blank
 TEMPLATE_CODE = """# Node code template
 # ------------------
@@ -78,7 +80,12 @@ class NodeEditorDialog(QDialog):
         self.outputs_edit = QTextEdit()
         self.outputs_edit.setReadOnly(True)
 
-        self.code_edit = QTextEdit()
+        # Use IntelliSense-enabled code editor instead of QTextEdit
+        self.code_edit = IntelliSenseCodeEditor()
+        
+        # Set node context for autocomplete
+        self.code_edit.set_node_context(inputs=self.inputs, outputs=getattr(self.node, "outputs", {}))
+        
         self.terminal_output = QPlainTextEdit()
         self.terminal_output.setReadOnly(True)
 
@@ -209,17 +216,9 @@ class NodeEditorDialog(QDialog):
             }
         """
         )
-        self.code_edit.setStyleSheet(
-            """
-            QTextEdit {
-                background-color: #151515;
-                color: #d4d4d4;
-                font-family: Consolas, 'Courier New', monospace;
-                font-size: 13px;
-                border: 1px solid #444444;
-            }
-        """
-        )
+        # Note: code_edit (IntelliSenseCodeEditor) has its own built-in styling
+        # via QScintilla, so we don't apply QTextEdit styles to it
+        
         self.terminal_output.setStyleSheet(
             """
             QPlainTextEdit {
