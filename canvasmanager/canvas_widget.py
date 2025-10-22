@@ -1,7 +1,7 @@
-from PyQt6.QtCore import QPointF, Qt, QTimer
+from PyQt6.QtCore import QPointF, Qt, QTimer, QThread
 from PyQt6.QtGui import (QColor, QFont, QKeyEvent, QMouseEvent, QPainter, QPen,
                          QWheelEvent)
-from PyQt6.QtWidgets import QInputDialog, QWidget
+from PyQt6.QtWidgets import QApplication, QInputDialog, QWidget
 
 from automation_manager.node import NodeWidget
 from predefined.registry import PredefinedNodeRegistry
@@ -265,7 +265,11 @@ class CanvasWidget(QWidget):
         # Reset all node statuses before running
         self.reset_all_node_statuses()
 
+        # Show busy cursor/ spinner
+        QApplication.setOverrideCursor(Qt.CursorShape.BusyCursor)
+        
         bus = get_performance_bus()
+        node_exec_times= {}
 
         def _on_error(node, error):
             # Minimal handler; details are broadcast via bus after run
@@ -283,6 +287,7 @@ class CanvasWidget(QWidget):
 
         # Connect to completion signal
         def on_execution_completed(result):
+            QApplication.restoreOverrideCursor()
             try:
                 self.save_canvas_state()
 
@@ -307,10 +312,24 @@ class CanvasWidget(QWidget):
         execution_signals.execution_completed.connect(on_execution_completed)
 
         # Start asynchronous execution
-        execute_all_nodes(
-            self.nodes.values(),
+        self.execution_thread = NodeRunnerThread(
+            list(self.nodes.values()),
             self.connections,
-            on_error=_on_error,
-            on_node_executed=_on_node_executed,
-            signals=execution_signals,
+            execution_signals,
+        )
+        self.execution_thread.start()
+class NodeRunnerThread(QThread):
+    def __init__(self, nodes,connections, signals , parent=None):
+        super().__init__(parent)
+        self.nodes = nodes
+        self.connections = connections
+        self.signals= signals
+    def run(self):
+        from utils.node_runner import execute_all_nodes
+        execute_all_nodes(
+            self.nodes,
+            self.connections,
+            on_error=None,
+            on_node_executed=None,
+            signals=self.signals
         )
