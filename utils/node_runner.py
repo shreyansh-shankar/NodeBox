@@ -33,11 +33,15 @@ class NodeExecutionWorker(QObject):
         self.node = node
         self.code = code
         self.inputs = inputs
+        self.cancelled= False
 
     def run(self):
         """Execute the node code and emit results"""
+        if self.cancelled:
+            self.execution_error.emit(self.node, "Execution cancalled")
+            return
         try:
-            result = _run_node_code_subprocess(self.code, self.inputs)
+            result = _run_node_code_subprocess(self.code, self.inputs, timeout=300)
             self.execution_finished.emit(self.node, result)
         except Exception as e:
             self.execution_error.emit(self.node, str(e))
@@ -207,27 +211,27 @@ def execute_all_nodes(nodes, connections, on_error=None, on_node_executed=None, 
     QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
 
     try:
-        print("List of all nodes:")
-        print("\n")
-        for node in nodes:
-            print(f"Node {node.title}")
-            print("-------------------------------------------------------------------")
-            print(f"{node.code}")
-            print("-------------------------------------------------------------------")
+        # print("List of all nodes:")
+        # print("\n")
+        # for node in nodes:
+        #     print(f"Node {node.title}")
+        #     print("-------------------------------------------------------------------")
+        #     print(f"{node.code}")
+        #     print("-------------------------------------------------------------------")
 
-        print("\n")
-        print("List of all connections:")
-        print("\n")
-        for conn in connections:
-            print(f"Connection: {conn}")
-            start_port = conn.start_port
-            print(
-                f"Start Port: {start_port}, PortNode: {start_port.node.title}, "
-                f"PortType: {start_port.type}"
-            )
-            print(
-                f"End Port: {conn.end_port}, PortNode: {conn.end_port.node.title}, PortType: {conn.end_port.type} \n"
-            )
+        # print("\n")
+        # print("List of all connections:")
+        # print("\n")
+        # for conn in connections:
+        #     print(f"Connection: {conn}")
+        #     start_port = conn.start_port
+        #     print(
+        #         f"Start Port: {start_port}, PortNode: {start_port.node.title}, "
+        #         f"PortType: {start_port.type}"
+        #     )
+        #     print(
+        #         f"End Port: {conn.end_port}, PortNode: {conn.end_port.node.title}, PortType: {conn.end_port.type} \n"
+        #     )
 
         # ------------------------------
         # Asynchronous Execution Logic using Threads
