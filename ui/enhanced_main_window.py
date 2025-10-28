@@ -4,17 +4,36 @@ Optimized Enhanced Main Window - Professional UI with white Feather icons
 
 import json
 import os
+from PyQt6.QtCore import QTimer
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QAction, QFont, QIcon
-from PyQt6.QtWidgets import QHBoxLayout, QInputDialog, QLabel, QListWidget, QListWidgetItem, QMenu, QMenuBar, QMessageBox, QPushButton, QStatusBar, QTabWidget, QVBoxLayout, QWidget
+from PyQt6.QtWidgets import (
+    QHBoxLayout,
+    QInputDialog,
+    QLabel,
+    QListWidget,
+    QListWidgetItem,
+    QMenu,
+    QMenuBar,
+    QMessageBox,
+    QPushButton,
+    QStatusBar,
+    QTabWidget,
+    QVBoxLayout,
+    QWidget,
+    QSizePolicy,
+    
+)
+from PyQt6.QtGui import QDesktopServices
+from PyQt6.QtCore import QUrl
 
 from browsemodels_manager.browsemodel_window import BrowseModelsWindow
 from ui.newautomation_window import NewAutomationWindow
 from ui.placeholder_widget import PlaceholderWidget
 from utils.paths import AUTOMATIONS_DIR, resource_path
 from utils.screen_manager import ScreenManager
-
+from services import OllamaInstaller
 
 class EnhancedMainWindow(QWidget):
     def __init__(self):
@@ -28,6 +47,14 @@ class EnhancedMainWindow(QWidget):
 
         self._feature_widgets = {}
         self._loaded_tabs = set()
+
+        # # Ollama indicator state (string)
+        # self._ollama_state = "unknown"
+
+        self.ollama_installer = OllamaInstaller()
+        self.ollama_installer.progress_updated.connect(self.update_ollama_indicator)
+        self.ollama_installer.download_progress.connect(self.update_download_progress)
+        self.ollama_installer.installation_complete.connect(self.on_installation_complete)
 
         self.init_ui()
         self.setup_connections()
@@ -106,9 +133,35 @@ class EnhancedMainWindow(QWidget):
         main_layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(main_layout)
 
+        # Create menu bar (but place it inside a top_bar alongside the indicator)
         self.create_menu_bar()
-        main_layout.addWidget(self.menu_bar)
 
+        # top_bar holds the menu bar (left) and the ollama indicator (right)
+        top_bar = QWidget()
+        top_bar_layout = QHBoxLayout()
+        top_bar_layout.setContentsMargins(0, 0, 0, 0)
+        top_bar_layout.setSpacing(8)
+        top_bar.setLayout(top_bar_layout)
+
+        # Add menu bar (left)
+        top_bar_layout.addWidget(self.menu_bar)
+
+        # Add stretch then the indicator so it sticks to the right
+        top_bar_layout.addStretch()
+
+        # Ollama indicator label (top-right)
+        self.ollama_indicator = QLabel()
+        self.ollama_indicator.setObjectName("ollamaIndicator")
+        self.ollama_indicator.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        self.ollama_indicator.setMinimumWidth(140)
+        self.ollama_indicator.setMinimumHeight(28)
+        self.ollama_indicator.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.ollama_indicator.setFont(QFont("Segoe UI", 10, QFont.Weight.Medium))
+        top_bar_layout.addWidget(self.ollama_indicator)
+
+        main_layout.addWidget(top_bar)
+
+        # Status bar (bottom)
         self.status_bar = QStatusBar()
         self.status_bar.showMessage("Ready")
 
@@ -116,6 +169,7 @@ class EnhancedMainWindow(QWidget):
         self.tab_widget.setMovable(True)
         main_layout.addWidget(self.tab_widget)
 
+        # Create tabs
         self.create_home_tab()
         self.create_templates_tab()
         self.create_scheduler_tab()
@@ -125,6 +179,23 @@ class EnhancedMainWindow(QWidget):
         self.create_models_tab()
 
         main_layout.addWidget(self.status_bar)
+
+        # Extra stylesheet for the indicator (local)
+        # Keep styling consistent with the app palette. Colors updated in update_ollama_indicator.
+        self.ollama_indicator.setStyleSheet(
+            """
+            QLabel#ollamaIndicator {
+                background-color: transparent;
+                font-size: 11px;
+                font-weight: 600;
+                padding: 0px;
+                margin-right: 8px;
+            }
+            """
+        )
+        QTimer.singleShot(3000, self.show_ollama_checking)
+
+
 
     def create_menu_bar(self):
         """Create menu bar with white icons"""
@@ -184,6 +255,113 @@ class EnhancedMainWindow(QWidget):
         about_action = QAction(self.get_icon("info"), " About NodeBox", self)
         about_action.triggered.connect(self.show_about)
         help_menu.addAction(about_action)
+
+    # ---- Ollama indicator helpers ----
+    def update_ollama_indicator(self, state: str, message: str = ""):
+        """
+        Update the top-right Ollama indicator with progress.
+        
+        Extended states: "checking", "found", "installing", "downloading", 
+                        "not_found", "ready", "error", "cancelled", "hidden"
+        """
+        state = (state or "").lower()
+        self._ollama_state = state
+
+        mapping = {
+            "checking": ("Checking Ollama...", "#007acc"),
+            "found": ("Ollama found", "#0f9d4a"),
+            "installing": ("Installing Ollama...", "#f39c12"),
+            "downloading": (f"Downloading {message}", "#f39c12"),
+            "not_found": ("Ollama not found", "#c0392b"),
+            "ready": ("Ollama ready", "#0f9d4a"),
+            "error": (f"Error: {message}", "#c0392b"),
+            "cancelled": ("Installation cancelled", "#a0a0a0"),
+            "hidden": ("", "transparent"),
+        }
+
+        text, color = mapping.get(state, (state.replace("_", " ").title(), "#a0a0a0"))
+
+        if state == "hidden":
+            self.ollama_indicator.setText("")
+            self.ollama_indicator.setVisible(False)
+            return
+        else:
+            self.ollama_indicator.setVisible(True)
+
+        self.ollama_indicator.setText(text)
+
+        # Update text color; keep background transparent
+        style = f"color: {color};" if color != "transparent" else "color: #e0e0e0;"
+        base = """
+            QLabel#ollamaIndicator {
+                background-color: transparent;
+                font-size: 11px;
+                font-weight: 600;
+            }
+        """
+        self.ollama_indicator.setStyleSheet(base + style)
+
+    def update_download_progress(self, percentage: int):
+        """Update indicator with download progress"""
+        if self._ollama_state == "installing":
+            self.ollama_indicator.setText(f"Downloading... {percentage}%")
+
+    def on_installation_complete(self, status: str):
+        """Handle installation completion"""
+        if status == "ready":
+            self.status_bar.showMessage("Ollama installed successfully")
+        elif status == "error":
+            self.status_bar.showMessage("Ollama installation failed")
+        elif status == "cancelled":
+            self.status_bar.showMessage("Ollama installation cancelled")
+
+    def show_ollama_checking(self):
+        """Check Ollama and start background installation if needed"""
+        if self.ollama_installer.check_ollama():
+            self.update_ollama_indicator("found")
+        else:
+            self.show_ollama_download_popup()
+
+    def show_ollama_download_popup(self):
+        """Show download confirmation dialog"""
+        reply = QMessageBox.question(
+            self,
+            "Ollama Not Found",
+            "Ollama is not installed on your system.\nWould you like to download and install it now?\n\nThis will happen in the background.",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.Yes
+        )
+
+        if reply == QMessageBox.StandardButton.Yes:
+            # Start background installation
+            self.ollama_installer.download_ollama_background()
+        else:
+            self.update_ollama_indicator("not_found")
+
+    # Add a method to cancel installation if needed
+    def cancel_ollama_installation(self):
+        """Cancel ongoing Ollama installation"""
+        if self.ollama_installer.is_installing():
+            self.ollama_installer.cancel_installation()
+
+    # Update closeEvent to cancel installation if window is closed
+    def closeEvent(self, event):
+        # Cancel any ongoing Ollama installation
+        if hasattr(self, 'ollama_installer') and self.ollama_installer.is_installing():
+            self.ollama_installer.cancel_installation()
+            # Wait a moment for cleanup
+            import time
+            time.sleep(0.5)
+
+        if "performance" in self._feature_widgets:
+            self._feature_widgets["performance"].stop_monitoring()
+
+        for widget in self._feature_widgets.values():
+            if hasattr(widget, "cleanup"):
+                widget.cleanup()
+
+        event.accept()
+    # ---- rest of your existing methods unchanged (kept below for completeness) ----
 
     def create_home_tab(self):
         """Create the home tab"""
