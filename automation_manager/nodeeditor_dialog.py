@@ -1,6 +1,4 @@
 # ui/node_editor.py
-import io
-import sys
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
@@ -264,29 +262,26 @@ class NodeEditorDialog(QDialog):
         if not actual_inputs:
             actual_inputs = {"text": "example input", "user_id": 123}
 
-        local_vars = {}
-        global_vars = {
-            "__builtins__": __builtins__,
-            "inputs": actual_inputs,
-            **actual_inputs,
-        }
+        # We run user code in a subprocess via run_node_code; no local/global dicts needed here
         self.terminal_output.clear()
 
-        stdout_buffer = io.StringIO()
-        stderr_buffer = io.StringIO()
-        old_stdout, old_stderr = sys.stdout, sys.stderr
-        sys.stdout, sys.stderr = stdout_buffer, stderr_buffer
+        # Use the subprocess-based runner to execute node code safely and capture outputs
+        from utils.node_runner import run_node_code
 
         try:
-            exec(code, global_vars, local_vars)
-            outputs = local_vars.get("outputs", {})
+            result = run_node_code(
+                code, self.inputs if isinstance(self.inputs, dict) else {}
+            )
+            # show stdout/stderr
+            stdout_text = result.get("stdout", "") or ""
+            stderr_text = result.get("stderr", "") or ""
+            if stdout_text.strip():
+                self.terminal_output.appendPlainText(stdout_text)
+            if stderr_text.strip():
+                self.terminal_output.appendPlainText(stderr_text)
+
+            outputs = result.get("outputs", {}) or {}
             self.node.outputs = outputs
             self._update_outputs_display(outputs)
         except Exception as e:
-            self.terminal_output.appendPlainText(f"Error: {e}")
-        finally:
-            sys.stdout, sys.stderr = old_stdout, old_stderr
-
-        output_text = stdout_buffer.getvalue() + stderr_buffer.getvalue()
-        if output_text.strip():
-            self.terminal_output.appendPlainText(output_text)
+            self.terminal_output.appendPlainText(f"Execution error: {e}")

@@ -1,12 +1,51 @@
 from PyQt6.QtCore import QPointF, Qt, QTimer
-from PyQt6.QtGui import (QColor, QFont, QKeyEvent, QMouseEvent, QPainter, QPen,
-                         QWheelEvent)
-from PyQt6.QtWidgets import QInputDialog, QWidget
+from PyQt6.QtGui import (
+    QColor,
+    QFont,
+    QKeyEvent,
+    QMouseEvent,
+    QPainter,
+    QPen,
+    QWheelEvent,
+)
+from PyQt6.QtWidgets import QInputDialog, QVBoxLayout, QWidget
 
 from automation_manager.node import NodeWidget
+from canvasmanager.output_console import OutputConsole
 from predefined.registry import PredefinedNodeRegistry
 from utils.node_runner import ExecutionSignals, execute_all_nodes
 from utils.performance_bus import get_performance_bus
+
+
+class ResizeHandle(QWidget):
+    """Small draggable handle placed above the OutputConsole."""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._dragging = False
+        self._start_y = 0
+        self.setCursor(Qt.CursorShape.SizeVerCursor)
+        self.setStyleSheet("background: transparent;")
+        self.setFixedHeight(6)
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            self._dragging = True
+            self._start_y = event.globalPosition().y()
+            event.accept()
+
+    def mouseMoveEvent(self, event):
+        if self._dragging:
+            dy = int(event.globalPosition().y() - self._start_y)
+            parent = self.parent()
+            if parent and hasattr(parent, "adjust_console_height"):
+                parent.adjust_console_height(-dy)
+            self._start_y = event.globalPosition().y()
+            event.accept()
+
+    def mouseReleaseEvent(self, event):
+        self._dragging = False
+        event.accept()
 
 
 class CanvasWidget(QWidget):
@@ -15,44 +54,93 @@ class CanvasWidget(QWidget):
         self.automation_name = automation_name
         self.automation_data = automation_data or {"nodes": [], "connections": []}
 
+        # Visual
         self.grid_size = 50
-        self.grid_color = QColor("#404040")  # Light gray grid
+        self.grid_color = QColor("#404040")
         self.bg_color = QColor("#202020")
 
+        # Graph data
         self.nodes = {}
+        self.connections = []
+        self.pending_connection = None
 
-        self.offset = QPointF(0, 0)  # Total pan offset
+        # Interaction state
+        self.offset = QPointF(0, 0)
         self.drag_start = None
         self.space_held = False
         self.last_mouse_pos = QPointF()
-
         self.selected_node = None
-        self.setAcceptDrops(True)
 
+        self.setAcceptDrops(True)
         self.initial_centering_done = False
         QTimer.singleShot(0, self.center_initial_view)
 
         self.scale = 1.0
-
         self.setMouseTracking(True)
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
 
-        # port and connection related logic
-        self.pending_connection = None
-        self.connection_start_port = None
+        # Output console
+        self.output_console = OutputConsole(self)
+        self.console_visible = False
+        self.console_height = 180
+        self.output_console.hide()
 
-        self.connections = []
+        # Resize handle
+        self.console_handle = ResizeHandle(self)
+        self.console_handle.hide()
+        self.output_console.setMinimumHeight(80)
 
-        # Keep reference to execution signals to prevent garbage collection
+        self.main_layout = QVBoxLayout(self)
+        self.main_layout.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(self.main_layout)
+
+        # Execution signals
         self.current_execution_signals = None
 
         self.load_canvas_state()
 
+    # ---------------- Console utilities ----------------
+    def show_console(self):
+        if not self.console_visible:
+            self.console_visible = True
+            self.output_console.show()
+            self.console_handle.show()
+            self.position_console_widgets()
+
+    def hide_console(self):
+        if self.console_visible:
+            self.console_visible = False
+            self.output_console.hide()
+            self.console_handle.hide()
+            self.update()
+
+    def toggle_console(self):
+        if self.console_visible:
+            self.hide_console()
+        else:
+            self.show_console()
+
+    def position_console_widgets(self):
+        if not self.console_visible:
+            return
+        w = self.width()
+        ch = max(80, min(self.console_height, int(self.height() * 0.8)))
+        handle_h = self.console_handle.height()
+        self.output_console.setGeometry(0, self.height() - ch, w, ch)
+        self.console_handle.setGeometry(0, self.height() - ch - handle_h, w, handle_h)
+        self.output_console.raise_()
+        self.console_handle.raise_()
+
+    def adjust_console_height(self, delta_px):
+        self.console_height = max(
+            80, min(self.height() - 40, self.console_height + delta_px)
+        )
+        self.position_console_widgets()
+
+    # ---------------- Drawing ----------------
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.fillRect(self.rect(), self.bg_color)
-
-        # Setup zoom and pan
         painter.translate(self.offset)
         painter.scale(self.scale, self.scale)
 
@@ -60,7 +148,6 @@ class CanvasWidget(QWidget):
         pen.setWidth(max(1, int(1 / self.scale)))
         painter.setPen(pen)
 
-        # Calculate grid spacing
         left = -self.offset.x() / self.scale
         top = -self.offset.y() / self.scale
         right = left + self.width() / self.scale
@@ -71,38 +158,143 @@ class CanvasWidget(QWidget):
 
         for x in range(x_start, int(right), self.grid_size):
             painter.drawLine(int(x), int(top), int(x), int(bottom))
-
         for y in range(y_start, int(bottom), self.grid_size):
             painter.drawLine(int(left), int(y), int(right), int(y))
 
-        # Draw coordinates
         painter.resetTransform()
         self.draw_coordinates(painter)
 
-        # Draw all finalized connections
         for connection in self.connections:
             connection.draw(painter)
-
-        # connection related logic
         if self.pending_connection:
             self.pending_connection.draw(painter)
-
-    def update_node_position(self, node_id, logical_pos):
-        self.save_canvas_state()
 
     def draw_coordinates(self, painter: QPainter):
         painter.setPen(Qt.GlobalColor.white)
         painter.setFont(QFont("Arial", 10))
         canvas_pos = self.mapFromGlobal(self.cursor().pos())
-        canvas_pos = QPointF(canvas_pos)
-
         logical_pos = QPointF(
             (canvas_pos.x() - self.offset.x()) / self.scale,
-            -(canvas_pos.y() - self.offset.y()) / self.scale,  # Flip Y axis
+            -(canvas_pos.y() - self.offset.y()) / self.scale,
         )
-        text = f"X: {int(logical_pos.x())}  Y: {int(logical_pos.y())}"
-        painter.drawText(10, self.height() - 10, text)
+        painter.drawText(
+            10,
+            self.height() - 10,
+            f"X: {int(logical_pos.x())}  Y: {int(logical_pos.y())}",
+        )
 
+    # ---------------- Run All Nodes ----------------
+    def reset_all_node_statuses(self):
+        for node in self.nodes.values():
+            if hasattr(node, "reset_execution_status"):
+                node.reset_execution_status()
+
+    def run_all_nodes(self, *args):
+        """Unified version combining console logging + async execution."""
+        self.show_console()
+        try:
+            (
+                self.output_console.clear_output()
+                if hasattr(self.output_console, "clear_output")
+                else self.output_console.clear()
+            )
+        except Exception:
+            self.output_console.clear()
+
+        self.output_console.appendPlainText("▶ Starting automation run...")
+
+        bus = get_performance_bus()
+        node_exec_times = {}
+
+        def _on_error(node, error):
+            # Show a short, user-friendly error message; full traceback is emitted via on_log (stderr)
+            msg = f"❌ Error in node {getattr(node, 'title', '?')}: see console for details"
+            try:
+                if hasattr(self.output_console, "appendError"):
+                    self.output_console.appendError(msg)
+                else:
+                    self.output_console.appendPlainText(msg)
+            except Exception:
+                try:
+                    self.output_console.appendPlainText(msg)
+                except Exception:
+                    pass
+
+        def _on_node_executed(node, duration_s):
+            node_exec_times[getattr(node, "title", str(id(node)))] = duration_s
+            msg = f"✅ Executed node: {node.title} ({duration_s:.2f}s)"
+            self.output_console.appendPlainText(msg)
+
+        def _on_log(line, stream_type):
+            try:
+                if stream_type and stream_type.lower() in ("stderr", "error"):
+                    if hasattr(self.output_console, "appendError"):
+                        self.output_console.appendError(line)
+                    else:
+                        self.output_console.appendPlainText(line)
+                else:
+                    # Default to info/stdout
+                    self.output_console.appendPlainText(line)
+            except Exception:
+                try:
+                    self.output_console.appendPlainText(line)
+                except Exception:
+                    pass
+
+        # Signals for async run
+        execution_signals = ExecutionSignals()
+        self.current_execution_signals = execution_signals
+
+        def on_execution_completed(result):
+            try:
+                self.save_canvas_state()
+                self.current_execution_signals = None
+                metrics = {
+                    "active_nodes": len(self.nodes),
+                    "total_nodes": result.get("total_nodes", len(self.nodes)),
+                    "workflows_running": 0,
+                    "execution_time": result.get("total_duration_s", 0.0),
+                    "error_count": result.get("error_count", 0),
+                    "node_exec_times": node_exec_times,
+                }
+                bus.metrics_signal.emit(metrics)
+                # Append a clear completion message and a structured summary to the console
+                try:
+                    self.output_console.appendPlainText("✔ Automation completed.")
+                    self.output_console.appendPlainText(f"Summary: {result}")
+                except Exception:
+                    pass
+                # Reposition console after completion
+                try:
+                    self.position_console_widgets()
+                except Exception:
+                    pass
+            except Exception as e:
+                print(f"Error in execution completion handler: {e}")
+
+        execution_signals.execution_completed.connect(on_execution_completed)
+
+        result = execute_all_nodes(
+            self.nodes.values(),
+            self.connections,
+            on_error=_on_error,
+            on_node_executed=_on_node_executed,
+            on_log=_on_log,
+            signals=execution_signals,
+        )
+        # If the call returned a result (synchronous/blocking run), show completion now.
+        if result is not None:
+            try:
+                self.output_console.appendPlainText("✔ Automation completed.")
+                self.output_console.appendPlainText(f"Summary: {result}")
+            except Exception:
+                pass
+            try:
+                self.position_console_widgets()
+            except Exception:
+                pass
+
+    # ---------------- Interaction ----------------
     def mousePressEvent(self, event: QMouseEvent):
         if event.button() == Qt.MouseButton.LeftButton:
             clicked_on_node = any(
@@ -113,12 +305,17 @@ class CanvasWidget(QWidget):
                 self.selected_node.selected = False
                 self.selected_node.update()
                 self.selected_node = None
+
         if event.button() == Qt.MouseButton.LeftButton and self.space_held:
             self.drag_start = event.pos()
+
         if event.button() == Qt.MouseButton.RightButton:
             name, ok = QInputDialog.getText(self, "Create Node", "Enter node name:")
             if ok and name:
                 node = NodeWidget(name, self)
+                import uuid
+
+                node.id = getattr(node, "id", str(uuid.uuid4()))
                 canvas_pos = (event.position() - self.offset) / self.scale
                 node.logical_pos = canvas_pos
                 node.update_position()
@@ -129,11 +326,10 @@ class CanvasWidget(QWidget):
         clicked_port = self.get_port_at(event.pos())
         if clicked_port:
             self.handle_port_click(clicked_port)
-        else:
-            if self.pending_connection:
-                self.cancel_connection()
+        elif self.pending_connection:
+            self.cancel_connection()
 
-        self.update()  # Trigger repaint
+        self.update()
 
     def mouseMoveEvent(self, event: QMouseEvent):
         self.last_mouse_pos = event.position()
@@ -148,7 +344,7 @@ class CanvasWidget(QWidget):
             and self.drag_start
         ):
             delta = QPointF(event.pos() - self.drag_start)
-            self.offset += delta  # Invert to drag canvas
+            self.offset += delta
             self.drag_start = event.pos()
             for node in self.nodes.values():
                 node.update_position()
@@ -169,47 +365,19 @@ class CanvasWidget(QWidget):
             self.setCursor(Qt.CursorShape.ArrowCursor)
 
     def wheelEvent(self, event: QWheelEvent):
-        # Zooming centered at cursor
         angle = event.angleDelta().y()
         zoom_in_factor = 1.1
         zoom_out_factor = 1 / zoom_in_factor
-
         old_scale = self.scale
-        if angle > 0:
-            self.scale *= zoom_in_factor
-        else:
-            self.scale *= zoom_out_factor
-
-        # Prevent zooming too far
+        self.scale *= zoom_in_factor if angle > 0 else zoom_out_factor
         self.scale = max(0.1, min(self.scale, 10.0))
-
-        # Adjust offset to keep zoom centered at mouse
         mouse_pos = event.position()
         before_scale = (mouse_pos - self.offset) / old_scale
         after_scale = (mouse_pos - self.offset) / self.scale
         self.offset = QPointF(self.offset) + (after_scale - before_scale) * self.scale
-
         self.update()
-
         for node in self.nodes.values():
             node.update_position()
-
-    def center_initial_view(self):
-        if not self.initial_centering_done:
-            self.offset = QPointF(self.width() / 2, self.height() / 2)
-            self.initial_centering_done = True
-            self.update()
-
-    def select_node(self, node):
-        # Deselect previous
-        if self.selected_node and self.selected_node != node:
-            self.selected_node.selected = False
-            self.selected_node.update()
-
-        # Select new
-        self.selected_node = node
-        node.selected = True
-        node.update()
 
     def dragEnterEvent(self, event):
         if event.mimeData().hasText():
@@ -217,100 +385,181 @@ class CanvasWidget(QWidget):
 
     def dropEvent(self, event):
         node_type = event.mimeData().text()
-        pos = (event.position() - self.offset) / self.scale  # convert to logical coords
-
-        # Check if this is a predefined node
+        pos = (event.position() - self.offset) / self.scale
         predefined_node_class = PredefinedNodeRegistry.get_node(node_type)
 
         if node_type == "Custom Node":
             name, ok = QInputDialog.getText(self, "Create Node", "Enter node name:")
-            if ok and name:
-                node = NodeWidget(name, self, pos=QPointF(pos))
-            else:
+            if not ok or not name:
                 return
+            node = NodeWidget(name, self, pos=QPointF(pos))
         elif predefined_node_class:
-            # This is a predefined node - create with pre-filled code and outputs
             node_data = predefined_node_class.get_node_data()
             node = NodeWidget(
                 node_data["name"], self, pos=QPointF(pos), outputs=node_data["outputs"]
             )
-            # Set the pre-written code
             node.code = node_data["code"]
         else:
             node = NodeWidget(node_type, self, pos=QPointF(pos))
 
-        # ---- critical: store node and initialize ----
         self.nodes[node.id] = node
         node.logical_pos = QPointF(pos)
         node.update_position()
         node.show()
-
         self.save_canvas_state()
         event.acceptProposedAction()
 
-    def reset_all_node_statuses(self):
-        """Reset execution status of all nodes to idle"""
-        for node in self.nodes.values():
-            if hasattr(node, 'reset_execution_status'):
-                node.reset_execution_status()
+    # ---------------- Utilities ----------------
+    def cancel_connection(self):
+        self.pending_connection = None
+        self.update()
 
-    def run_all_nodes(self, *args):
-        print("Running all nodes asynchronously...")
+    def get_port_at(self, pos):
+        try:
+            if hasattr(pos, "toPoint"):
+                qpos = pos.toPoint()
+            else:
+                qpos = pos
+            w = self.childAt(qpos)
+            if w is None:
+                return None
+            if hasattr(w, "node") and hasattr(w, "type"):
+                return w
+            return None
+        except Exception:
+            return None
 
-        # Check if execution is already in progress
-        if self.current_execution_signals is not None:
-            print("Execution already in progress, ignoring request")
+    def handle_port_click(self, port_widget):
+        try:
+            from canvasmanager.ports_handler import (
+                complete_connection,
+                start_connection,
+            )
+
+            port_type = getattr(port_widget, "type", "")
+            if self.pending_connection is None and port_type == "output":
+                start_connection(self, port_widget)
+            elif self.pending_connection is not None and port_type == "input":
+                complete_connection(self, port_widget)
+            elif self.pending_connection is not None and port_type == "output":
+                self.pending_connection.start_port = port_widget
+                self.update()
+        except Exception:
+            self.pending_connection = None
+
+    def update_node_position(self, node_id, logical_pos):
+        node = self.nodes.get(node_id)
+        if not node:
+            return
+        node.logical_pos = logical_pos
+        if hasattr(node, "update_position"):
+            node.update_position()
+
+    def save_canvas_state(self):
+        try:
+            from canvasmanager.saveload_methods import save_canvas_state as _save
+
+            _save(self)
+        except Exception:
             return
 
-        # Reset all node statuses before running
-        self.reset_all_node_statuses()
+    def load_canvas_state(self):
+        try:
+            from canvasmanager.saveload_methods import load_canvas_state as _load
 
-        bus = get_performance_bus()
+            _load(self)
+        except Exception:
+            return
 
-        def _on_error(node, error):
-            # Minimal handler; details are broadcast via bus after run
-            pass
+    def center_initial_view(self):
+        """Center the canvas view after nodes are loaded.
 
-        node_exec_times = {}
+        If nodes exist, compute their logical bounding box and center the view
+        so the bounding-box centre maps to the widget centre. If no nodes,
+        place the origin near the centre of the widget. This method is
+        safe to call multiple times and sets `initial_centering_done`.
+        """
+        if getattr(self, "initial_centering_done", False):
+            return
 
-        def _on_node_executed(node, duration_s):
-            node_exec_times[getattr(node, "title", str(id(node)))] = duration_s
+        try:
+            # If we have nodes, center on their logical bounding box centre
+            if self.nodes:
+                xs = [n.logical_pos.x() for n in self.nodes.values()]
+                ys = [n.logical_pos.y() for n in self.nodes.values()]
+                minx, maxx = min(xs), max(xs)
+                miny, maxy = min(ys), max(ys)
+                logical_center = QPointF((minx + maxx) / 2.0, (miny + maxy) / 2.0)
 
-        # Create execution signals for asynchronous completion
-        execution_signals = ExecutionSignals()
-        # Store reference to prevent garbage collection
-        self.current_execution_signals = execution_signals
+                # Compute an offset so logical_center * scale + offset = screen_center
+                screen_cx = self.width() / 2.0
+                screen_cy = self.height() / 2.0
+                self.offset = (
+                    QPointF(screen_cx, screen_cy) - logical_center * self.scale
+                )
+            else:
+                # No nodes: position origin approximately at center
+                self.offset = QPointF(self.width() / 2.0, self.height() / 2.0)
 
-        # Connect to completion signal
-        def on_execution_completed(result):
+            # Update node widgets positions after changing offset/scale
+            for node in self.nodes.values():
+                try:
+                    node.update_position()
+                except Exception:
+                    pass
+
+            self.initial_centering_done = True
+            self.update()
+        except Exception as e:
+            # Defensive logging - do not raise during UI init
             try:
-                self.save_canvas_state()
+                print("[CanvasWidget] center_initial_view error:", e)
+            except Exception:
+                pass
 
-                # Clear the signals reference after completion
-                self.current_execution_signals = None
+    def select_node(self, node):
+        """Select a node on the canvas.
 
-                # Emit app metrics to performance tab
-                metrics = {
-                    "active_nodes": len(self.nodes),
-                    "total_nodes": result.get("total_nodes", len(self.nodes)),
-                    "workflows_running": 0,  # single-run mode for now
-                    "execution_time": result.get("total_duration_s", 0.0),
-                    "error_count": result.get("error_count", 0),
-                    "node_exec_times": node_exec_times,
-                }
-                bus.metrics_signal.emit(metrics)
-            except Exception as e:
-                print(f"Error in execution completion handler: {e}")
-                import traceback
-                traceback.print_exc()
+        Deselects any previously selected node, marks the provided node as
+        selected, updates its visuals and ports, and ensures it is raised
+        above other widgets so buttons are visible.
+        """
+        try:
+            # Deselect previous
+            if getattr(self, "selected_node", None) and self.selected_node != node:
+                try:
+                    self.selected_node.selected = False
+                    self.selected_node.update()
+                except Exception:
+                    pass
 
-        execution_signals.execution_completed.connect(on_execution_completed)
+            # Select new
+            self.selected_node = node
+            node.selected = True
+            node.update()
 
-        # Start asynchronous execution
-        execute_all_nodes(
-            self.nodes.values(),
-            self.connections,
-            on_error=_on_error,
-            on_node_executed=_on_node_executed,
-            signals=execution_signals,
-        )
+            # Bring node and its ports to front
+            try:
+                node.raise_()
+            except Exception:
+                pass
+            try:
+                if hasattr(node, "input_port") and node.input_port:
+                    node.input_port.raise_()
+                if hasattr(node, "output_port") and node.output_port:
+                    node.output_port.raise_()
+            except Exception:
+                pass
+
+            # Trigger a repaint of the canvas
+            self.update()
+        except Exception as e:
+            try:
+                print("[CanvasWidget] select_node error:", e)
+            except Exception:
+                pass
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        if self.console_visible:
+            self.position_console_widgets()

@@ -22,11 +22,7 @@ from PyQt6.QtWidgets import (
     QTabWidget,
     QVBoxLayout,
     QWidget,
-    QSizePolicy,
-    
 )
-from PyQt6.QtGui import QDesktopServices
-from PyQt6.QtCore import QUrl
 
 from browsemodels_manager.browsemodel_window import BrowseModelsWindow
 from ui.newautomation_window import NewAutomationWindow
@@ -513,8 +509,12 @@ class EnhancedMainWindow(QWidget):
 
     def setup_connections(self):
         self.automation_list.itemDoubleClicked.connect(self.edit_automation)
-        self.automation_list.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-        self.automation_list.customContextMenuRequested.connect(self.show_automation_context_menu)
+        self.automation_list.setContextMenuPolicy(
+            Qt.ContextMenuPolicy.CustomContextMenu
+        )
+        self.automation_list.customContextMenuRequested.connect(
+            self.show_automation_context_menu
+        )
 
     def setup_lazy_loading(self):
         self.tab_widget.currentChanged.connect(self._on_tab_changed)
@@ -716,7 +716,9 @@ class EnhancedMainWindow(QWidget):
 
         # Duplicate action
         duplicate_action = QAction("Duplicate Automation", self)
-        duplicate_action.triggered.connect(lambda: self.duplicate_automation(automation_name))
+        duplicate_action.triggered.connect(
+            lambda: self.duplicate_automation(automation_name)
+        )
         menu.addAction(duplicate_action)
 
         menu.addSeparator()  # Separator before destructive actions
@@ -731,8 +733,7 @@ class EnhancedMainWindow(QWidget):
     def rename_automation(self, current_name):
         """Rename an automation with input dialog."""
         new_name, ok = QInputDialog.getText(
-            self, "Rename Automation", "Enter new automation name:",
-            text=current_name
+            self, "Rename Automation", "Enter new automation name:", text=current_name
         )
 
         if not ok or not new_name.strip() or new_name.strip() == current_name:
@@ -744,8 +745,9 @@ class EnhancedMainWindow(QWidget):
         existing_automations = self.fetch_automations()
         if new_name in existing_automations:
             QMessageBox.warning(
-                self, "Duplicate Name",
-                f"An automation named '{new_name}' already exists."
+                self,
+                "Duplicate Name",
+                f"An automation named '{new_name}' already exists.",
             )
             return
 
@@ -756,18 +758,18 @@ class EnhancedMainWindow(QWidget):
             self.load_automations()
         except Exception as e:
             QMessageBox.critical(
-                self, "Rename Failed",
-                f"Failed to rename automation:\n{str(e)}"
+                self, "Rename Failed", f"Failed to rename automation:\n{str(e)}"
             )
 
     def delete_automation(self, automation_name):
         """Delete an automation with confirmation."""
         reply = QMessageBox.question(
-            self, "Delete Automation",
+            self,
+            "Delete Automation",
             f"Are you sure you want to delete '{automation_name}'?\n\n"
             "This action cannot be undone.",
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-            QMessageBox.StandardButton.No
+            QMessageBox.StandardButton.No,
         )
 
         if reply != QMessageBox.StandardButton.Yes:
@@ -780,8 +782,7 @@ class EnhancedMainWindow(QWidget):
             self.load_automations()
         except Exception as e:
             QMessageBox.critical(
-                self, "Delete Failed",
-                f"Failed to delete automation:\n{str(e)}"
+                self, "Delete Failed", f"Failed to delete automation:\n{str(e)}"
             )
 
     def _rename_automation_file(self, old_name, new_name):
@@ -793,14 +794,14 @@ class EnhancedMainWindow(QWidget):
             raise FileNotFoundError(f"Automation file not found: {old_file}")
 
         # Read current data
-        with open(old_file, 'r') as f:
+        with open(old_file, "r") as f:
             data = json.load(f)
 
         # Update the name in the JSON data
-        data['name'] = new_name
+        data["name"] = new_name
 
         # Write to new file
-        with open(new_file, 'w') as f:
+        with open(new_file, "w") as f:
             json.dump(data, f, indent=4)
 
         # Remove old file
@@ -829,8 +830,7 @@ class EnhancedMainWindow(QWidget):
 
         # Get confirmation from user
         new_name, ok = QInputDialog.getText(
-            self, "Duplicate Automation", "Enter name for duplicate:",
-            text=new_name
+            self, "Duplicate Automation", "Enter name for duplicate:", text=new_name
         )
 
         if not ok or not new_name.strip():
@@ -841,20 +841,22 @@ class EnhancedMainWindow(QWidget):
         # Check for duplicate names again (in case user changed it)
         if new_name in existing_automations:
             QMessageBox.warning(
-                self, "Duplicate Name",
-                f"An automation named '{new_name}' already exists."
+                self,
+                "Duplicate Name",
+                f"An automation named '{new_name}' already exists.",
             )
             return
 
         # Perform the duplication
         try:
             self._duplicate_automation_file(automation_name, new_name)
-            self.status_bar.showMessage(f"Duplicated '{automation_name}' as '{new_name}'")
+            self.status_bar.showMessage(
+                f"Duplicated '{automation_name}' as '{new_name}'"
+            )
             self.load_automations()
         except Exception as e:
             QMessageBox.critical(
-                self, "Duplicate Failed",
-                f"Failed to duplicate automation:\n{str(e)}"
+                self, "Duplicate Failed", f"Failed to duplicate automation:\n{str(e)}"
             )
 
     def _duplicate_automation_file(self, source_name, target_name):
@@ -866,14 +868,14 @@ class EnhancedMainWindow(QWidget):
             raise FileNotFoundError(f"Source automation file not found: {source_file}")
 
         # Read source data
-        with open(source_file, 'r') as f:
+        with open(source_file, "r") as f:
             data = json.load(f)
 
         # Update the name in the JSON data
-        data['name'] = target_name
+        data["name"] = target_name
 
         # Write to target file
-        with open(target_file, 'w') as f:
+        with open(target_file, "w") as f:
             json.dump(data, f, indent=4)
 
     def show_about(self):
