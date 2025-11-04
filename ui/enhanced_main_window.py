@@ -22,6 +22,7 @@ from PyQt6.QtWidgets import (
     QTabWidget,
     QVBoxLayout,
     QWidget,
+    QSizePolicy
 )
 
 from browsemodels_manager.browsemodel_window import BrowseModelsWindow
@@ -61,7 +62,7 @@ class EnhancedMainWindow(QWidget):
         self.setStyleSheet(
             """
             QWidget {
-                background-color: #1e1e1e;
+                background-color: #2d2d30;
                 color: #e0e0e0;
                 font-family: 'Segoe UI', 'Roboto', sans-serif;
             }
