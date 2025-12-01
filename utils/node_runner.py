@@ -63,6 +63,123 @@ class ExecutionSignals(QObject):
 
 
 NODE_TIMEOUT_SECONDS = 30
+NODE_OUTPUT_MARKER = "___NODEBOX_OUTPUT_MARKER___"
+
+
+def build_temp_node_script(node_code: str, inputs: dict, marker: str = NODE_OUTPUT_MARKER):
+    """Create a temporary python file that wraps user code with IO plumbing.
+
+    Returns (temp_file_path, marker, prelude_line_count) where prelude_line_count
+    is the number of lines written before the user's code begins. This is useful
+    for mapping traceback line numbers back to the editor surface.
+    """
+    temp_file = tempfile.NamedTemporaryFile(
+        mode="w", delete=False, suffix=".py", encoding="utf-8"
+    )
+    temp_name = temp_file.name
+
+    try:
+        try:
+            inputs_json = json.dumps(inputs, default=lambda o: repr(o))
+        except Exception:
+            safe_inputs = {k: repr(v) for k, v in inputs.items()}
+            inputs_json = json.dumps(safe_inputs)
+
+        wrapper = f"""# Auto-generated NodeBox temp script
+import json, sys, traceback
+
+try:
+    _node_inputs = json.loads({json.dumps(inputs_json)})
+except Exception:
+    _node_inputs = {{}}
+
+# Backward compatibility: provide `inputs` variable to user code
+inputs = _node_inputs
+globals().update(_node_inputs)
+
+# --- Begin user code ---
+"""
+        wrapper = wrapper.replace(
+            "# --- Begin user code ---\n", "# --- Begin user code ---\noutputs = {}\n"
+        )
+        temp_file.write(wrapper)
+        temp_file.write("\n")
+        temp_file.write(node_code)
+        temp_file.write("\n\n")
+        finalizer = f"""
+# --- End user code ---
+try:
+    _node_outputs = outputs
+except Exception:
+    _node_outputs = {{}}
+
+def _safe_default(o):
+    try:
+        return json.loads(json.dumps(o))
+    except Exception:
+        return repr(o)
+
+print("{marker}")
+try:
+    print(json.dumps({{'outputs': _node_outputs}}, default=_safe_default))
+except Exception:
+    safe_outs = {{k: repr(v) for k, v in _node_outputs.items()}}
+    print(json.dumps({{'outputs': safe_outs}}))
+"""
+        temp_file.write(finalizer)
+        temp_file.flush()
+    finally:
+        temp_file.close()
+
+    prelude_line_count = wrapper.count("\n") + 1  # extra newline before user code
+    return temp_name, marker, prelude_line_count
+
+
+def cleanup_temp_script(path: str):
+    with suppress(Exception):
+        os.remove(path)
+
+
+def parse_node_process_result(
+    stdout: str, stderr: str, returncode: int, marker: str = NODE_OUTPUT_MARKER
+):
+    """Normalize subprocess results into the canonical dict structure."""
+    stdout = stdout or ""
+    stderr = stderr or ""
+    outputs = {}
+    user_stdout = stdout
+
+    if marker in stdout:
+        before, _, after = stdout.partition(marker)
+        user_stdout = before
+        json_blob = after.strip()
+        parsed = None
+        if json_blob:
+            try:
+                parsed = json.loads(json_blob)
+            except Exception:
+                idx = json_blob.find("{")
+                if idx != -1:
+                    with suppress(Exception):
+                        parsed = json.loads(json_blob[idx:])
+        if isinstance(parsed, dict) and "outputs" in parsed:
+            outputs = parsed.get("outputs", {}) or {}
+        else:
+            outputs = {}
+        return {
+            "stdout": user_stdout,
+            "stderr": stderr,
+            "outputs": outputs,
+            "returncode": returncode,
+        }
+
+    return {
+        "stdout": stdout,
+        "stderr": stderr,
+        "outputs": {},
+        "returncode": returncode,
+        "error": "no_outputs_marker",
+    }
 
 
 class NodeExecutionWorker(QObject):
@@ -95,69 +212,12 @@ def _run_node_code_subprocess(
     - Returns a dict with keys:
         - stdout, stderr, outputs, returncode, error (optional)
     """
-    temp_file = None
-    marker = "___NODEBOX_OUTPUT_MARKER___"
+    temp_name = None
+    marker = NODE_OUTPUT_MARKER
 
     try:
-        temp_file = tempfile.NamedTemporaryFile(
-            mode="w", delete=False, suffix=".py", encoding="utf-8"
-        )
-        temp_name = temp_file.name
+        temp_name, marker, _ = build_temp_node_script(node_code, inputs, marker=marker)
 
-        # Prepare safe JSON of inputs
-        try:
-            inputs_json = json.dumps(inputs, default=lambda o: repr(o))
-        except Exception:
-            safe_inputs = {k: repr(v) for k, v in inputs.items()}
-            inputs_json = json.dumps(safe_inputs)
-
-        wrapper = f"""# Auto-generated NodeBox temp script
-import json, sys, traceback
-
-try:
-    _node_inputs = json.loads({json.dumps(inputs_json)})
-except Exception:
-    _node_inputs = {{}}
-
-# Backward compatibility: provide `inputs` variable to user code
-inputs = _node_inputs
-globals().update(_node_inputs)
-
-# --- Begin user code ---
-"""
-        # Ensure `outputs` exists so user code can assign to outputs['...'] safely
-        wrapper = wrapper.replace(
-            "# --- Begin user code ---\n", "# --- Begin user code ---\noutputs = {}\n"
-        )
-        temp_file.write(wrapper)
-        temp_file.write("\n")
-        temp_file.write(node_code)
-        temp_file.write("\n\n")
-        finalizer = f"""
-# --- End user code ---
-try:
-    _node_outputs = outputs
-except Exception:
-    _node_outputs = {{}}
-
-def _safe_default(o):
-    try:
-        return json.loads(json.dumps(o))
-    except Exception:
-        return repr(o)
-
-print("{marker}")
-try:
-    print(json.dumps({{'outputs': _node_outputs}}, default=_safe_default))
-except Exception:
-    safe_outs = {{k: repr(v) for k, v in _node_outputs.items()}}
-    print(json.dumps({{'outputs': safe_outs}}))
-"""
-        temp_file.write(finalizer)
-        temp_file.flush()
-        temp_file.close()
-
-        # Run subprocess
         try:
             proc = subprocess.run(
                 [sys.executable, temp_name],
@@ -175,43 +235,9 @@ except Exception:
                 "error": "timeout",
             }
 
-        stdout = proc.stdout or ""
-        stderr = proc.stderr or ""
-        returncode = proc.returncode
-
-        outputs = {}
-        if marker in stdout:
-            before, sep, after = stdout.partition(marker)
-            user_stdout = before
-            json_blob = after.strip()
-            parsed = None
-            try:
-                parsed = json.loads(json_blob)
-            except Exception:
-                idx = json_blob.find("{")
-                if idx != -1:
-                    try:
-                        parsed = json.loads(json_blob[idx:])
-                    except Exception:
-                        parsed = None
-            if isinstance(parsed, dict) and "outputs" in parsed:
-                outputs = parsed.get("outputs", {})
-            else:
-                outputs = {}
-            return {
-                "stdout": user_stdout,
-                "stderr": stderr,
-                "outputs": outputs,
-                "returncode": returncode,
-            }
-        else:
-            return {
-                "stdout": stdout,
-                "stderr": stderr,
-                "outputs": {},
-                "returncode": returncode,
-                "error": "no_outputs_marker",
-            }
+        return parse_node_process_result(
+            proc.stdout or "", proc.stderr or "", proc.returncode, marker
+        )
 
     except Exception as e:
         tb = traceback.format_exc()
@@ -225,12 +251,8 @@ except Exception:
         }
 
     finally:
-        if temp_file is not None:
-            try:
-                os.remove(temp_name)
-            except Exception:
-                pass
-
+        if temp_name is not None:
+            cleanup_temp_script(temp_name)
 
 def run_node_code(node_code: str, inputs: dict, timeout: int = NODE_TIMEOUT_SECONDS):
     """Public wrapper to run node code (keeps implementation private).
