@@ -58,7 +58,7 @@ We host **Weekly NodeBox Community Meetings** to discuss updates, ideas, and fut
 Everyone is welcome to join, share suggestions, and contribute to the growth of NodeBox!
 
 * **🕘 Time:** Every **Saturday, 9:00 PM – 10:00 PM IST**
-* **📍 Location:** [Join on Discord](https://discord.gg/tEUUmFNGcw)
+* **📍 Location:** [Join on Discord](https://discord.gg/UZfbX3UM)
 
 ### 📋 Meeting Agenda:
 
