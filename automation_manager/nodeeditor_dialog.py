@@ -1,4 +1,5 @@
 # ui/node_editor.py
+from ui.python_syntax import PythonHighlighter
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
@@ -77,6 +78,8 @@ class NodeEditorDialog(QDialog):
         self.outputs_edit.setReadOnly(True)
 
         self.code_edit = QTextEdit()
+        PythonHighlighter(self.code_edit.document())
+
         self.terminal_output = QPlainTextEdit()
         self.terminal_output.setReadOnly(True)
 
