@@ -8,6 +8,7 @@ import traceback
 from collections import defaultdict, deque
 from contextlib import suppress
 from time import perf_counter
+from typing import Any, Callable, Dict, List, Optional
 
 try:
     from PyQt6.QtCore import QObject, Qt, QThread, QTimer, pyqtSignal
@@ -53,6 +54,14 @@ except Exception:
         @staticmethod
         def restoreOverrideCursor(*_a, **_k):
             return None
+
+# Import logger
+try:
+    from utils.logger import get_logger
+    logger = get_logger("nodebox.runner")
+except ImportError:
+    import logging
+    logger = logging.getLogger("nodebox.runner")
 
 
 class ExecutionSignals(QObject):
