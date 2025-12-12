@@ -17,7 +17,11 @@ logger = get_logger("nodebox.main")
 def start_ollama() -> Optional[subprocess.Popen]:
     """
     Start Ollama serve in the background.
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 2a38325 (fix: corrected logger.py syntax errors)
     Returns:
         Subprocess instance if successful, None otherwise.
     """
@@ -145,6 +149,7 @@ def main():
         except Exception as e:
             logger.warning(f"Could not set application icon: {e}")
 
+<<<<<<< HEAD
         # Load custom fonts
         if not load_application_fonts():
             logger.warning("Some fonts failed to load, continuing with available fonts")
@@ -156,6 +161,30 @@ def main():
         try:
             load_custom_fonts()
             set_default_font(10)
+=======
+        # Load local Poppins font
+        try:
+            QFontDatabase.addApplicationFont(resource_path("assets/fonts/Poppins-Regular.ttf"))
+            QFontDatabase.addApplicationFont(resource_path("assets/fonts/Poppins-Medium.ttf"))
+            QFontDatabase.addApplicationFont(resource_path("assets/fonts/Poppins-SemiBold.ttf"))
+            logger.debug("Fonts loaded")
+        except Exception as e:
+            logger.warning(f"Error loading fonts: {e}")
+
+        # Apply dark stylesheet
+        try:
+            qss_file = resource_path("qss/dark.qss")
+            with open(qss_file, "r", encoding="utf-8") as file:
+                app.setStyleSheet(file.read())
+            logger.info("Stylesheet loaded successfully")
+        except Exception as e:
+            logger.warning(f"Error loading stylesheet: {e}")
+
+        # Load fonts and set default
+        try:
+            load_custom_fonts()
+            set_default_font(10)  # Default size
+>>>>>>> 2a38325 (fix: corrected logger.py syntax errors)
         except Exception as e:
             logger.error(f"Error in font configuration: {e}")
 
@@ -171,7 +200,12 @@ def main():
                 "Startup Error",
                 f"Failed to start NodeBox:\n{str(e)}\n\nCheck the log file for details.",
             )
+<<<<<<< HEAD
             cleanup_ollama_process(ollama_process)
+=======
+            if ollama_process:
+                ollama_process.terminate()
+>>>>>>> 2a38325 (fix: corrected logger.py syntax errors)
             sys.exit(1)
 
         # Run application
@@ -184,7 +218,24 @@ def main():
         exit_code = 1
     finally:
         # Cleanup after Qt loop finishes
+<<<<<<< HEAD
         cleanup_ollama_process(ollama_process)
+=======
+        if ollama_process:
+            try:
+                logger.info("Shutting down Ollama server...")
+                ollama_process.terminate()
+                try:
+                    ollama_process.wait(timeout=5)
+                    logger.info("Ollama server stopped successfully")
+                except subprocess.TimeoutExpired:
+                    logger.warning("Ollama server did not respond, forcing kill...")
+                    ollama_process.kill()
+                    logger.info("Ollama server killed")
+            except Exception as e:
+                logger.error(f"Error during Ollama cleanup: {e}")
+        
+>>>>>>> 2a38325 (fix: corrected logger.py syntax errors)
         logger.info("NodeBox Application Shutdown Complete")
         logger.info("=" * 60)
 

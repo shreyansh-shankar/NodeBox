@@ -71,6 +71,7 @@ def setup_logger(
 def get_logger(name: str = "nodebox") -> logging.Logger:
     """
     Get an existing logger or create a new one.
+<<<<<<< HEAD
     
     Args:
         name: Logger name
@@ -81,6 +82,11 @@ def get_logger(name: str = "nodebox") -> logging.Logger:
 
     Args:
         name: Name of the logger
+=======
+
+    Args:
+        name: Logger name
+>>>>>>> 2a38325 (fix: corrected logger.py syntax errors)
 
     Returns:
         Logger instance
@@ -99,7 +105,11 @@ app_logger = setup_logger("nodebox")
 def log_exception(logger: logging.Logger, exc: Exception, message: str = ""):
     """
     Log an exception with traceback.
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> 2a38325 (fix: corrected logger.py syntax errors)
     Args:
         logger: Logger to use
         exc: The exception
