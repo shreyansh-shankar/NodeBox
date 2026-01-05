@@ -11,7 +11,10 @@ import re
 import html
 import shlex
 import threading
+import logging
 from PyQt6.QtCore import QObject, pyqtSignal
+
+logger = logging.getLogger(__name__)
 
 # Pages to check (may change in future)
 OLLAMA_DOWNLOAD_PAGE = "https://ollama.com/download"
@@ -428,8 +431,8 @@ class OllamaInstaller(QObject):
         # Cleanup
         try:
             shutil.rmtree(tmpdir)
-        except:
-            pass
+        except OSError as e:
+            logger.error(f"Failed to cleanup temp directory: {e}")
             
         return success
 
@@ -464,8 +467,8 @@ class OllamaInstaller(QObject):
         # Cleanup
         try:
             shutil.rmtree(tmpdir)
-        except:
-            pass
+        except OSError as e:
+            logger.error(f"Failed to cleanup temp directory: {e}")
             
         if rc == 0:
             print("[Success] Installer executed. Verify 'ollama --version' in new shell.")
@@ -521,8 +524,8 @@ class OllamaInstaller(QObject):
             # Cleanup
             try:
                 shutil.rmtree(tmpdir)
-            except:
-                pass
+            except OSError as e:
+                logger.error(f"Failed to cleanup temp directory: {e}")
                 
             return success
 
