@@ -24,7 +24,8 @@ class NodeDetailsDialog(QDialog):
         super().__init__(parent)
         self.category_data = category_data
         self.setWindowTitle(f"{category_data['title']} - Available Nodes")
-        self.setMinimumSize(600, 500)
+        self.setMinimumSize(640, 520)
+        self.setStyleSheet("QDialog { background-color: #121418; }")
         self.setup_ui()
 
     def get_icon(self, icon_name):
@@ -39,7 +40,7 @@ class NodeDetailsDialog(QDialog):
         layout.setSpacing(16)
 
         header_layout = QHBoxLayout()
-        header_layout.setSpacing(12)
+        header_layout.setSpacing(14)
 
         icon_label = QLabel()
         icon = self.get_icon(self.category_data["icon"])
@@ -48,53 +49,53 @@ class NodeDetailsDialog(QDialog):
         header_layout.addWidget(icon_label)
 
         title = QLabel(self.category_data["title"])
-        title.setFont(QFont("Segoe UI", 18, QFont.Weight.Bold))
-        title.setStyleSheet("color: #ffffff;")
+        title.setFont(QFont("Poppins", 18, QFont.Weight.Bold))
+        title.setStyleSheet("color: #F9FAFB;")
         header_layout.addWidget(title)
         header_layout.addStretch()
 
         layout.addLayout(header_layout)
 
         desc = QLabel(self.category_data["description"])
-        desc.setFont(QFont("Segoe UI", 11))
-        desc.setStyleSheet("color: #a0a0a0; margin-bottom: 12px;")
+        desc.setFont(QFont("Poppins", 11))
+        desc.setStyleSheet("color: #9CA3AF; margin-bottom: 12px;")
         desc.setWordWrap(True)
         layout.addWidget(desc)
 
         nodes_label = QLabel("Available Nodes:")
-        nodes_label.setFont(QFont("Segoe UI", 13, QFont.Weight.DemiBold))
-        nodes_label.setStyleSheet("color: #ffffff; margin-top: 8px;")
+        nodes_label.setFont(QFont("Poppins", 13, QFont.Weight.Bold))
+        nodes_label.setStyleSheet("color: #818CF8; margin-top: 8px;")
         layout.addWidget(nodes_label)
 
         self.node_list = QListWidget()
         self.node_list.setStyleSheet(
             """
             QListWidget {
-                background-color: #1e1e1e;
-                border: 1px solid #3e3e42;
-                border-radius: 4px;
-                padding: 8px;
+                background-color: #1A1D24;
+                border: 1px solid #2E3444;
+                border-radius: 10px;
+                padding: 10px;
             }
             QListWidget::item {
-                padding: 12px;
-                border-bottom: 1px solid #2d2d30;
-                border-radius: 4px;
+                padding: 12px 14px;
+                border-bottom: 1px solid #232833;
+                border-radius: 6px;
                 margin: 2px 0px;
-                color: #e0e0e0;
+                color: #F9FAFB;
             }
             QListWidget::item:hover {
-                background-color: #2d2d30;
+                background-color: #222733;
             }
             QListWidget::item:selected {
-                background-color: #0e639c;
-                color: #ffffff;
+                background-color: #4F46E5;
+                color: #FFFFFF;
             }
         """
         )
 
         for node in self.category_data["nodes"]:
             item = QListWidgetItem(self.get_icon("package"), f"  {node['name']}")
-            item.setFont(QFont("Segoe UI", 11))
+            item.setFont(QFont("Poppins", 11))
             item.setToolTip(node["description"])
             self.node_list.addItem(item)
 
@@ -105,24 +106,21 @@ class NodeDetailsDialog(QDialog):
 
         close_button = QPushButton("  Close")
         close_button.setIcon(self.get_icon("x"))
-        close_button.setFont(QFont("Segoe UI", 11))
-        close_button.setMinimumHeight(36)
+        close_button.setFont(QFont("Poppins", 11, QFont.Weight.Bold))
+        close_button.setMinimumHeight(40)
         close_button.setCursor(Qt.CursorShape.PointingHandCursor)
         close_button.setStyleSheet(
             """
             QPushButton {
                 padding: 8px 24px;
-                background-color: #3e3e42;
+                background-color: #222733;
                 color: white;
-                border: none;
-                border-radius: 6px;
-                font-weight: 600;
+                border: 1px solid #2E3444;
+                border-radius: 8px;
             }
             QPushButton:hover {
-                background-color: #4e4e52;
-            }
-            QPushButton:pressed {
-                background-color: #2e2e32;
+                background-color: #2A303F;
+                border-color: #6366F1;
             }
         """
         )
@@ -131,7 +129,6 @@ class NodeDetailsDialog(QDialog):
 
         layout.addLayout(button_layout)
         self.setLayout(layout)
-        self.setStyleSheet("QDialog { background-color: #252526; }")
 
 
 class NodeTemplateWidget(QWidget):
@@ -147,50 +144,30 @@ class NodeTemplateWidget(QWidget):
 
     def setup_ui(self):
         main_layout = QVBoxLayout()
-        main_layout.setContentsMargins(24, 24, 24, 24)
-        main_layout.setSpacing(16)
+        main_layout.setContentsMargins(28, 28, 28, 28)
+        main_layout.setSpacing(20)
 
-        title = QLabel("Node Templates")
-        title.setFont(QFont("Segoe UI", 20, QFont.Weight.Bold))
-        title.setStyleSheet("color: #ffffff;")
+        title = QLabel("Node Templates Gallery")
+        title.setFont(QFont("Poppins", 22, QFont.Weight.Bold))
+        title.setStyleSheet("color: #F9FAFB;")
         main_layout.addWidget(title)
 
-        subtitle = QLabel("Pre-built automation nodes ready to use")
-        subtitle.setFont(QFont("Segoe UI", 13))
-        subtitle.setStyleSheet("color: #a0a0a0; margin-bottom: 16px;")
+        subtitle = QLabel("Pre-built node templates ready to integrate into your automations")
+        subtitle.setFont(QFont("Poppins", 13))
+        subtitle.setStyleSheet("color: #9CA3AF; margin-bottom: 12px;")
         main_layout.addWidget(subtitle)
 
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        scroll.setStyleSheet(
-            """
-            QScrollArea {
-                border: none;
-                background-color: transparent;
-            }
-            QScrollBar:vertical {
-                background-color: #2d2d30;
-                width: 12px;
-                border-radius: 6px;
-            }
-            QScrollBar::handle:vertical {
-                background-color: #3e3e42;
-                border-radius: 6px;
-                min-height: 30px;
-            }
-            QScrollBar::handle:vertical:hover {
-                background-color: #4e4e52;
-            }
-        """
-        )
+        scroll.setStyleSheet("QScrollArea { border: none; background: transparent; }")
 
         scroll_content = QWidget()
-        scroll_content.setStyleSheet("background-color: transparent;")
+        scroll_content.setStyleSheet("background: transparent;")
         self.grid_layout = QGridLayout(scroll_content)
-        self.grid_layout.setSpacing(16)
-        self.grid_layout.setContentsMargins(0, 0, 16, 0)
+        self.grid_layout.setSpacing(20)
+        self.grid_layout.setContentsMargins(0, 0, 12, 0)
 
         self.create_template_cards()
 
@@ -198,7 +175,7 @@ class NodeTemplateWidget(QWidget):
         main_layout.addWidget(scroll)
 
         self.setLayout(main_layout)
-        self.setStyleSheet("QWidget { background-color: #252526; }")
+        self.setStyleSheet("QWidget { background-color: #121418; }")
 
     def get_template_data(self):
         return [
@@ -366,17 +343,17 @@ class NodeTemplateWidget(QWidget):
 
     def create_template_card(self, template_data):
         card = QFrame()
-        card.setFixedHeight(200)
+        card.setFixedHeight(210)
         card.setStyleSheet(
             """
             QFrame {
-                background-color: #1e1e1e;
-                border: 1px solid #3e3e42;
-                border-radius: 6px;
+                background-color: #1A1D24;
+                border: 1px solid #2E3444;
+                border-radius: 12px;
             }
             QFrame:hover {
-                border: 1px solid #007acc;
-                background-color: #252526;
+                border-color: #6366F1;
+                background-color: #222733;
             }
         """
         )
@@ -395,27 +372,27 @@ class NodeTemplateWidget(QWidget):
         title_row.addWidget(icon_label)
 
         title_label = QLabel(template_data["title"])
-        title_label.setFont(QFont("Segoe UI", 14, QFont.Weight.Bold))
-        title_label.setStyleSheet("color: #ffffff;")
+        title_label.setFont(QFont("Poppins", 14, QFont.Weight.Bold))
+        title_label.setStyleSheet("color: #F9FAFB;")
         title_row.addWidget(title_label)
         title_row.addStretch()
 
         layout.addLayout(title_row)
 
         desc_label = QLabel(template_data["description"])
-        desc_label.setFont(QFont("Segoe UI", 11))
-        desc_label.setStyleSheet("color: #a0a0a0;")
+        desc_label.setFont(QFont("Poppins", 11))
+        desc_label.setStyleSheet("color: #9CA3AF;")
         desc_label.setWordWrap(True)
         layout.addWidget(desc_label)
 
         count_label = QLabel(f"{template_data['count']} nodes available")
-        count_label.setFont(QFont("Segoe UI", 9))
+        count_label.setFont(QFont("Poppins", 9, QFont.Weight.Bold))
         count_label.setStyleSheet(
             """
-            color: #007acc;
-            background-color: rgba(14, 99, 156, 0.15);
-            padding: 6px 10px;
-            border-radius: 4px;
+            color: #818CF8;
+            background-color: rgba(99, 102, 241, 0.15);
+            padding: 4px 10px;
+            border-radius: 6px;
         """
         )
         layout.addWidget(count_label)
@@ -423,25 +400,24 @@ class NodeTemplateWidget(QWidget):
 
         explore_button = QPushButton("  View Nodes")
         explore_button.setIcon(self.get_icon("package"))
-        explore_button.setFont(QFont("Segoe UI", 10))
-        explore_button.setMinimumHeight(36)
+        explore_button.setFont(QFont("Poppins", 10, QFont.Weight.Bold))
+        explore_button.setMinimumHeight(38)
         explore_button.setCursor(Qt.CursorShape.PointingHandCursor)
         explore_button.setStyleSheet(
             """
             QPushButton {
-                padding: 8px 16px;
-                background-color: #0e639c;
+                padding: 8px 18px;
+                background-color: #6366F1;
                 color: white;
                 border: none;
-                border-radius: 6px;
-                font-weight: 600;
+                border-radius: 8px;
                 text-align: left;
             }
             QPushButton:hover {
-                background-color: #1177bb;
+                background-color: #4F46E5;
             }
             QPushButton:pressed {
-                background-color: #0d5a8f;
+                background-color: #4338CA;
             }
         """
         )

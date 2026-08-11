@@ -3,8 +3,10 @@ import os
 import time
 
 from PyQt6.QtCore import Qt, QTimer
-from PyQt6.QtGui import QAction, QFont, QIcon
+from PyQt6.QtGui import QAction, QColor, QFont, QIcon, QPainter, QPainterPath
 from PyQt6.QtWidgets import (
+    QFrame,
+    QGraphicsDropShadowEffect,
     QHBoxLayout,
     QInputDialog,
     QLabel,
@@ -28,6 +30,20 @@ from nodebox.ui.canvas.dialogs import NodeEditorWindow
 from nodebox.ui.features.automation_dialog import NewAutomationWindow
 from nodebox.ui.features.placeholder import PlaceholderWidget
 from nodebox.ui.models.browser import BrowseModelsWindow
+
+# ---------------------------------------------------------------------------
+# Design tokens (kept in sync with dark.qss)
+# ---------------------------------------------------------------------------
+_BG_DEEP    = "#0A0C10"
+_BG_BASE    = "#0F1117"
+_BG_RAISED  = "#161922"
+_BG_HOVER   = "#1C2235"
+_BORDER     = "#1E2538"
+_ACCENT     = "#6366F1"
+_SUCCESS    = "#10B981"
+_TEXT       = "#F0F2F8"
+_TEXT_DIM   = "#4A5578"
+_TEXT_SEC   = "#8892B0"
 
 
 class EnhancedMainWindow(QWidget):
@@ -55,63 +71,7 @@ class EnhancedMainWindow(QWidget):
         self.setup_lazy_loading()
 
     def apply_theme(self):
-        self.setStyleSheet(
-            """
-            QWidget {
-                background-color: #2d2d30;
-                color: #e0e0e0;
-                font-family: 'Segoe UI', 'Roboto', sans-serif;
-            }
-
-            QMenuBar {
-                background-color: #2d2d30;
-                color: #e0e0e0;
-                border-bottom: 1px solid #3e3e42;
-                padding: 4px;
-            }
-
-            QMenuBar::item {
-                padding: 8px 14px;
-                border-radius: 4px;
-            }
-
-            QMenuBar::item:selected {
-                background-color: #3e3e42;
-            }
-
-            QStatusBar {
-                background-color: #2d2d30;
-                color: #a0a0a0;
-                border-top: 1px solid #3e3e42;
-            }
-
-            QTabWidget::pane {
-                border: 1px solid #3e3e42;
-                border-radius: 4px;
-                background-color: #252526;
-            }
-
-            QTabBar::tab {
-                background-color: #2d2d30;
-                color: #a0a0a0;
-                padding: 10px 20px;
-                border-top-left-radius: 4px;
-                border-top-right-radius: 4px;
-                margin-right: 2px;
-                font-weight: 500;
-            }
-
-            QTabBar::tab:selected {
-                background-color: #252526;
-                color: #ffffff;
-                border-bottom: 2px solid #007acc;
-            }
-
-            QTabBar::tab:hover:!selected {
-                background-color: #3e3e42;
-            }
-        """
-        )
+        self.setStyleSheet(f"QWidget {{ background-color: {_BG_DEEP}; color: {_TEXT}; }}")
 
     def get_icon(self, icon_name):
         icon_path = resource_path(f"assets/icons/{icon_name}.svg")
@@ -119,6 +79,9 @@ class EnhancedMainWindow(QWidget):
             return QIcon(icon_path)
         return QIcon()
 
+    # ------------------------------------------------------------------
+    # Main UI construction
+    # ------------------------------------------------------------------
     def init_ui(self):
         main_layout = QVBoxLayout()
         main_layout.setSpacing(0)
@@ -126,34 +89,14 @@ class EnhancedMainWindow(QWidget):
         self.setLayout(main_layout)
 
         self.create_menu_bar()
-
-        top_bar = QWidget()
-        top_bar_layout = QHBoxLayout()
-        top_bar_layout.setContentsMargins(0, 0, 0, 0)
-        top_bar_layout.setSpacing(8)
-        top_bar.setLayout(top_bar_layout)
-
-        top_bar_layout.addWidget(self.menu_bar)
-        top_bar_layout.addStretch()
-
-        self.ollama_indicator = QLabel()
-        self.ollama_indicator.setObjectName("ollamaIndicator")
-        self.ollama_indicator.setSizePolicy(
-            QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed
-        )
-        self.ollama_indicator.setMinimumWidth(140)
-        self.ollama_indicator.setMinimumHeight(28)
-        self.ollama_indicator.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.ollama_indicator.setFont(QFont("Segoe UI", 10, QFont.Weight.Medium))
-        top_bar_layout.addWidget(self.ollama_indicator)
-
-        main_layout.addWidget(top_bar)
+        main_layout.addWidget(self._build_top_bar())
 
         self.status_bar = QStatusBar()
         self.status_bar.showMessage("Ready")
 
         self.tab_widget = QTabWidget()
         self.tab_widget.setMovable(True)
+        self.tab_widget.setDocumentMode(False)
         main_layout.addWidget(self.tab_widget)
 
         self.create_home_tab()
@@ -166,126 +109,190 @@ class EnhancedMainWindow(QWidget):
 
         main_layout.addWidget(self.status_bar)
 
-        self.ollama_indicator.setStyleSheet(
-            """
-            QLabel#ollamaIndicator {
-                background-color: transparent;
-                font-size: 11px;
-                font-weight: 600;
-                padding: 0px;
-                margin-right: 8px;
-            }
-            """
-        )
-        QTimer.singleShot(3000, self.show_ollama_checking)
+        QTimer.singleShot(1500, self.show_ollama_checking)
+
+    def _build_top_bar(self):
+        """Gradient top navigation bar with logo and Ollama indicator."""
+        top_bar = QWidget()
+        top_bar.setFixedHeight(52)
+        top_bar.setStyleSheet(f"""
+            QWidget {{
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                    stop:0 #0C0E16, stop:0.4 #0F1117, stop:1 #0C0E16);
+                border-bottom: 1px solid {_BORDER};
+            }}
+        """)
+
+        layout = QHBoxLayout(top_bar)
+        layout.setContentsMargins(16, 0, 16, 0)
+        layout.setSpacing(0)
+
+        # Logo wordmark area
+        logo_widget = QWidget()
+        logo_widget.setFixedWidth(140)
+        logo_widget.setStyleSheet("background: transparent; border: none;")
+        logo_layout = QHBoxLayout(logo_widget)
+        logo_layout.setContentsMargins(0, 0, 0, 0)
+        logo_layout.setSpacing(8)
+
+        logo_label = QLabel("NodeBox")
+        logo_label.setFont(QFont("Poppins", 14, QFont.Weight.Bold))
+        logo_label.setStyleSheet("color: #F0F2F8; background: transparent; border: none;")
+        logo_layout.addWidget(logo_label)
+
+        version_badge = QLabel("2.0")
+        version_badge.setFont(QFont("Poppins", 9, QFont.Weight.Medium))
+        version_badge.setStyleSheet("""
+            background-color: rgba(99,102,241,0.18);
+            color: #818CF8;
+            border-radius: 4px;
+            padding: 1px 6px;
+        """)
+        logo_layout.addWidget(version_badge)
+        layout.addWidget(logo_widget)
+
+        # Menu bar in the center-left area
+        layout.addWidget(self.menu_bar)
+        layout.addStretch()
+
+        # Ollama status pill
+        self.ollama_indicator = QLabel()
+        self.ollama_indicator.setObjectName("ollamaIndicator")
+        self.ollama_indicator.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        self.ollama_indicator.setMinimumWidth(150)
+        self.ollama_indicator.setFixedHeight(30)
+        self.ollama_indicator.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.ollama_indicator.setFont(QFont("Poppins", 9, QFont.Weight.DemiBold))
+        layout.addWidget(self.ollama_indicator)
+
+        return top_bar
 
     def create_menu_bar(self):
         self.menu_bar = QMenuBar()
+        self.menu_bar.setStyleSheet("""
+            QMenuBar {
+                background: transparent;
+                border: none;
+                padding: 0;
+                margin: 0;
+                font-size: 13px;
+                font-weight: 500;
+            }
+            QMenuBar::item {
+                background: transparent;
+                padding: 6px 14px;
+                border-radius: 7px;
+                color: #8892B0;
+            }
+            QMenuBar::item:selected {
+                background-color: rgba(99,102,241,0.12);
+                color: #A5B4FC;
+            }
+        """)
 
         file_menu = self.menu_bar.addMenu("File")
 
-        new_action = QAction(self.get_icon("plus"), " New Automation", self)
+        new_action = QAction(self.get_icon("plus"), "New Automation", self)
         new_action.setShortcut("Ctrl+N")
         new_action.triggered.connect(self.create_new_automation)
         file_menu.addAction(new_action)
 
         file_menu.addSeparator()
 
-        import_action = QAction(self.get_icon("download"), " Import Workflows", self)
+        import_action = QAction(self.get_icon("download"), "Import Workflows", self)
         import_action.setShortcut("Ctrl+I")
         import_action.triggered.connect(self.show_import_dialog)
         file_menu.addAction(import_action)
 
-        export_action = QAction(self.get_icon("upload"), " Export Workflows", self)
+        export_action = QAction(self.get_icon("upload"), "Export Workflows", self)
         export_action.setShortcut("Ctrl+E")
         export_action.triggered.connect(self.show_export_dialog)
         file_menu.addAction(export_action)
 
         file_menu.addSeparator()
 
-        exit_action = QAction(self.get_icon("x"), " Exit", self)
+        exit_action = QAction(self.get_icon("x"), "Exit", self)
         exit_action.setShortcut("Ctrl+Q")
         exit_action.triggered.connect(self.close)
         file_menu.addAction(exit_action)
 
         tools_menu = self.menu_bar.addMenu("Tools")
 
-        templates_action = QAction(self.get_icon("file-text"), " Node Templates", self)
+        templates_action = QAction(self.get_icon("file-text"), "Node Templates", self)
         templates_action.triggered.connect(lambda: self.switch_to_tab(" Templates"))
         tools_menu.addAction(templates_action)
 
-        scheduler_action = QAction(self.get_icon("clock"), " Workflow Scheduler", self)
+        scheduler_action = QAction(self.get_icon("clock"), "Workflow Scheduler", self)
         scheduler_action.triggered.connect(lambda: self.switch_to_tab(" Scheduler"))
         tools_menu.addAction(scheduler_action)
 
-        debug_action = QAction(self.get_icon("terminal"), " Debug Console", self)
+        debug_action = QAction(self.get_icon("terminal"), "Debug Console", self)
         debug_action.triggered.connect(lambda: self.switch_to_tab(" Debug"))
         tools_menu.addAction(debug_action)
 
-        performance_action = QAction(
-            self.get_icon("activity"), " Performance Monitor", self
-        )
-        performance_action.triggered.connect(
-            lambda: self.switch_to_tab(" Performance")
-        )
+        performance_action = QAction(self.get_icon("activity"), "Performance Monitor", self)
+        performance_action.triggered.connect(lambda: self.switch_to_tab(" Performance"))
         tools_menu.addAction(performance_action)
 
         help_menu = self.menu_bar.addMenu("Help")
 
-        about_action = QAction(self.get_icon("info"), " About NodeBox", self)
+        about_action = QAction(self.get_icon("info"), "About NodeBox", self)
         about_action.triggered.connect(self.show_about)
         help_menu.addAction(about_action)
 
+    # ------------------------------------------------------------------
+    # Ollama Indicator
+    # ------------------------------------------------------------------
     def update_ollama_indicator(self, state: str, message: str = ""):
         state = (state or "").lower()
         self._ollama_state = state
 
         mapping = {
-            "checking": ("Checking Ollama...", "#007acc"),
-            "found": ("Ollama found", "#0f9d4a"),
-            "installing": ("Installing Ollama...", "#f39c12"),
-            "downloading": (f"Downloading {message}", "#f39c12"),
-            "not_found": ("Ollama not found", "#c0392b"),
-            "ready": ("Ollama ready", "#0f9d4a"),
-            "error": (f"Error: {message}", "#c0392b"),
-            "cancelled": ("Installation cancelled", "#a0a0a0"),
-            "hidden": ("", "transparent"),
+            "checking":   ("Checking Ollama",        "#818CF8", "rgba(129,140,248,0.15)"),
+            "found":      ("Ollama Online",           "#10B981", "rgba(16,185,129,0.15)"),
+            "installing": ("Installing Ollama",       "#F59E0B", "rgba(245,158,11,0.15)"),
+            "downloading":(f"Downloading {message}",  "#F59E0B", "rgba(245,158,11,0.15)"),
+            "not_found":  ("Ollama Offline",          "#EF4444", "rgba(239,68,68,0.15)"),
+            "ready":      ("Ollama Ready",             "#10B981", "rgba(16,185,129,0.15)"),
+            "error":      (f"Error: {message}",        "#EF4444", "rgba(239,68,68,0.15)"),
+            "cancelled":  ("Cancelled",               "#4A5578", "rgba(74,85,120,0.15)"),
+            "hidden":     ("",                        "transparent", "transparent"),
         }
 
-        text, color = mapping.get(state, (state.replace("_", " ").title(), "#a0a0a0"))
+        text, color, bg = mapping.get(state, (state.replace("_", " ").title(), "#8892B0", "rgba(136,146,176,0.12)"))
 
         if state == "hidden":
-            self.ollama_indicator.setText("")
             self.ollama_indicator.setVisible(False)
             return
-        else:
-            self.ollama_indicator.setVisible(True)
 
+        self.ollama_indicator.setVisible(True)
         self.ollama_indicator.setText(text)
-
-        style = f"color: {color};" if color != "transparent" else "color: #e0e0e0;"
-        base = """
-            QLabel#ollamaIndicator {
-                background-color: transparent;
+        self.ollama_indicator.setStyleSheet(f"""
+            QLabel#ollamaIndicator {{
+                background-color: {bg};
+                color: {color};
+                border: 1px solid {color};
+                border-radius: 14px;
+                padding: 4px 14px;
                 font-size: 11px;
                 font-weight: 600;
-            }
-        """
-        self.ollama_indicator.setStyleSheet(base + style)
+            }}
+        """)
 
     def update_download_progress(self, percentage: int):
         if getattr(self, "_ollama_state", "") == "installing":
             self.ollama_indicator.setText(f"Downloading... {percentage}%")
 
     def on_installation_complete(self, status: str):
-        if status == "ready":
-            self.status_bar.showMessage("Ollama installed successfully")
-        elif status == "error":
-            self.status_bar.showMessage("Ollama installation failed")
-        elif status == "cancelled":
-            self.status_bar.showMessage("Ollama installation cancelled")
+        msgs = {
+            "ready": "Ollama installed successfully",
+            "error": "Ollama installation failed",
+            "cancelled": "Ollama installation cancelled",
+        }
+        self.status_bar.showMessage(msgs.get(status, ""))
 
     def show_ollama_checking(self):
+        self.update_ollama_indicator("checking")
         if self.ollama_installer.check_ollama():
             self.update_ollama_indicator("found")
         else:
@@ -299,144 +306,148 @@ class EnhancedMainWindow(QWidget):
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
             QMessageBox.StandardButton.Yes,
         )
-
         if reply == QMessageBox.StandardButton.Yes:
             self.ollama_installer.download_ollama_background()
         else:
             self.update_ollama_indicator("not_found")
 
-    def cancel_ollama_installation(self):
-        if self.ollama_installer.is_installing():
-            self.ollama_installer.cancel_installation()
-
-    def closeEvent(self, event):
-        if hasattr(self, "ollama_installer") and self.ollama_installer.is_installing():
-            self.ollama_installer.cancel_installation()
-            time.sleep(0.5)
-
-        if "performance" in self._feature_widgets:
-            self._feature_widgets["performance"].stop_monitoring()
-
-        for widget in self._feature_widgets.values():
-            if hasattr(widget, "cleanup"):
-                widget.cleanup()
-
-        event.accept()
-
+    # ------------------------------------------------------------------
+    # Home Tab
+    # ------------------------------------------------------------------
     def create_home_tab(self):
         home_widget = QWidget()
-        home_widget.setStyleSheet("background-color: #252526;")
+        home_widget.setStyleSheet(f"background-color: {_BG_DEEP};")
 
         layout = QVBoxLayout()
-        layout.setContentsMargins(24, 24, 24, 24)
-        layout.setSpacing(16)
+        layout.setContentsMargins(32, 28, 32, 28)
+        layout.setSpacing(22)
+
+        # ── Hero Banner ──────────────────────────────────────────────
+        hero = QFrame()
+        hero.setStyleSheet(f"""
+            QFrame {{
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                    stop:0 #10132A, stop:0.5 #141830, stop:1 #0E1126);
+                border: 1px solid rgba(99,102,241,0.2);
+                border-radius: 16px;
+                padding: 0;
+            }}
+        """)
+        shadow = QGraphicsDropShadowEffect()
+        shadow.setBlurRadius(40)
+        shadow.setOffset(0, 8)
+        shadow.setColor(QColor(0, 0, 0, 80))
+        hero.setGraphicsEffect(shadow)
+
+        hero_layout = QVBoxLayout(hero)
+        hero_layout.setContentsMargins(36, 28, 36, 28)
+        hero_layout.setSpacing(6)
 
         title = QLabel("NodeBox")
-        title.setFont(QFont("Segoe UI", 28, QFont.Weight.Bold))
+        title.setFont(QFont("Poppins", 36, QFont.Weight.Bold))
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        title.setStyleSheet("color: #ffffff;")
-        layout.addWidget(title)
+        title.setStyleSheet("color: #F0F2F8; background: transparent; border: none;")
+        hero_layout.addWidget(title)
 
-        subtitle = QLabel("Visual Automation Platform")
-        subtitle.setFont(QFont("Segoe UI", 13))
+        subtitle = QLabel("Visual Automation Platform  &  Local AI Orchestration")
+        subtitle.setFont(QFont("Poppins", 13, QFont.Weight.Medium))
         subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        subtitle.setStyleSheet("color: #a0a0a0; margin-bottom: 16px;")
-        layout.addWidget(subtitle)
+        subtitle.setStyleSheet("color: #6366F1; background: transparent; border: none; letter-spacing: 0.3px;")
+        hero_layout.addWidget(subtitle)
 
+        layout.addWidget(hero)
+
+        # ── Quick Actions ────────────────────────────────────────────
         actions_layout = QHBoxLayout()
-        actions_layout.setSpacing(12)
+        actions_layout.setSpacing(16)
 
-        create_button = QPushButton("  Create New Automation")
-        create_button.setIcon(self.get_icon("plus-circle"))
-        create_button.setFont(QFont("Segoe UI", 12))
-        create_button.setMinimumHeight(44)
-        create_button.setCursor(Qt.CursorShape.PointingHandCursor)
-        create_button.setStyleSheet(
-            """
-            QPushButton {
-                padding: 12px 24px;
-                background-color: #0e639c;
-                color: white;
-                border: none;
-                border-radius: 6px;
-                font-weight: 600;
-                text-align: left;
-            }
-            QPushButton:hover {
-                background-color: #1177bb;
-            }
-            QPushButton:pressed {
-                background-color: #0d5a8f;
-            }
-        """
+        create_button = self._action_button(
+            label="Create New Automation",
+            sub="Design a new workflow from scratch",
+            icon_name="plus-circle",
+            color=_ACCENT,
+            hover="#5153D6",
         )
         create_button.clicked.connect(self.create_new_automation)
         actions_layout.addWidget(create_button)
 
-        browse_button = QPushButton("  Browse Models")
-        browse_button.setIcon(self.get_icon("package"))
-        browse_button.setFont(QFont("Segoe UI", 12))
-        browse_button.setMinimumHeight(44)
-        browse_button.setCursor(Qt.CursorShape.PointingHandCursor)
-        browse_button.setStyleSheet(
-            """
-            QPushButton {
-                padding: 12px 24px;
-                background-color: #0d7d3a;
-                color: white;
-                border: none;
-                border-radius: 6px;
-                font-weight: 600;
-                text-align: left;
-            }
-            QPushButton:hover {
-                background-color: #0f9d4a;
-            }
-            QPushButton:pressed {
-                background-color: #0b6d32;
-            }
-        """
+        browse_button = self._action_button(
+            label="Browse AI Models",
+            sub="Explore & download local Ollama models",
+            icon_name="package",
+            color=_SUCCESS,
+            hover="#059669",
         )
         browse_button.clicked.connect(self.open_browse_models_window)
         actions_layout.addWidget(browse_button)
 
         layout.addLayout(actions_layout)
 
+        # ── Automations Section ──────────────────────────────────────
+        header_row = QHBoxLayout()
         list_label = QLabel("Your Automations")
-        list_label.setFont(QFont("Segoe UI", 14, QFont.Weight.DemiBold))
-        list_label.setStyleSheet("color: #ffffff; margin-top: 16px;")
-        layout.addWidget(list_label)
+        list_label.setFont(QFont("Poppins", 15, QFont.Weight.DemiBold))
+        list_label.setStyleSheet("color: #F0F2F8;")
+        header_row.addWidget(list_label)
+        header_row.addStretch()
+
+        refresh_btn = QPushButton("Refresh")
+        refresh_btn.setFont(QFont("Poppins", 10, QFont.Weight.Medium))
+        refresh_btn.setFixedHeight(32)
+        refresh_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        refresh_btn.setStyleSheet(f"""
+            QPushButton {{
+                background-color: {_BG_RAISED};
+                color: {_TEXT_SEC};
+                border: 1px solid {_BORDER};
+                border-radius: 7px;
+                padding: 4px 14px;
+            }}
+            QPushButton:hover {{
+                background-color: {_BG_HOVER};
+                border-color: {_ACCENT};
+                color: {_TEXT};
+            }}
+        """)
+        refresh_btn.clicked.connect(self.load_automations)
+        header_row.addWidget(refresh_btn)
+        layout.addLayout(header_row)
 
         self.automation_list = QListWidget()
-        self.automation_list.setFont(QFont("Segoe UI", 12))
-        self.automation_list.setStyleSheet(
-            """
-            QListWidget {
-                border: 1px solid #3e3e42;
-                border-radius: 6px;
-                padding: 8px;
-                background-color: #1e1e1e;
-            }
-            QListWidget::item {
-                padding: 12px;
-                border-bottom: 1px solid #2d2d30;
-                border-radius: 4px;
-                margin: 2px 0px;
-            }
-            QListWidget::item:hover {
-                background-color: #2d2d30;
-            }
-            QListWidget::item:selected {
-                background-color: #0e639c;
-                color: #ffffff;
-            }
-        """
-        )
-        layout.addWidget(self.automation_list)
+        self.automation_list.setFont(QFont("Poppins", 12))
+        self.automation_list.setStyleSheet(f"""
+            QListWidget {{
+                border: 1px solid {_BORDER};
+                border-radius: 12px;
+                padding: 6px;
+                background-color: {_BG_BASE};
+            }}
+            QListWidget::item {{
+                padding: 14px 18px;
+                border: 1px solid {_BORDER};
+                border-radius: 9px;
+                margin: 3px 2px;
+                background-color: {_BG_RAISED};
+                color: #C8D0E8;
+                font-weight: 500;
+            }}
+            QListWidget::item:hover {{
+                background-color: {_BG_HOVER};
+                border-color: {_ACCENT};
+                color: {_TEXT};
+            }}
+            QListWidget::item:selected {{
+                background-color: rgba(99,102,241,0.18);
+                border-color: {_ACCENT};
+                border-left: 3px solid {_ACCENT};
+                color: #FFFFFF;
+            }}
+        """)
+        layout.addWidget(self.automation_list, stretch=1)
 
-        help_label = QLabel("Double-click to edit an automation")
-        help_label.setFont(QFont("Segoe UI", 11))
-        help_label.setStyleSheet("color: #888888; margin-top: 8px;")
+        help_label = QLabel("Double-click an automation to open the canvas editor")
+        help_label.setFont(QFont("Poppins", 10))
+        help_label.setStyleSheet(f"color: {_TEXT_DIM}; margin-top: 2px;")
         help_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(help_label)
 
@@ -445,6 +456,64 @@ class EnhancedMainWindow(QWidget):
         home_widget.setLayout(layout)
         self.tab_widget.addTab(home_widget, self.get_icon("home"), " Home")
 
+    def _action_button(self, label, sub, icon_name, color, hover):
+        """Rich action button with label + sub-text."""
+        btn = QPushButton()
+        btn.setFont(QFont("Poppins", 13, QFont.Weight.DemiBold))
+        btn.setMinimumHeight(72)
+        btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+
+        # Build inner layout
+        inner = QHBoxLayout(btn)
+        inner.setContentsMargins(20, 0, 20, 0)
+        inner.setSpacing(14)
+
+        icon_block = QLabel()
+        icon_block.setFixedSize(36, 36)
+        icon_block.setStyleSheet(f"""
+            background-color: rgba(255,255,255,0.08);
+            border-radius: 9px;
+        """)
+        icon_block.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        icon = self.get_icon(icon_name)
+        if not icon.isNull():
+            icon_block.setPixmap(icon.pixmap(20, 20))
+        inner.addWidget(icon_block)
+
+        text_col = QVBoxLayout()
+        text_col.setSpacing(2)
+        main_text = QLabel(label)
+        main_text.setFont(QFont("Poppins", 12, QFont.Weight.DemiBold))
+        main_text.setStyleSheet("color: #FFFFFF; background: transparent; border: none;")
+        sub_text = QLabel(sub)
+        sub_text.setFont(QFont("Poppins", 10))
+        sub_text.setStyleSheet("color: rgba(255,255,255,0.65); background: transparent; border: none;")
+        text_col.addWidget(main_text)
+        text_col.addWidget(sub_text)
+        inner.addLayout(text_col)
+        inner.addStretch()
+
+        btn.setStyleSheet(f"""
+            QPushButton {{
+                background-color: {color};
+                border: none;
+                border-radius: 12px;
+                text-align: left;
+            }}
+            QPushButton:hover {{
+                background-color: {hover};
+            }}
+            QPushButton:pressed {{
+                background-color: {hover};
+                padding-top: 2px;
+            }}
+        """)
+        return btn
+
+    # ------------------------------------------------------------------
+    # Other Tab placeholders
+    # ------------------------------------------------------------------
     def create_templates_tab(self):
         placeholder = PlaceholderWidget("Node Templates")
         self.tab_widget.addTab(placeholder, self.get_icon("file-text"), " Templates")
@@ -463,24 +532,19 @@ class EnhancedMainWindow(QWidget):
 
     def create_export_import_tab(self):
         placeholder = PlaceholderWidget("Export/Import Manager")
-        self.tab_widget.addTab(
-            placeholder, self.get_icon("package"), " Export/Import"
-        )
+        self.tab_widget.addTab(placeholder, self.get_icon("package"), " Export/Import")
 
     def create_models_tab(self):
         placeholder = PlaceholderWidget("Local Models Manager")
-        self.tab_widget.addTab(
-            placeholder, self.get_icon("database"), " Local Models"
-        )
+        self.tab_widget.addTab(placeholder, self.get_icon("database"), " Local Models")
 
+    # ------------------------------------------------------------------
+    # Lazy loading
+    # ------------------------------------------------------------------
     def setup_connections(self):
         self.automation_list.itemDoubleClicked.connect(self.edit_automation)
-        self.automation_list.setContextMenuPolicy(
-            Qt.ContextMenuPolicy.CustomContextMenu
-        )
-        self.automation_list.customContextMenuRequested.connect(
-            self.show_automation_context_menu
-        )
+        self.automation_list.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.automation_list.customContextMenuRequested.connect(self.show_automation_context_menu)
 
     def setup_lazy_loading(self):
         self.tab_widget.currentChanged.connect(self._on_tab_changed)
@@ -513,9 +577,7 @@ class EnhancedMainWindow(QWidget):
         widget = NodeTemplateWidget()
         self._feature_widgets["templates"] = widget
         self.tab_widget.removeTab(index)
-        self.tab_widget.insertTab(
-            index, widget, self.get_icon("file-text"), " Templates"
-        )
+        self.tab_widget.insertTab(index, widget, self.get_icon("file-text"), " Templates")
         self.tab_widget.setCurrentIndex(index)
         self.tab_widget.currentChanged.connect(self._on_tab_changed)
 
@@ -549,9 +611,7 @@ class EnhancedMainWindow(QWidget):
         widget = PerformanceMonitor()
         self._feature_widgets["performance"] = widget
         self.tab_widget.removeTab(index)
-        self.tab_widget.insertTab(
-            index, widget, self.get_icon("activity"), " Performance"
-        )
+        self.tab_widget.insertTab(index, widget, self.get_icon("activity"), " Performance")
         self.tab_widget.setCurrentIndex(index)
         self.tab_widget.currentChanged.connect(self._on_tab_changed)
 
@@ -562,9 +622,7 @@ class EnhancedMainWindow(QWidget):
         widget = ExportImportManager()
         self._feature_widgets["export_import"] = widget
         self.tab_widget.removeTab(index)
-        self.tab_widget.insertTab(
-            index, widget, self.get_icon("package"), " Export/Import"
-        )
+        self.tab_widget.insertTab(index, widget, self.get_icon("package"), " Export/Import")
         self.tab_widget.setCurrentIndex(index)
         self.tab_widget.currentChanged.connect(self._on_tab_changed)
 
@@ -575,12 +633,13 @@ class EnhancedMainWindow(QWidget):
         widget = ModelManagerWidget()
         self._feature_widgets["models"] = widget
         self.tab_widget.removeTab(index)
-        self.tab_widget.insertTab(
-            index, widget, self.get_icon("database"), " Local Models"
-        )
+        self.tab_widget.insertTab(index, widget, self.get_icon("database"), " Local Models")
         self.tab_widget.setCurrentIndex(index)
         self.tab_widget.currentChanged.connect(self._on_tab_changed)
 
+    # ------------------------------------------------------------------
+    # Automations CRUD
+    # ------------------------------------------------------------------
     def load_automations(self):
         self.automation_list.clear()
         self.status_bar.showMessage("Loading automations...")
@@ -588,16 +647,17 @@ class EnhancedMainWindow(QWidget):
         automations = self.fetch_automations()
 
         if not automations:
-            item = QListWidgetItem("No automations found. Create your first!")
+            item = QListWidgetItem("No automations yet — create your first one above")
             item.setFlags(Qt.ItemFlag.NoItemFlags)
-            item.setFont(QFont("Segoe UI", 12))
+            item.setFont(QFont("Poppins", 12))
+            item.setForeground(QColor("#4A5578"))
             self.automation_list.addItem(item)
             self.status_bar.showMessage("Ready")
             return
 
         for name in automations:
-            item = QListWidgetItem(self.get_icon("file"), f" {name}")
-            item.setFont(QFont("Segoe UI", 12))
+            item = QListWidgetItem(self.get_icon("file"), f"  {name}")
+            item.setFont(QFont("Poppins", 12, QFont.Weight.Medium))
             self.automation_list.addItem(item)
 
         self.status_bar.showMessage(f"Loaded {len(automations)} automation(s)")
@@ -628,21 +688,15 @@ class EnhancedMainWindow(QWidget):
 
     def edit_automation(self, item):
         automation_name = item.text().strip()
-
-        if "No automations found" in automation_name:
+        if "No automations" in automation_name:
             return
 
         self.status_bar.showMessage(f"Opening: {automation_name}")
-
         editor = NodeEditorWindow(automation_name)
         editor.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
-        editor.closed.connect(
-            self.on_editor_closed, Qt.ConnectionType.UniqueConnection
-        )
-
+        editor.closed.connect(self.on_editor_closed, Qt.ConnectionType.UniqueConnection)
         editor.show()
         self.hide()
-
         self.editor_window = editor
 
     def open_browse_models_window(self):
@@ -668,29 +722,47 @@ class EnhancedMainWindow(QWidget):
             return
 
         automation_name = item.text().strip()
-        if "No automations found" in automation_name:
+        if "No automations" in automation_name:
             return
 
         menu = QMenu(self)
+        menu.setStyleSheet(f"""
+            QMenu {{
+                background-color: #111420;
+                border: 1px solid {_BORDER};
+                border-radius: 10px;
+                padding: 6px 4px;
+            }}
+            QMenu::item {{
+                padding: 9px 28px 9px 14px;
+                border-radius: 7px;
+                font-size: 13px;
+                color: #C8D0E8;
+                margin: 1px 3px;
+            }}
+            QMenu::item:selected {{
+                background-color: {_ACCENT};
+                color: #FFFFFF;
+            }}
+            QMenu::separator {{
+                height: 1px;
+                background: {_BORDER};
+                margin: 5px 10px;
+            }}
+        """)
 
-        rename_action = QAction("Rename Automation", self)
-        rename_action.triggered.connect(
-            lambda: self.rename_automation(automation_name)
-        )
+        rename_action = QAction(self.get_icon("edit-2"), "Rename Automation", self)
+        rename_action.triggered.connect(lambda: self.rename_automation(automation_name))
         menu.addAction(rename_action)
 
-        duplicate_action = QAction("Duplicate Automation", self)
-        duplicate_action.triggered.connect(
-            lambda: self.duplicate_automation(automation_name)
-        )
+        duplicate_action = QAction(self.get_icon("copy"), "Duplicate Automation", self)
+        duplicate_action.triggered.connect(lambda: self.duplicate_automation(automation_name))
         menu.addAction(duplicate_action)
 
         menu.addSeparator()
 
-        delete_action = QAction("Delete Automation", self)
-        delete_action.triggered.connect(
-            lambda: self.delete_automation(automation_name)
-        )
+        delete_action = QAction(self.get_icon("trash-2"), "Delete Automation", self)
+        delete_action.triggered.connect(lambda: self.delete_automation(automation_name))
         menu.addAction(delete_action)
 
         menu.exec(self.automation_list.mapToGlobal(position))
@@ -699,19 +771,13 @@ class EnhancedMainWindow(QWidget):
         new_name, ok = QInputDialog.getText(
             self, "Rename Automation", "Enter new automation name:", text=current_name
         )
-
         if not ok or not new_name.strip() or new_name.strip() == current_name:
             return
 
         new_name = new_name.strip()
-
         existing_automations = self.fetch_automations()
         if new_name in existing_automations:
-            QMessageBox.warning(
-                self,
-                "Duplicate Name",
-                f"An automation named '{new_name}' already exists.",
-            )
+            QMessageBox.warning(self, "Duplicate Name", f"An automation named '{new_name}' already exists.")
             return
 
         try:
@@ -719,20 +785,16 @@ class EnhancedMainWindow(QWidget):
             self.status_bar.showMessage(f"Renamed '{current_name}' to '{new_name}'")
             self.load_automations()
         except Exception as e:
-            QMessageBox.critical(
-                self, "Rename Failed", f"Failed to rename automation:\n{str(e)}"
-            )
+            QMessageBox.critical(self, "Rename Failed", f"Failed to rename automation:\n{str(e)}")
 
     def delete_automation(self, automation_name):
         reply = QMessageBox.question(
             self,
             "Delete Automation",
-            f"Are you sure you want to delete '{automation_name}'?\n\n"
-            "This action cannot be undone.",
+            f"Are you sure you want to delete '{automation_name}'?\n\nThis action cannot be undone.",
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
             QMessageBox.StandardButton.No,
         )
-
         if reply != QMessageBox.StandardButton.Yes:
             return
 
@@ -741,40 +803,30 @@ class EnhancedMainWindow(QWidget):
             self.status_bar.showMessage(f"Deleted automation '{automation_name}'")
             self.load_automations()
         except Exception as e:
-            QMessageBox.critical(
-                self, "Delete Failed", f"Failed to delete automation:\n{str(e)}"
-            )
+            QMessageBox.critical(self, "Delete Failed", f"Failed to delete automation:\n{str(e)}")
 
     def _rename_automation_file(self, old_name, new_name):
         old_file = AUTOMATIONS_DIR / f"{old_name}.json"
         new_file = AUTOMATIONS_DIR / f"{new_name}.json"
-
         if not old_file.exists():
             raise FileNotFoundError(f"Automation file not found: {old_file}")
-
         with open(old_file, "r") as f:
             data = json.load(f)
-
         data["name"] = new_name
-
         with open(new_file, "w") as f:
             json.dump(data, f, indent=4)
-
         old_file.unlink()
 
     def _delete_automation_file(self, automation_name):
         file_path = AUTOMATIONS_DIR / f"{automation_name}.json"
-
         if not file_path.exists():
             raise FileNotFoundError(f"Automation file not found: {file_path}")
-
         file_path.unlink()
 
     def duplicate_automation(self, automation_name):
         base_name = f"{automation_name} Copy"
         counter = 1
         new_name = base_name
-
         existing_automations = self.fetch_automations()
         while new_name in existing_automations:
             counter += 1
@@ -783,94 +835,84 @@ class EnhancedMainWindow(QWidget):
         new_name, ok = QInputDialog.getText(
             self, "Duplicate Automation", "Enter name for duplicate:", text=new_name
         )
-
         if not ok or not new_name.strip():
             return
 
         new_name = new_name.strip()
-
         if new_name in existing_automations:
-            QMessageBox.warning(
-                self,
-                "Duplicate Name",
-                f"An automation named '{new_name}' already exists.",
-            )
+            QMessageBox.warning(self, "Duplicate Name", f"An automation named '{new_name}' already exists.")
             return
 
         try:
             self._duplicate_automation_file(automation_name, new_name)
-            self.status_bar.showMessage(
-                f"Duplicated '{automation_name}' as '{new_name}'"
-            )
+            self.status_bar.showMessage(f"Duplicated '{automation_name}' as '{new_name}'")
             self.load_automations()
         except Exception as e:
-            QMessageBox.critical(
-                self, "Duplicate Failed", f"Failed to duplicate automation:\n{str(e)}"
-            )
+            QMessageBox.critical(self, "Duplicate Failed", f"Failed to duplicate automation:\n{str(e)}")
 
     def _duplicate_automation_file(self, source_name, target_name):
         source_file = AUTOMATIONS_DIR / f"{source_name}.json"
         target_file = AUTOMATIONS_DIR / f"{target_name}.json"
-
         if not source_file.exists():
             raise FileNotFoundError(f"Source automation file not found: {source_file}")
-
         with open(source_file, "r") as f:
             data = json.load(f)
-
         data["name"] = target_name
-
         with open(target_file, "w") as f:
             json.dump(data, f, indent=4)
 
+    # ------------------------------------------------------------------
+    # About Dialog
+    # ------------------------------------------------------------------
     def show_about(self):
         about_text = """
-        <div style='text-align: center;'>
-            <h2 style='color: #0e639c;'>NodeBox</h2>
-            <p style='color: #888;'>Visual Automation Platform</p>
-            <p><b>Version:</b> 2.0</p>
-            <hr style='border: 1px solid #3e3e42; margin: 16px 0;'>
-            <p style='text-align: left;'><b>Features:</b></p>
-            <ul style='text-align: left; color: #a0a0a0;'>
-                <li>Node Templates</li>
-                <li>Workflow Scheduler</li>
-                <li>Debug Console</li>
-                <li>Performance Monitor</li>
-                <li>Export/Import System</li>
-                <li>Local Models Manager</li>
+        <div style='text-align: center; font-family: Poppins, sans-serif;'>
+            <h2 style='color: #6366F1; font-size: 22px; margin-bottom: 4px;'>NodeBox</h2>
+            <p style='color: #8892B0; font-size: 13px; margin-top: 0;'>Visual Automation & AI Orchestration Platform</p>
+            <p style='color: #F0F2F8; font-size: 14px;'><b>Version 2.0</b></p>
+            <hr style='border: 1px solid #1E2538; margin: 14px 0;'>
+            <ul style='text-align: left; color: #8892B0; font-size: 13px; padding-left: 20px;'>
+                <li>Visual Graph Editor with Bezier Wires</li>
+                <li>Local Ollama AI Integration</li>
+                <li>Node Templates Gallery</li>
+                <li>Workflow Scheduler &amp; Automations</li>
+                <li>Debug Console &amp; Performance Monitor</li>
             </ul>
-            <p style='color: #888; font-size: 12px;'>Built with Python & PyQt6</p>
+            <p style='color: #4A5578; font-size: 11px;'>Built with Python 3 &amp; PyQt6</p>
         </div>
         """
-
         msg_box = QMessageBox(self)
         msg_box.setWindowTitle("About NodeBox")
         msg_box.setTextFormat(Qt.TextFormat.RichText)
         msg_box.setText(about_text)
-        msg_box.setStyleSheet(
-            """
-            QMessageBox {
-                background-color: #252526;
-            }
-            QLabel {
-                color: #e0e0e0;
-                min-width: 400px;
-            }
-            QPushButton {
-                background-color: #0e639c;
-                color: white;
+        msg_box.setStyleSheet(f"""
+            QMessageBox {{
+                background-color: #111420;
+            }}
+            QLabel {{
+                color: #F0F2F8;
+                min-width: 420px;
+                background: transparent;
+            }}
+            QPushButton {{
+                background-color: {_ACCENT};
+                color: #FFFFFF;
                 border: none;
-                border-radius: 4px;
-                padding: 6px 16px;
-                min-width: 70px;
-            }
-            QPushButton:hover {
-                background-color: #1177bb;
-            }
-        """
-        )
+                border-radius: 8px;
+                padding: 8px 24px;
+                min-width: 80px;
+                font-weight: 600;
+                font-size: 13px;
+            }}
+            QPushButton:hover {{
+                background-color: #5153D6;
+            }}
+        """)
         msg_box.exec()
 
+    # ------------------------------------------------------------------
+    # Helpers
+    # ------------------------------------------------------------------
     def find_tab_index_by_text(self, text: str) -> int:
         for i in range(self.tab_widget.count()):
             if self.tab_widget.tabText(i) == text:
@@ -883,6 +925,20 @@ class EnhancedMainWindow(QWidget):
             self.tab_widget.setCurrentIndex(idx)
         else:
             self.status_bar.showMessage(f"Tab '{text}' not found")
+
+    def closeEvent(self, event):
+        if hasattr(self, "ollama_installer") and self.ollama_installer.is_installing():
+            self.ollama_installer.cancel_installation()
+            time.sleep(0.5)
+
+        if "performance" in self._feature_widgets:
+            self._feature_widgets["performance"].stop_monitoring()
+
+        for widget in self._feature_widgets.values():
+            if hasattr(widget, "cleanup"):
+                widget.cleanup()
+
+        event.accept()
 
 
 __all__ = ["EnhancedMainWindow"]

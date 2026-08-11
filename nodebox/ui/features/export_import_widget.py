@@ -29,50 +29,111 @@ class ExportImportManager(QWidget):
         self.init_ui()
 
     def init_ui(self):
-        layout = QVBoxLayout()
+        self.setStyleSheet("QWidget { background-color: #0A0C10; color: #F0F2F8; }")
 
-        title = QLabel("Export / Import")
-        title.setFont(QFont("Poppins", 14, QFont.Weight.Bold))
-        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout = QVBoxLayout()
+        layout.setContentsMargins(28, 28, 28, 28)
+        layout.setSpacing(20)
+
+        title = QLabel("Export & Import Workflows")
+        title.setFont(QFont("Poppins", 20, QFont.Weight.Bold))
+        title.setStyleSheet("color: #F0F2F8;")
         layout.addWidget(title)
 
-        export_group = QGroupBox("Export")
+        subtitle = QLabel("Package automations into standalone .nodebox archives for backup or sharing")
+        subtitle.setFont(QFont("Poppins", 11))
+        subtitle.setStyleSheet("color: #4A5578; margin-bottom: 4px;")
+        layout.addWidget(subtitle)
+
+        export_group = QGroupBox("Export Automations")
+        export_group.setFont(QFont("Poppins", 13, QFont.Weight.Bold))
         export_layout = QVBoxLayout()
+        export_layout.setSpacing(14)
 
         self.workflow_list = QListWidget()
         self.workflow_list.setSelectionMode(QListWidget.SelectionMode.MultiSelection)
-        self.workflow_list.setMaximumHeight(120)
+        self.workflow_list.setMaximumHeight(140)
         self.load_workflows()
-        export_layout.addWidget(QLabel("Workflows:"))
+        export_layout.addWidget(QLabel("Select Workflows to Package:"))
         export_layout.addWidget(self.workflow_list)
 
         options_layout = QHBoxLayout()
-        self.include_models_check = QCheckBox("Models")
-        self.include_data_check = QCheckBox("Data")
+        self.include_models_check = QCheckBox("Bundle Associated AI Models")
+        self.include_data_check = QCheckBox("Bundle Custom Data Dependencies")
+        self.include_models_check.setFont(QFont("Poppins", 10))
+        self.include_data_check.setFont(QFont("Poppins", 10))
         options_layout.addWidget(self.include_models_check)
         options_layout.addWidget(self.include_data_check)
         export_layout.addLayout(options_layout)
 
-        export_button = QPushButton("Export")
+        export_button = QPushButton("Export Selected Workflows")
+        export_button.setFont(QFont("Poppins", 10, QFont.Weight.DemiBold))
+        export_button.setMinimumHeight(40)
+        export_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        export_button.setStyleSheet("""
+            QPushButton {
+                background-color: #6366F1;
+                color: white;
+                border: none;
+                border-radius: 8px;
+                padding: 6px 20px;
+            }
+            QPushButton:hover { background-color: #5153D6; }
+        """)
         export_button.clicked.connect(self.export_workflows)
         export_layout.addWidget(export_button)
         export_group.setLayout(export_layout)
         layout.addWidget(export_group)
 
-        import_group = QGroupBox("Import")
+        import_group = QGroupBox("Import Automation Package")
+        import_group.setFont(QFont("Poppins", 13, QFont.Weight.Bold))
         import_layout = QVBoxLayout()
+        import_layout.setSpacing(14)
 
         file_layout = QHBoxLayout()
+        file_layout.setSpacing(12)
+
         self.import_file_edit = QLineEdit()
-        self.import_file_edit.setPlaceholderText("Select .nodebox file")
+        self.import_file_edit.setPlaceholderText("Select .nodebox archive file...")
+        self.import_file_edit.setMinimumHeight(42)
         file_layout.addWidget(self.import_file_edit)
 
         browse_button = QPushButton("Browse")
+        browse_button.setFont(QFont("Poppins", 10, QFont.Weight.Medium))
+        browse_button.setMinimumHeight(42)
+        browse_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        browse_button.setStyleSheet("""
+            QPushButton {
+                background-color: #161922;
+                color: #8892B0;
+                border: 1px solid #1E2538;
+                border-radius: 8px;
+                padding: 0 18px;
+            }
+            QPushButton:hover {
+                background-color: #1C2235;
+                border-color: #6366F1;
+                color: #F0F2F8;
+            }
+        """)
         browse_button.clicked.connect(self.browse_import_file)
         file_layout.addWidget(browse_button)
         import_layout.addLayout(file_layout)
 
-        import_button = QPushButton("Import")
+        import_button = QPushButton("Import Package")
+        import_button.setFont(QFont("Poppins", 10, QFont.Weight.DemiBold))
+        import_button.setMinimumHeight(40)
+        import_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        import_button.setStyleSheet("""
+            QPushButton {
+                background-color: #10B981;
+                color: white;
+                border: none;
+                border-radius: 8px;
+                padding: 6px 20px;
+            }
+            QPushButton:hover { background-color: #059669; }
+        """)
         import_button.clicked.connect(self.import_workflows)
         import_layout.addWidget(import_button)
 

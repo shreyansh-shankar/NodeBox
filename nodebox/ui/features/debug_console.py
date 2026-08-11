@@ -69,50 +69,90 @@ class DebugConsole(QWidget):
 
     def init_ui(self):
         self.layout = QVBoxLayout(self)
-        self.layout.setContentsMargins(24, 24, 24, 24)
-        self.layout.setSpacing(16)
+        self.layout.setContentsMargins(28, 28, 28, 28)
+        self.layout.setSpacing(20)
 
         title = QLabel("Debug Console")
-        title.setFont(QFont("Segoe UI", 28, QFont.Weight.Bold))
-        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        title.setFont(QFont("Poppins", 20, QFont.Weight.Bold))
+        title.setStyleSheet("color: #F0F2F8; background: transparent;")
         self.layout.addWidget(title)
 
-        subtitle = QLabel("Live application logs and performance metrics")
-        subtitle.setFont(QFont("Segoe UI", 13))
-        subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        subtitle.setStyleSheet("color: #a0a0a0; margin-bottom: 16px;")
+        subtitle = QLabel("Live Application Trace Logs & Metric Stream")
+        subtitle.setFont(QFont("Poppins", 11))
+        subtitle.setStyleSheet("color: #4A5578; margin-bottom: 4px;")
         self.layout.addWidget(subtitle)
 
-        controls_group = QGroupBox("Filters & Actions")
-        controls_group.setFont(QFont("Segoe UI", 12, QFont.Weight.DemiBold))
+        # Controls row (no group box for cleaner look)
+        controls_row = QHBoxLayout()
+        controls_row.setSpacing(10)
 
-        self.controls_layout = QHBoxLayout()
-        self.controls_layout.setSpacing(12)
+        level_label = QLabel("Level")
+        level_label.setFont(QFont("Poppins", 10, QFont.Weight.DemiBold))
+        level_label.setStyleSheet("color: #4A5578; letter-spacing: 0.5px;")
+        controls_row.addWidget(level_label)
 
         self.level_combo = QComboBox()
         self.level_combo.addItems(["All", "ERROR", "WARNING", "INFO", "DEBUG"])
+        self.level_combo.setFixedHeight(34)
+        self.level_combo.setMinimumWidth(110)
         self.level_combo.currentTextChanged.connect(self.filter_logs)
-        self.controls_layout.addWidget(QLabel("Level:"))
-        self.controls_layout.addWidget(self.level_combo)
+        controls_row.addWidget(self.level_combo)
+
+        node_label = QLabel("Node")
+        node_label.setFont(QFont("Poppins", 10, QFont.Weight.DemiBold))
+        node_label.setStyleSheet("color: #4A5578; letter-spacing: 0.5px; margin-left: 8px;")
+        controls_row.addWidget(node_label)
 
         self.node_combo = QComboBox()
         self.node_combo.addItem("All")
+        self.node_combo.setFixedHeight(34)
+        self.node_combo.setMinimumWidth(130)
         self.node_combo.currentTextChanged.connect(self.filter_logs)
-        self.controls_layout.addWidget(QLabel("Node:"))
-        self.controls_layout.addWidget(self.node_combo)
+        controls_row.addWidget(self.node_combo)
 
-        self.controls_layout.addStretch()
+        controls_row.addStretch()
 
-        self.clear_button = QPushButton("Clear Logs")
+        self.clear_button = QPushButton("Clear")
         self.clear_button.clicked.connect(self.clear_logs)
-        self.controls_layout.addWidget(self.clear_button)
+        self.clear_button.setFixedHeight(34)
+        self.clear_button.setFont(QFont("Poppins", 10, QFont.Weight.Medium))
+        self.clear_button.setStyleSheet("""
+            QPushButton {
+                background-color: #161922;
+                color: #8892B0;
+                border: 1px solid #1E2538;
+                border-radius: 8px;
+                padding: 4px 16px;
+            }
+            QPushButton:hover {
+                background-color: #1C2235;
+                border-color: #6366F1;
+                color: #F0F2F8;
+            }
+        """)
+        controls_row.addWidget(self.clear_button)
 
         self.export_button = QPushButton("Export Logs")
         self.export_button.clicked.connect(self.export_logs)
-        self.controls_layout.addWidget(self.export_button)
+        self.export_button.setFixedHeight(34)
+        self.export_button.setFont(QFont("Poppins", 10, QFont.Weight.DemiBold))
+        self.export_button.setStyleSheet("""
+            QPushButton {
+                background-color: rgba(99,102,241,0.15);
+                color: #818CF8;
+                border: 1px solid rgba(99,102,241,0.3);
+                border-radius: 8px;
+                padding: 4px 16px;
+            }
+            QPushButton:hover {
+                background-color: rgba(99,102,241,0.25);
+                border-color: #6366F1;
+                color: #A5B4FC;
+            }
+        """)
+        controls_row.addWidget(self.export_button)
 
-        controls_group.setLayout(self.controls_layout)
-        self.layout.addWidget(controls_group)
+        self.layout.addLayout(controls_row)
 
         self.splitter = QSplitter(Qt.Orientation.Horizontal)
 
@@ -132,8 +172,8 @@ class DebugConsole(QWidget):
         layout = QVBoxLayout(widget)
         layout.setContentsMargins(0, 0, 0, 0)
 
-        metrics_group = QGroupBox("Performance Metrics")
-        metrics_group.setFont(QFont("Segoe UI", 12, QFont.Weight.DemiBold))
+        metrics_group = QGroupBox("Log Metrics")
+        metrics_group.setFont(QFont("Poppins", 12, QFont.Weight.Bold))
 
         group_layout = QVBoxLayout(metrics_group)
         self.metrics_table = QTableWidget()
@@ -149,64 +189,18 @@ class DebugConsole(QWidget):
         return widget
 
     def apply_styles(self):
-        self.setStyleSheet(
-            """
-            QGroupBox {
-                border: 1px solid #3e3e42;
-                border-radius: 6px;
-                margin-top: 10px;
-                padding: 10px;
-            }
-            QGroupBox::title {
-                subcontrol-origin: margin;
-                subcontrol-position: top left;
-                padding: 0 5px;
-                left: 10px;
-            }
-            QPushButton {
-                padding: 8px 16px;
-                background-color: #3e3e42;
-                border: 1px solid #555555;
-                border-radius: 4px;
-                font-weight: 600;
-            }
-            QPushButton:hover {
-                background-color: #4f4f53;
-            }
-            QPushButton:pressed {
-                background-color: #2d2d30;
-            }
-            QComboBox {
-                padding: 8px;
-                border: 1px solid #3e3e42;
-                border-radius: 4px;
-                background-color: #2d2d30;
-            }
-            QSplitter::handle {
-                background-color: #3e3e42;
-            }
-            QTableWidget {
-                border: none;
-                gridline-color: #3e3e42;
-            }
-            QHeaderView::section {
-                background-color: #2d2d30;
-                padding: 4px;
-                border: 1px solid #3e3e42;
-            }
-        """
-        )
-        self.log_display.setFont(QFont("Consolas", 10))
-        self.log_display.setStyleSheet(
-            """
+        self.setStyleSheet("QWidget { background-color: #0A0C10; color: #F0F2F8; }")
+        self.log_display.setFont(QFont("Consolas", 11))
+        self.log_display.setStyleSheet("""
             QTextEdit {
-                border: 1px solid #3e3e42;
-                border-radius: 6px;
-                padding: 8px;
-                background-color: #1e1e1e;
+                border: 1px solid #1E2538;
+                border-radius: 10px;
+                padding: 12px;
+                background-color: #06080E;
+                color: #A8B4C8;
+                selection-background-color: rgba(99,102,241,0.35);
             }
-        """
-        )
+        """)
 
     def _log_matches_filter(self, log_entry):
         level_match = (

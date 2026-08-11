@@ -9,6 +9,7 @@ from PyQt6.QtGui import (
     QFont,
     QKeyEvent,
     QMouseEvent,
+    QNativeGestureEvent,
     QPainter,
     QPen,
     QWheelEvent,
@@ -62,8 +63,9 @@ class CanvasWidget(QWidget):
         self.automation_data = automation_data or {"nodes": [], "connections": []}
 
         self.grid_size = 50
-        self.grid_color = QColor("#404040")
-        self.bg_color = QColor("#202020")
+        self.grid_color = QColor("#1A2040")
+        self.dot_color = QColor("#252D42")
+        self.bg_color = QColor("#0A0C10")
 
         self.nodes = {}
         self.connections = []
@@ -73,6 +75,7 @@ class CanvasWidget(QWidget):
         self.offset = QPointF(0, 0)
         self.drag_start = None
         self.space_held = False
+        self.is_panning = False
         self.last_mouse_pos = QPointF()
         self.selected_node = None
 
@@ -101,16 +104,30 @@ class CanvasWidget(QWidget):
         self.load_canvas_state()
 
     def open_node(self, node):
+        from nodebox.ui.canvas.dialogs import parse_code_outputs
+
         inputs_dict = {}
         for conn in self.connections:
             if conn.end_port and conn.end_port.node == node:
                 upstream_node = conn.start_port.node
+                source_title = getattr(upstream_node, "title", "Upstream Node")
                 upstream_outputs = getattr(upstream_node, "outputs", {})
-                if isinstance(upstream_outputs, dict):
-                    inputs_dict.update(upstream_outputs)
-                elif isinstance(upstream_outputs, list):
-                    for var in upstream_outputs:
-                        inputs_dict[var] = None
+
+                if isinstance(upstream_outputs, dict) and upstream_outputs:
+                    for k, v in upstream_outputs.items():
+                        inputs_dict[k] = {"value": v, "source": source_title}
+                else:
+                    ast_detected = parse_code_outputs(
+                        getattr(upstream_node, "code", "")
+                    )
+                    if ast_detected:
+                        for var in ast_detected:
+                            inputs_dict[var] = {"value": None, "source": source_title}
+                    elif isinstance(upstream_outputs, list):
+                        for var in upstream_outputs:
+                            inputs_dict[var] = {"value": None, "source": source_title}
+                    else:
+                        inputs_dict["data"] = {"value": None, "source": source_title}
 
         initial_code = getattr(node, "code", "")
         dlg = NodeEditorDialog(
@@ -205,10 +222,7 @@ class CanvasWidget(QWidget):
         painter.translate(self.offset)
         painter.scale(self.scale, self.scale)
 
-        pen = QPen(self.grid_color)
-        pen.setWidth(max(1, int(1 / self.scale)))
-        painter.setPen(pen)
-
+        # Dot grid
         left = -self.offset.x() / self.scale
         top = -self.offset.y() / self.scale
         right = left + self.width() / self.scale
@@ -217,10 +231,15 @@ class CanvasWidget(QWidget):
         x_start = int(left // self.grid_size * self.grid_size)
         y_start = int(top // self.grid_size * self.grid_size)
 
-        for x in range(x_start, int(right), self.grid_size):
-            painter.drawLine(int(x), int(top), int(x), int(bottom))
-        for y in range(y_start, int(bottom), self.grid_size):
-            painter.drawLine(int(left), int(y), int(right), int(y))
+        dot_size = max(1.5, 1.5 / self.scale)
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.setBrush(self.dot_color)
+
+        for x in range(x_start, int(right) + self.grid_size, self.grid_size):
+            for y in range(y_start, int(bottom) + self.grid_size, self.grid_size):
+                painter.drawEllipse(
+                    QPointF(float(x), float(y)), dot_size, dot_size
+                )
 
         painter.resetTransform()
         self.draw_coordinates(painter)
@@ -231,8 +250,8 @@ class CanvasWidget(QWidget):
             self.pending_connection.draw(painter)
 
     def draw_coordinates(self, painter: QPainter):
-        painter.setPen(Qt.GlobalColor.white)
-        painter.setFont(QFont("Arial", 10))
+        painter.setPen(QColor("#2C3352"))
+        painter.setFont(QFont("Poppins", 9))
         canvas_pos = self.mapFromGlobal(self.cursor().pos())
         logical_pos = QPointF(
             (canvas_pos.x() - self.offset.x()) / self.scale,
@@ -256,18 +275,18 @@ class CanvasWidget(QWidget):
         except Exception:
             self.output_console.clear()
 
-        self.output_console.appendPlainText("▶ Starting automation run...")
+        self.output_console.appendPlainText("Starting automation run...")
 
         bus = get_performance_bus()
         node_exec_times = {}
 
         def _on_error(node, error):
-            msg = f"❌ Error in node {getattr(node, 'title', '?')}: see console for details"
+            msg = f"[Error] Error in node {getattr(node, 'title', '?')}: see console for details"
             self.output_console.appendError(msg)
 
         def _on_node_executed(node, duration_s):
             node_exec_times[getattr(node, "title", str(id(node)))] = duration_s
-            msg = f"✅ Executed node: {node.title} ({duration_s:.2f}s)"
+            msg = f"[OK] Executed node: {node.title} ({duration_s:.2f}s)"
             self.output_console.appendPlainText(msg)
 
         def _on_log(line, stream_type):
@@ -292,7 +311,7 @@ class CanvasWidget(QWidget):
                     "node_exec_times": node_exec_times,
                 }
                 bus.metrics_signal.emit(metrics)
-                self.output_console.appendPlainText("✔ Automation completed.")
+                self.output_console.appendPlainText("Automation completed.")
                 self.output_console.appendPlainText(f"Summary: {result}")
                 self.position_console_widgets()
             except Exception as e:
@@ -309,12 +328,52 @@ class CanvasWidget(QWidget):
             signals=execution_signals,
         )
         if result is not None:
-            self.output_console.appendPlainText("✔ Automation completed.")
+            self.output_console.appendPlainText("Automation completed.")
             self.output_console.appendPlainText(f"Summary: {result}")
             self.position_console_widgets()
 
+    def _apply_zoom(self, zoom_factor, mouse_pos):
+        old_scale = self.scale
+        self.scale *= zoom_factor
+        self.scale = max(0.1, min(self.scale, 10.0))
+        before_scale = (mouse_pos - self.offset) / old_scale
+        after_scale = (mouse_pos - self.offset) / self.scale
+        self.offset = QPointF(self.offset) + (after_scale - before_scale) * self.scale
+        self.update()
+        for node in self.nodes.values():
+            node.update_position()
+
+    def event(self, event):
+        if isinstance(event, QNativeGestureEvent):
+            gtype = event.gestureType()
+            if gtype == Qt.NativeGestureType.ZoomNativeGesture:
+                factor = 1.0 + event.value()
+                self._apply_zoom(factor, event.position())
+                return True
+            elif gtype == Qt.NativeGestureType.PanNativeGesture:
+                delta = event.delta()
+                self.offset += QPointF(delta.x(), delta.y())
+                for node in self.nodes.values():
+                    node.update_position()
+                self.update()
+                return True
+        return super().event(event)
+
     def mousePressEvent(self, event: QMouseEvent):
-        if event.button() == Qt.MouseButton.LeftButton:
+        btn = event.button()
+        modifiers = event.modifiers()
+
+        # Canvas panning trigger: Middle Mouse, Alt+Left Drag, or Space+Left Drag
+        if btn == Qt.MouseButton.MiddleButton or (
+            btn == Qt.MouseButton.LeftButton
+            and (self.space_held or bool(modifiers & Qt.KeyboardModifier.AltModifier))
+        ):
+            self.is_panning = True
+            self.drag_start = event.pos()
+            self.setCursor(Qt.CursorShape.ClosedHandCursor)
+            return
+
+        if btn == Qt.MouseButton.LeftButton:
             clicked_on_node = any(
                 node.geometry().contains(node.mapFromParent(event.pos()))
                 for node in self.nodes.values()
@@ -324,10 +383,7 @@ class CanvasWidget(QWidget):
                 self.selected_node.update()
                 self.selected_node = None
 
-        if event.button() == Qt.MouseButton.LeftButton and self.space_held:
-            self.drag_start = event.pos()
-
-        if event.button() == Qt.MouseButton.RightButton:
+        if btn == Qt.MouseButton.RightButton:
             name, ok = QInputDialog.getText(self, "Create Node", "Enter node name:")
             if ok and name:
                 node = NodeWidget(name, self)
@@ -349,51 +405,91 @@ class CanvasWidget(QWidget):
 
     def mouseMoveEvent(self, event: QMouseEvent):
         self.last_mouse_pos = event.position()
-        if self.pending_connection:
-            self.pending_connection.set_end_point(event.position())
-            self.update()
-        super().mouseMoveEvent(event)
 
-        if (
-            event.buttons() & Qt.MouseButton.LeftButton
-            and self.space_held
-            and self.drag_start
-        ):
+        if self.is_panning and self.drag_start:
             delta = QPointF(event.pos() - self.drag_start)
             self.offset += delta
             self.drag_start = event.pos()
             for node in self.nodes.values():
                 node.update_position()
-        self.update()
+            self.update()
+            return
+
+        if self.pending_connection:
+            self.pending_connection.set_end_point(event.position())
+            self.update()
+
+        super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event: QMouseEvent):
+        if self.is_panning:
+            self.is_panning = False
+            self.drag_start = None
+            if self.space_held:
+                self.setCursor(Qt.CursorShape.OpenHandCursor)
+            else:
+                self.setCursor(Qt.CursorShape.ArrowCursor)
+
         if event.button() == Qt.MouseButton.LeftButton:
             self.drag_start = None
 
     def keyPressEvent(self, event: QKeyEvent):
-        if event.key() == Qt.Key.Key_Space:
+        if event.key() == Qt.Key.Key_Space and not event.isAutoRepeat():
             self.space_held = True
             self.setCursor(Qt.CursorShape.OpenHandCursor)
 
     def keyReleaseEvent(self, event: QKeyEvent):
-        if event.key() == Qt.Key.Key_Space:
+        if event.key() == Qt.Key.Key_Space and not event.isAutoRepeat():
             self.space_held = False
             self.setCursor(Qt.CursorShape.ArrowCursor)
 
     def wheelEvent(self, event: QWheelEvent):
-        angle = event.angleDelta().y()
-        zoom_in_factor = 1.1
-        zoom_out_factor = 1 / zoom_in_factor
-        old_scale = self.scale
-        self.scale *= zoom_in_factor if angle > 0 else zoom_out_factor
-        self.scale = max(0.1, min(self.scale, 10.0))
-        mouse_pos = event.position()
-        before_scale = (mouse_pos - self.offset) / old_scale
-        after_scale = (mouse_pos - self.offset) / self.scale
-        self.offset = QPointF(self.offset) + (after_scale - before_scale) * self.scale
-        self.update()
-        for node in self.nodes.values():
-            node.update_position()
+        modifiers = event.modifiers()
+        pixel_delta = event.pixelDelta()
+        angle_delta = event.angleDelta()
+
+        is_ctrl_pressed = bool(modifiers & Qt.KeyboardModifier.ControlModifier)
+        is_shift_pressed = bool(modifiers & Qt.KeyboardModifier.ShiftModifier)
+
+        has_pixel_delta = not pixel_delta.isNull() and (
+            pixel_delta.x() != 0 or pixel_delta.y() != 0
+        )
+        has_horiz_angle = angle_delta.x() != 0
+
+        if is_ctrl_pressed:
+            # Ctrl + Scroll / Wheel = Zoom centered at cursor
+            dy = pixel_delta.y() if has_pixel_delta else angle_delta.y()
+            if dy != 0:
+                factor = 1.15 if dy > 0 else (1 / 1.15)
+                self._apply_zoom(factor, event.position())
+        elif has_pixel_delta or has_horiz_angle or is_shift_pressed:
+            # Trackpad 2-finger scroll or Shift+Wheel = Pan canvas
+            if has_pixel_delta:
+                dx = pixel_delta.x()
+                dy = pixel_delta.y()
+            elif is_shift_pressed:
+                dx = angle_delta.y() / 4.0
+                dy = 0.0
+            else:
+                dx = angle_delta.x() / 4.0
+                dy = angle_delta.y() / 4.0
+
+            self.offset += QPointF(dx, dy)
+            for node in self.nodes.values():
+                node.update_position()
+            self.update()
+        else:
+            # Traditional physical mouse wheel notch scroll
+            dy = angle_delta.y()
+            if dy != 0:
+                if abs(dy) >= 120:
+                    factor = 1.1 if dy > 0 else (1 / 1.1)
+                    self._apply_zoom(factor, event.position())
+                else:
+                    self.offset += QPointF(0, dy / 2.0)
+                    for node in self.nodes.values():
+                        node.update_position()
+                    self.update()
 
     def dragEnterEvent(self, event):
         if event.mimeData().hasText():

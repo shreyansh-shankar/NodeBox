@@ -68,212 +68,110 @@ class PerformanceMonitor(QWidget):
         self.start_monitoring()
 
     def init_ui(self):
-        self.setStyleSheet("background-color: #252526;")
+        self.setStyleSheet("background-color: #0A0C10; color: #F0F2F8;")
 
         layout = QVBoxLayout()
-        layout.setContentsMargins(24, 24, 24, 24)
-        layout.setSpacing(16)
+        layout.setContentsMargins(28, 28, 28, 28)
+        layout.setSpacing(20)
 
         title = QLabel("Performance Monitor")
-        title.setFont(QFont("Segoe UI", 28, QFont.Weight.Bold))
-        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        title.setStyleSheet("color: #ffffff; margin-bottom: 8px;")
+        title.setFont(QFont("Poppins", 20, QFont.Weight.Bold))
+        title.setStyleSheet("color: #F0F2F8; background: transparent;")
         layout.addWidget(title)
 
-        subtitle = QLabel("System and NodeBox Performance Metrics")
-        subtitle.setFont(QFont("Segoe UI", 13))
-        subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        subtitle.setStyleSheet("color: #a0a0a0; margin-bottom: 16px;")
+        subtitle = QLabel("Live System and Workflow Resource Telemetry")
+        subtitle.setFont(QFont("Poppins", 11))
+        subtitle.setStyleSheet("color: #4A5578; margin-bottom: 4px;")
         layout.addWidget(subtitle)
 
         controls_layout = QHBoxLayout()
-        controls_layout.setSpacing(12)
+        controls_layout.setSpacing(14)
 
-        self.start_button = QPushButton("  Start Monitoring")
+        self.start_button = QPushButton("Start Monitoring")
         self.start_button.clicked.connect(self.start_monitoring)
-        self.start_button.setFont(QFont("Segoe UI", 12))
-        self.start_button.setMinimumHeight(44)
+        self.start_button.setFont(QFont("Poppins", 10, QFont.Weight.DemiBold))
+        self.start_button.setMinimumHeight(38)
         self.start_button.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.start_button.setStyleSheet(
-            """
+        self.start_button.setStyleSheet("""
             QPushButton {
-                padding: 12px 24px;
-                background-color: #0e639c;
+                padding: 6px 20px;
+                background-color: #6366F1;
                 color: white;
                 border: none;
-                border-radius: 6px;
-                font-weight: 600;
-                text-align: left;
+                border-radius: 8px;
             }
-            QPushButton:hover {
-                background-color: #1177bb;
-            }
-            QPushButton:pressed {
-                background-color: #0d5a8f;
-            }
-            QPushButton:disabled {
-                background-color: #3e3e42;
-                color: #888888;
-            }
-        """
-        )
+            QPushButton:hover { background-color: #5153D6; }
+            QPushButton:disabled { background-color: #161922; color: #2C3352; }
+        """)
         controls_layout.addWidget(self.start_button)
 
-        self.stop_button = QPushButton("  Stop Monitoring")
+        self.stop_button = QPushButton("Stop Monitoring")
         self.stop_button.clicked.connect(self.stop_monitoring)
-        self.stop_button.setFont(QFont("Segoe UI", 12))
-        self.stop_button.setMinimumHeight(44)
+        self.stop_button.setFont(QFont("Poppins", 10, QFont.Weight.DemiBold))
+        self.stop_button.setMinimumHeight(38)
         self.stop_button.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.stop_button.setStyleSheet(
-            """
+        self.stop_button.setStyleSheet("""
             QPushButton {
-                padding: 12px 24px;
-                background-color: #a74444;
+                padding: 6px 20px;
+                background-color: #EF4444;
                 color: white;
                 border: none;
-                border-radius: 6px;
-                font-weight: 600;
-                text-align: left;
+                border-radius: 8px;
             }
-            QPushButton:hover {
-                background-color: #c55555;
-            }
-            QPushButton:pressed {
-                background-color: #943a3a;
-            }
-            QPushButton:disabled {
-                background-color: #3e3e42;
-                color: #888888;
-            }
-        """
-        )
+            QPushButton:hover { background-color: #DC2626; }
+            QPushButton:disabled { background-color: #161922; color: #2C3352; }
+        """)
         controls_layout.addWidget(self.stop_button)
 
-        self.reset_button = QPushButton("  Reset Data")
+        self.reset_button = QPushButton("Reset Data")
         self.reset_button.clicked.connect(self.reset_metrics)
-        self.reset_button.setFont(QFont("Segoe UI", 12))
-        self.reset_button.setMinimumHeight(44)
+        self.reset_button.setFont(QFont("Poppins", 10, QFont.Weight.DemiBold))
+        self.reset_button.setMinimumHeight(38)
         self.reset_button.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.reset_button.setStyleSheet(
-            """
+        self.reset_button.setStyleSheet("""
             QPushButton {
-                padding: 12px 24px;
-                background-color: #0d7d3a;
-                color: white;
-                border: none;
-                border-radius: 6px;
-                font-weight: 600;
-                text-align: left;
+                padding: 6px 20px;
+                background-color: #161922;
+                color: #8892B0;
+                border: 1px solid #1E2538;
+                border-radius: 8px;
             }
             QPushButton:hover {
-                background-color: #0f9d4a;
+                background-color: #1C2235;
+                border-color: #6366F1;
+                color: #F0F2F8;
             }
-            QPushButton:pressed {
-                background-color: #0b6d32;
-            }
-        """
-        )
+        """)
         controls_layout.addWidget(self.reset_button)
 
         layout.addLayout(controls_layout)
 
         system_group = QGroupBox("System Metrics")
-        system_group.setFont(QFont("Segoe UI", 14, QFont.Weight.DemiBold))
-        system_group.setStyleSheet(
-            """
-            QGroupBox {
-                font-weight: bold;
-                border: 1px solid #3e3e42;
-                border-radius: 6px;
-                padding: 16px;
-                margin-top: 12px;
-                background-color: #1e1e1e;
-                color: #ffffff;
-            }
-            QGroupBox::title {
-                subcontrol-origin: margin;
-                left: 12px;
-                padding: 0 8px 0 8px;
-                color: #ffffff;
-            }
-        """
-        )
+        system_group.setFont(QFont("Poppins", 13, QFont.Weight.Bold))
         system_layout = QGridLayout()
-        system_layout.setSpacing(12)
-        system_layout.setContentsMargins(16, 20, 16, 16)
+        system_layout.setSpacing(14)
 
         self.cpu_label = QLabel("CPU Usage:")
-        self.cpu_label.setFont(QFont("Segoe UI", 12))
-        self.cpu_label.setStyleSheet("color: #e0e0e0;")
+        self.cpu_label.setFont(QFont("Poppins", 11))
         self.cpu_progress = QProgressBar()
         self.cpu_progress.setRange(0, 100)
-        self.cpu_progress.setMinimumHeight(24)
-        self.cpu_progress.setStyleSheet(
-            """
-            QProgressBar {
-                border: 1px solid #3e3e42;
-                border-radius: 4px;
-                text-align: center;
-                background-color: #2d2d30;
-                color: #ffffff;
-                font-weight: 600;
-            }
-            QProgressBar::chunk {
-                background-color: #44ff44;
-                border-radius: 3px;
-            }
-        """
-        )
+        self.cpu_progress.setMinimumHeight(26)
         system_layout.addWidget(self.cpu_label, 0, 0)
         system_layout.addWidget(self.cpu_progress, 0, 1)
 
         self.memory_label = QLabel("Memory Usage:")
-        self.memory_label.setFont(QFont("Segoe UI", 12))
-        self.memory_label.setStyleSheet("color: #e0e0e0;")
+        self.memory_label.setFont(QFont("Poppins", 11))
         self.memory_progress = QProgressBar()
         self.memory_progress.setRange(0, 100)
-        self.memory_progress.setMinimumHeight(24)
-        self.memory_progress.setStyleSheet(
-            """
-            QProgressBar {
-                border: 1px solid #3e3e42;
-                border-radius: 4px;
-                text-align: center;
-                background-color: #2d2d30;
-                color: #ffffff;
-                font-weight: 600;
-            }
-            QProgressBar::chunk {
-                background-color: #44ff44;
-                border-radius: 3px;
-            }
-        """
-        )
+        self.memory_progress.setMinimumHeight(26)
         system_layout.addWidget(self.memory_label, 1, 0)
         system_layout.addWidget(self.memory_progress, 1, 1)
 
         self.disk_label = QLabel("Disk Usage:")
-        self.disk_label.setFont(QFont("Segoe UI", 12))
-        self.disk_label.setStyleSheet("color: #e0e0e0;")
+        self.disk_label.setFont(QFont("Poppins", 11))
         self.disk_progress = QProgressBar()
         self.disk_progress.setRange(0, 100)
-        self.disk_progress.setMinimumHeight(24)
-        self.disk_progress.setStyleSheet(
-            """
-            QProgressBar {
-                border: 1px solid #3e3e42;
-                border-radius: 4px;
-                text-align: center;
-                background-color: #2d2d30;
-                color: #ffffff;
-                font-weight: 600;
-            }
-            QProgressBar::chunk {
-                background-color: #44ff44;
-                border-radius: 3px;
-            }
-        """
-        )
+        self.disk_progress.setMinimumHeight(26)
         system_layout.addWidget(self.disk_label, 2, 0)
         system_layout.addWidget(self.disk_progress, 2, 1)
 
@@ -281,123 +179,48 @@ class PerformanceMonitor(QWidget):
         layout.addWidget(system_group)
 
         nodebox_group = QGroupBox("NodeBox Metrics")
-        nodebox_group.setFont(QFont("Segoe UI", 14, QFont.Weight.DemiBold))
-        nodebox_group.setStyleSheet(
-            """
-            QGroupBox {
-                font-weight: bold;
-                border: 1px solid #3e3e42;
-                border-radius: 6px;
-                padding: 16px;
-                margin-top: 12px;
-                background-color: #1e1e1e;
-                color: #ffffff;
-            }
-            QGroupBox::title {
-                subcontrol-origin: margin;
-                left: 12px;
-                padding: 0 8px 0 8px;
-                color: #ffffff;
-            }
-        """
-        )
+        nodebox_group.setFont(QFont("Poppins", 13, QFont.Weight.Bold))
         nodebox_layout = QGridLayout()
-        nodebox_layout.setSpacing(12)
-        nodebox_layout.setContentsMargins(16, 20, 16, 16)
+        nodebox_layout.setSpacing(14)
 
         self.active_nodes_label = QLabel("Active Nodes: 0")
-        self.active_nodes_label.setFont(QFont("Segoe UI", 12))
-        self.active_nodes_label.setStyleSheet("color: #e0e0e0; padding: 8px;")
+        self.active_nodes_label.setFont(QFont("Poppins", 11))
         nodebox_layout.addWidget(self.active_nodes_label, 0, 0)
 
         self.total_nodes_label = QLabel("Total Nodes: 0")
-        self.total_nodes_label.setFont(QFont("Segoe UI", 12))
-        self.total_nodes_label.setStyleSheet("color: #e0e0e0; padding: 8px;")
+        self.total_nodes_label.setFont(QFont("Poppins", 11))
         nodebox_layout.addWidget(self.total_nodes_label, 0, 1)
 
         self.workflows_label = QLabel("Running Workflows: 0")
-        self.workflows_label.setFont(QFont("Segoe UI", 12))
-        self.workflows_label.setStyleSheet("color: #e0e0e0; padding: 8px;")
+        self.workflows_label.setFont(QFont("Poppins", 11))
         nodebox_layout.addWidget(self.workflows_label, 1, 0)
 
         self.execution_time_label = QLabel("Avg Execution Time: 0.0s")
-        self.execution_time_label.setFont(QFont("Segoe UI", 12))
-        self.execution_time_label.setStyleSheet("color: #e0e0e0; padding: 8px;")
+        self.execution_time_label.setFont(QFont("Poppins", 11))
         nodebox_layout.addWidget(self.execution_time_label, 1, 1)
 
         self.error_count_label = QLabel("Errors: 0")
-        self.error_count_label.setFont(QFont("Segoe UI", 12))
-        self.error_count_label.setStyleSheet("color: #e0e0e0; padding: 8px;")
+        self.error_count_label.setFont(QFont("Poppins", 11))
         nodebox_layout.addWidget(self.error_count_label, 2, 0)
 
         nodebox_group.setLayout(nodebox_layout)
         layout.addWidget(nodebox_group)
 
         history_group = QGroupBox("Performance History")
-        history_group.setFont(QFont("Segoe UI", 14, QFont.Weight.DemiBold))
-        history_group.setStyleSheet(
-            """
-            QGroupBox {
-                font-weight: bold;
-                border: 1px solid #3e3e42;
-                border-radius: 6px;
-                padding: 16px;
-                margin-top: 12px;
-                background-color: #1e1e1e;
-                color: #ffffff;
-            }
-            QGroupBox::title {
-                subcontrol-origin: margin;
-                left: 12px;
-                padding: 0 8px 0 8px;
-                color: #ffffff;
-            }
-        """
-        )
+        history_group.setFont(QFont("Poppins", 13, QFont.Weight.Bold))
         history_layout = QVBoxLayout()
-        history_layout.setContentsMargins(16, 20, 16, 16)
 
         self.history_table = QTableWidget()
         self.history_table.setColumnCount(6)
         self.history_table.setHorizontalHeaderLabels(
             ["Time", "CPU %", "Memory %", "Disk %", "Active Nodes", "Errors"]
         )
-        self.history_table.setFont(QFont("Segoe UI", 11))
-        self.history_table.setMinimumHeight(300)
+        self.history_table.setFont(QFont("Poppins", 10))
+        self.history_table.setMinimumHeight(260)
         self.history_table.setAlternatingRowColors(True)
         self.history_table.horizontalHeader().setStretchLastSection(True)
-        self.history_table.setStyleSheet(
-            """
-            QTableWidget {
-                border: 1px solid #3e3e42;
-                border-radius: 6px;
-                background-color: #2d2d30;
-                color: #e0e0e0;
-                gridline-color: #3e3e42;
-                selection-background-color: #0e639c;
-                alternate-background-color: #252526;
-            }
-            QTableWidget::item {
-                padding: 10px;
-                border-bottom: 1px solid #3e3e42;
-                min-height: 20px;
-            }
-            QTableWidget::item:selected {
-                background-color: #0e639c;
-                color: #ffffff;
-            }
-            QHeaderView::section {
-                background-color: #2d2d30;
-                color: #ffffff;
-                padding: 10px;
-                border: 1px solid #3e3e42;
-                font-weight: 600;
-                min-height: 25px;
-            }
-        """
-        )
-        history_layout.addWidget(self.history_table)
 
+        history_layout.addWidget(self.history_table)
         history_group.setLayout(history_layout)
         layout.addWidget(history_group, 1)
 
@@ -497,24 +320,29 @@ class PerformanceMonitor(QWidget):
         self.update_progress_colors()
 
     def update_progress_colors(self):
-        color = "#44ff44"
-        if self.metrics.cpu_usage > 80:
-            color = "#ff4444"
-        elif self.metrics.cpu_usage > 60:
-            color = "#ffaa44"
+        cpu = self.metrics.cpu_usage
+        if cpu > 80:
+            color = "#EF4444"
+        elif cpu > 60:
+            color = "#F59E0B"
+        else:
+            color = "#10B981"
 
         style = f"""
             QProgressBar {{
-                border: 1px solid #3e3e42;
-                border-radius: 4px;
+                border: 1px solid #1E2538;
+                border-radius: 5px;
                 text-align: center;
-                background-color: #2d2d30;
-                color: #ffffff;
+                background-color: #111420;
+                color: #F0F2F8;
                 font-weight: 600;
+                min-height: 10px;
+                max-height: 10px;
             }}
             QProgressBar::chunk {{
-                background-color: {color};
-                border-radius: 3px;
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                    stop:0 {color}CC, stop:1 {color});
+                border-radius: 4px;
             }}
         """
         self.cpu_progress.setStyleSheet(style)

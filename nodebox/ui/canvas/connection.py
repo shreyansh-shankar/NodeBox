@@ -19,7 +19,7 @@ class BezierConnection:
             self.end_point = None
             self._finalized = True
 
-    def draw(self, painter):
+    def draw(self, painter: QPainter):
         if not self.start_port:
             return
 
@@ -36,7 +36,7 @@ class BezierConnection:
         end_f = QPointF(end_pos)
 
         path = QPainterPath(start_f)
-        dx = (end_f.x() - start_f.x()) * 0.5
+        dx = max(40.0, abs(end_f.x() - start_f.x()) * 0.5)
 
         c1 = QPointF(start_f.x() + dx, start_f.y())
         c2 = QPointF(end_f.x() - dx, end_f.y())
@@ -44,7 +44,20 @@ class BezierConnection:
         path.cubicTo(c1, c2, end_f)
 
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-        painter.setPen(QPen(QColor("#FFD700"), 2))
+
+        # Draw shadow line under wire
+        shadow_pen = QPen(QColor(0, 0, 0, 120), 5)
+        painter.setPen(shadow_pen)
+        painter.drawPath(path)
+
+        # Draw primary wire
+        if self._finalized:
+            wire_color = QColor("#6366F1")
+        else:
+            wire_color = QColor("#A5B4FC")
+
+        wire_pen = QPen(wire_color, 3)
+        painter.setPen(wire_pen)
         painter.drawPath(path)
 
     def get_port_pos(self, port):

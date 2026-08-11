@@ -10,25 +10,39 @@ class OutputConsole(QTextEdit):
         super().__init__(parent)
         self.setReadOnly(True)
         self.setFont(QFont("Consolas", 10))
-        self.setStyleSheet("background-color: #111; color: #EEE; border: none;")
+        self.setStyleSheet(
+            """
+            QTextEdit {
+                background-color: #0F1117;
+                color: #F9FAFB;
+                border: 1px solid #2E3444;
+                border-radius: 8px;
+                padding: 10px;
+            }
+        """
+        )
         self.log_signal.connect(self._append_log)
 
     def _append_log(self, message: str, msg_type: str = "info"):
         cursor = self.textCursor()
         cursor.movePosition(QTextCursor.MoveOperation.End)
         fmt = QTextCharFormat()
-        if msg_type == "error":
-            fmt.setForeground(QColor("#FF5555"))
-        else:
-            fmt.setForeground(QColor("#AAAAAA"))
 
+        fmt.setForeground(QColor("#6B7280"))
         timestamp = QDateTime.currentDateTime().toString("hh:mm:ss")
         cursor.insertText(f"[{timestamp}] ", fmt)
 
-        fmt.setForeground(
-            QColor("#FFFFFF") if msg_type == "info" else QColor("#FF8888")
-        )
-        cursor.insertText(message.strip() + "\n", fmt)
+        msg_str = message.strip()
+        if msg_type == "error" or "error" in msg_str.lower() or "[error]" in msg_str.lower():
+            fmt.setForeground(QColor("#EF4444"))
+        elif "success" in msg_str.lower() or "[ok]" in msg_str.lower() or "completed" in msg_str.lower():
+            fmt.setForeground(QColor("#10B981"))
+        elif "starting" in msg_str.lower():
+            fmt.setForeground(QColor("#818CF8"))
+        else:
+            fmt.setForeground(QColor("#E5E7EB"))
+
+        cursor.insertText(msg_str + "\n", fmt)
         self.setTextCursor(cursor)
         self.ensureCursorVisible()
 
