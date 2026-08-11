@@ -8,7 +8,6 @@ try:
 except ImportError:
     collect_data_files = None
 
-# Get the directory containing this spec file
 project_root = Path(os.path.abspath(SPECPATH))
 
 block_cipher = None
@@ -28,6 +27,16 @@ a = Analysis(
         'PyQt6.QtGui',
         'PyQt6.QtWidgets',
         'PyQt6.sip',
+        'nodebox',
+        'nodebox.core',
+        'nodebox.nodes',
+        'nodebox.nodes.builtin',
+        'nodebox.services',
+        'nodebox.ui',
+        'nodebox.ui.canvas',
+        'nodebox.ui.models',
+        'nodebox.ui.features',
+        'nodebox.data',
     ],
     hookspath=[],
     hooksconfig={},

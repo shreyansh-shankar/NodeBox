@@ -1,0 +1,57 @@
+from PyQt6.QtCore import QPointF
+from PyQt6.QtGui import QColor, QPainter, QPainterPath, QPen
+
+
+class BezierConnection:
+    def __init__(self, start_port, canvas):
+        self.start_port = start_port
+        self.end_port = None
+        self.canvas = canvas
+        self.end_point = None
+
+        self._finalized = False
+
+    def set_end_point(self, point):
+        self.end_point = point
+
+    def finalize(self):
+        if self.start_port and self.end_port:
+            self.end_point = None
+            self._finalized = True
+
+    def draw(self, painter):
+        if not self.start_port:
+            return
+
+        if self._finalized and self.end_port:
+            end_pos = self.end_port.mapTo(self.canvas, self.end_port.rect().center())
+        elif self.end_point:
+            end_pos = self.end_point
+        else:
+            return
+
+        start_pos = self.start_port.mapTo(self.canvas, self.start_port.rect().center())
+
+        start_f = QPointF(start_pos)
+        end_f = QPointF(end_pos)
+
+        path = QPainterPath(start_f)
+        dx = (end_f.x() - start_f.x()) * 0.5
+
+        c1 = QPointF(start_f.x() + dx, start_f.y())
+        c2 = QPointF(end_f.x() - dx, end_f.y())
+
+        path.cubicTo(c1, c2, end_f)
+
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        painter.setPen(QPen(QColor("#FFD700"), 2))
+        painter.drawPath(path)
+
+    def get_port_pos(self, port):
+        if port:
+            global_pos = port.mapTo(self.canvas, port.rect().center())
+            return QPointF(global_pos)
+        return None
+
+
+__all__ = ["BezierConnection"]

@@ -1,12 +1,11 @@
 import subprocess
 import sys
 
-from PyQt6.QtGui import QFontDatabase, QIcon  # type: ignore
-from PyQt6.QtWidgets import QApplication  # type: ignore
+from PyQt6.QtGui import QFontDatabase, QIcon
+from PyQt6.QtWidgets import QApplication
 
-from ui.enhanced_main_window import EnhancedMainWindow
-from utils.font_loader import load_custom_fonts, set_default_font
-from utils.paths import resource_path
+from nodebox.core import load_custom_fonts, resource_path, set_default_font
+from nodebox.ui import EnhancedMainWindow
 
 
 def start_ollama():
@@ -14,7 +13,7 @@ def start_ollama():
     try:
         return subprocess.Popen(
             ["ollama", "serve"],
-            stdout=subprocess.DEVNULL,  # Hide logs, or use sys.stdout to show them
+            stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
         )
     except FileNotFoundError:
@@ -23,31 +22,26 @@ def start_ollama():
 
 
 def main():
-    # Start Ollama first
     ollama_process = start_ollama()
 
     app = QApplication(sys.argv)
     app.setWindowIcon(QIcon(resource_path("assets/icons/favicon.png")))
 
-    # Load local Poppins font
     QFontDatabase.addApplicationFont(resource_path("assets/fonts/Poppins-Regular.ttf"))
     QFontDatabase.addApplicationFont(resource_path("assets/fonts/Poppins-Medium.ttf"))
     QFontDatabase.addApplicationFont(resource_path("assets/fonts/Poppins-SemiBold.ttf"))
 
-    # 2. Apply dark stylesheet
     qss_file = resource_path("qss/dark.qss")
     with open(qss_file, "r") as file:
         app.setStyleSheet(file.read())
 
-    # Load fonts and set default
     load_custom_fonts()
-    set_default_font(10)  # Default size
+    set_default_font(10)
 
     window = EnhancedMainWindow()
     window.show()
     exit_code = app.exec()
 
-    # Cleanup after Qt loop finishes
     if ollama_process:
         ollama_process.terminate()
         try:

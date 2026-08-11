@@ -1,21 +1,3 @@
-from PyQt6.QtCore import QObject, pyqtSignal
+from nodebox.core.bus import PerformanceEventBus, get_performance_bus
 
-
-class PerformanceEventBus(QObject):
-    """Singleton-like event bus to broadcast app performance metrics.
-
-    Carries aggregated NodeBox-specific metrics so UI components can subscribe
-    without tight coupling to execution code.
-    """
-
-    metrics_signal = pyqtSignal(dict)
-
-
-_instance = None
-
-
-def get_performance_bus() -> PerformanceEventBus:
-    global _instance
-    if _instance is None:
-        _instance = PerformanceEventBus()
-    return _instance
+__all__ = ["PerformanceEventBus", "get_performance_bus"]
